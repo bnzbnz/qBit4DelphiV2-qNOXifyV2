@@ -174,15 +174,10 @@ uses
     property HostPath: string read FHostPath;
     property Username: string read FUsername;
     property Password: string read FPassword;
-    //property Duration: cardinal read FDuration;
     property HTTPStatus: integer read FHTTPStatus;
     property HTTPResponse: string read FHTTPResponse;
     property HTTPDuration: cardinal read FHTTPDuration;
-    //property HTTPConnectionTimeout: integer read FHTTPConnectionTimeout write FHTTPConnectionTimeout;
-    //property HTTPSendTimeout: integer read FHTTPSendTimeout write FHTTPSendTimeout;
-    //property HTTPResponseTimeout: integer read FHTTPResponseTimeout write FHTTPResponseTimeout;
     property HTTPRetries: integer read FHTTPRetries write FHTTPRetries;
-    //property HTTPCompression: boolean read FHTTPCompression write FHTTPCompression;
   end;
 
 implementation

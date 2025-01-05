@@ -450,9 +450,11 @@ begin
   Result := nil;
   var Body := Format('rid=%d', [ Rid ]);
   if  qBPost('/sync/maindata', Body) = 200 then
+  begin
     Result :=TJX4Object.FromJSON<TqBitMainDataType>(Body, []);
-  // Custom Fields
-  for var LEle in Result.torrents do LEle.Value.hash := LEle.Key;
+    // Custom Fields
+    for var LEle in Result.torrents do LEle.Value.hash := LEle.Key;
+  end;
 end;
 
 function TqBitAPI.GetTorrentPeersData(Hash: string;
