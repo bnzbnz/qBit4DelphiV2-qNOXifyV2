@@ -40,7 +40,7 @@ type
 
   TqBitBuildInfoType = class(TJX4Object)
     bitness : TValue; // Num
-    Fboost : TValue; // Str
+    boost : TValue; // Str
     libtorrent : TValue; // Str
     openssl : TValue; // Str
     qt : TValue; // Str

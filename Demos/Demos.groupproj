@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{487E9941-4CD1-49C4-8FF5-8E24C82CEE16}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="01 - Simple\Simple.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="02 - SimpleThreaded\SimpleThreaded.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="03 - FMXReport\FMXReport.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Simple">
+        <MSBuild Projects="01 - Simple\Simple.dproj"/>
+    </Target>
+    <Target Name="Simple:Clean">
+        <MSBuild Projects="01 - Simple\Simple.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Simple:Make">
+        <MSBuild Projects="01 - Simple\Simple.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="SimpleThreaded">
+        <MSBuild Projects="02 - SimpleThreaded\SimpleThreaded.dproj"/>
+    </Target>
+    <Target Name="SimpleThreaded:Clean">
+        <MSBuild Projects="02 - SimpleThreaded\SimpleThreaded.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SimpleThreaded:Make">
+        <MSBuild Projects="02 - SimpleThreaded\SimpleThreaded.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="FMXReport">
+        <MSBuild Projects="03 - FMXReport\FMXReport.dproj"/>
+    </Target>
+    <Target Name="FMXReport:Clean">
+        <MSBuild Projects="03 - FMXReport\FMXReport.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="FMXReport:Make">
+        <MSBuild Projects="03 - FMXReport\FMXReport.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Simple;SimpleThreaded;FMXReport"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Simple:Clean;SimpleThreaded:Clean;FMXReport:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Simple:Make;SimpleThreaded:Make;FMXReport:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>
