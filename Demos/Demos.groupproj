@@ -12,6 +12,9 @@
         <Projects Include="03 - FMXReport\FMXReport.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="05 - TorrentReaderDemo\TorrentReader.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -47,14 +50,23 @@
     <Target Name="FMXReport:Make">
         <MSBuild Projects="03 - FMXReport\FMXReport.dproj" Targets="Make"/>
     </Target>
+    <Target Name="TorrentReader">
+        <MSBuild Projects="05 - TorrentReaderDemo\TorrentReader.dproj"/>
+    </Target>
+    <Target Name="TorrentReader:Clean">
+        <MSBuild Projects="05 - TorrentReaderDemo\TorrentReader.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="TorrentReader:Make">
+        <MSBuild Projects="05 - TorrentReaderDemo\TorrentReader.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="Simple;SimpleThreaded;FMXReport"/>
+        <CallTarget Targets="Simple;SimpleThreaded;FMXReport;TorrentReader"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Simple:Clean;SimpleThreaded:Clean;FMXReport:Clean"/>
+        <CallTarget Targets="Simple:Clean;SimpleThreaded:Clean;FMXReport:Clean;TorrentReader:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Simple:Make;SimpleThreaded:Make;FMXReport:Make"/>
+        <CallTarget Targets="Simple:Make;SimpleThreaded:Make;FMXReport:Make;TorrentReader:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
