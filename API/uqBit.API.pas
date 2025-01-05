@@ -212,6 +212,35 @@ type
         // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#rename-folder
     function RenameFolder(Hash, OldPath, NewPath: string): boolean; virtual;
 
+
+  // RSS : EXPERIMENTAL & Not Tested
+        // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#add-folder
+    function RSSAddFolder(Path: string): boolean; virtual;
+        // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#add-feed
+    function RSSAddFeed(Url, Path: string): boolean; virtual;
+        // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#remove-item
+    function RSSRemoveItem(Path: string): boolean; virtual;
+        // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#move-item
+    function RSSMoveItem(ItemPath, DestPath: string): boolean; virtual;
+        // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-all-items
+    function RSSGetAllItems(WithData: boolean): TqBitRSSAllItemsType; virtual;
+        // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#mark-as-read
+    function RSSMarkAsRead(ItemPath, ArticleId: string): boolean; virtual;
+        // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#refresh-item
+    function RSSRefreshItem(ItemPath: string): boolean; virtual;
+        // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#set-auto-downloading-rule
+    function RSSSetAutoDownloadingRules(RuleName: string; RuleDef: TqBitRSSRuleType): boolean; virtual;
+        // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#rename-auto-downloading-rule
+    function RSSRenameAutoDownloadingRules(RuleName, NewRuleName: string): boolean; virtual;
+        // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#remove-auto-downloading-rule
+    function RSSRemoveAutoDownloadingRules(RuleName: string): boolean; virtual;
+        // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-all-auto-downloading-rules
+    function RSSGetAllAutoDownloadingRules: TqBitAutoDownloadingRulesType; virtual;
+        // https://github.com/qbittorrent/qBittorrent/wiki/WebUI-API-(qBittorrent-4.1)#get-all-articles-matching-a-rule
+    function RSSGetMatchingArticles(RuleName: string): TqBitRSSArticlesType; virtual;
+
+  // Search : will be implemented if requested.
+
   end;
 
 implementation
@@ -1075,6 +1104,87 @@ function TqBitAPI.RenameFolder(Hash, OldPath, NewPath: string): boolean;
 begin
   var Body := Format('hash=%s&origUrl=%s&newUrl=%s', [Hash, URLEncode(OldPath), URLEncode(NewPath)]);
   Result := qBPost('/torrents/renameFolder', Body) = 200;
+end;
+
+function TqBitAPI.RSSAddFolder(Path: string): boolean;
+begin
+  var Body := Format('path=%s', [URLEncode(Path)]);
+  Result := qBPost('/rss/addFolder', Body) = 200;
+end;
+
+function TqBitAPI.RSSAddFeed(Url, Path: string): boolean;
+begin
+  var Body := Format('url=%s&path=%s', [URLEncode(Url), URLEncode(Path)]);
+  Result := qBPost('/rss/addFeed', Body) = 200;
+end;
+
+function TqBitAPI.RSSRemoveItem(Path: string): boolean;
+begin
+  var Body := Format('path=%s', [URLEncode(Path)]);
+  Result := qBPost('/rss/removeItem', Body) = 200;
+end;
+
+function TqBitAPI.RSSMoveItem(ItemPath, DestPath: string): boolean;
+begin
+  var Body := Format('itemPath=%s&destPath=%s', [URLEncode(ItemPath), URLEncode(DestPath)]);
+  Result := qBPost('/rss/moveItem', Body) = 200;
+end;
+
+function TqBitAPI.RSSGetAllItems(WithData: boolean): TqBitRSSAllItemsType;
+begin
+  Result := nil;
+  var Body :=   Format('withData=%s', [URLEncode(cBoolToStr[WithData])]);
+  if (qBPost('/rss/items', Body) = 200) and (Body <> '')  then
+    Result := TJX4Object.FromJSON<TqBitRSSAllItemsType>('{"items":' + Body + '}', []);
+end;
+
+function TqBitAPI.RSSMarkAsRead(ItemPath, ArticleId: string): boolean;
+begin
+  var Body := Format('itemPath=%s&articleId=%s', [URLEncode(ItemPath), URLEncode(ArticleId)]);
+  Result := qBPost('/rss/markAsRead', Body) = 200;
+end;
+
+function TqBitAPI.RSSRefreshItem(ItemPath: string): boolean;
+begin
+  var Body := Format('itemPath=%s', [URLEncode(ItemPath)]);
+  Result := qBPost('/rss/refreshItem', Body) = 200;
+end;
+
+function TqBitAPI.RSSSetAutoDownloadingRules(RuleName: string;
+  RuleDef: TqBitRSSRuleType): boolean;
+begin
+  var Body := Format('ruleName=%s&ruleDef={}', [URLEncode(RuleName)]);
+  if assigned(RuleDef) then
+    Body :=  Format('ruleName=%s&ruleDef=%s', [URLEncode(RuleName), URLEncode(RuleDef.ToJSON)]);
+  Result := qBPost('/rss/setRule', Body) = 200;
+end;
+
+function TqBitAPI.RSSRenameAutoDownloadingRules(RuleName, NewRuleName: string): boolean;
+begin
+  var Body := Format('ruleName=%s&newRuleName=%s', [URLEncode(RuleName), URLEncode(NewRuleName)]);
+  Result := qBPost('/rss/renameRule', Body) = 200;
+end;
+
+function TqBitAPI.RSSRemoveAutoDownloadingRules(RuleName: string): boolean;
+begin
+  var Body := Format('ruleName=%s', [URLEncode(RuleName)]);
+  Result := qBPost('/rss/removeRule', Body) = 200;
+end;
+
+function TqBitAPI.RSSGetAllAutoDownloadingRules: TqBitAutoDownloadingRulesType;
+begin
+  Result := nil;
+  var Body := '';
+  if (qBPost('/rss/rules', Body) = 200) and (Body <> '')  then
+    Result := TJX4Object.FromJSON<TqBitAutoDownloadingRulesType>('{"rules":' + Body + '}', []);
+end;
+
+function TqBitAPI.RSSGetMatchingArticles(RuleName: string): TqBitRSSArticlesType;
+begin
+  Result := nil;
+  var Body := Format('ruleName=%s', [URLEncode(RuleName)]);
+  if (qBPost('/rss/matchingArticles', Body) = 200) and (Body <> '')  then
+    Result := TJX4Object.FromJSON<TqBitRSSArticlesType>('{"articles":' + Body + '}', []);
 end;
 
 end.

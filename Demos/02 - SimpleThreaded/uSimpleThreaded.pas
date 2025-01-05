@@ -63,7 +63,7 @@ begin
       );
     end;
     while
-      (GetTickCount - Tme < qBMainTh.server_state.refresh_interval.AsInteger)
+      (GetTickCount - Tme < qBMainTh.server_state.refresh_interval.AsInt64)
       and (not Terminated)
     do
       Sleep(100);
@@ -78,7 +78,7 @@ begin
     var Server := qBitSelectServerDlg.GetServer;
     Th := TqBitThread.Create(True);
     Th.qB := TqBit.Connect(Server.FHP, Server.FUN, Server.FPW);
-    TH.Resume;
+    TH.Start;
   end else Close;
 end;
 procedure TFrmSimpleThreaded.Disconnected(Sender: TqBitThread);

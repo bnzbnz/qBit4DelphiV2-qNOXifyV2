@@ -86,7 +86,6 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <DCC_ExeOutput>..\..\</DCC_ExeOutput>
         <DCC_MapFile>3</DCC_MapFile>
         <DCC_DcuOutput>..\..\Dcu\$(Platform)\$(Config)</DCC_DcuOutput>
     </PropertyGroup>

@@ -596,6 +596,56 @@ type
   TqBitTagsType = class(TJX4Object)
     tags: TJX4ValList; // Str
   end;
+  TqBitRSSArticleType = class(TJX4Object)
+    Fcategory: TValue;
+    Fdata: TValue;
+    Fdescription: TValue;
+    Fid: TValue;
+    Flink: TValue;
+    Ftitle: TValue;
+    FtorrentURL: TValue;
+  end;
+
+  TqBitRSSItemType = class(TJX4Object)
+    Farticles: TJX4List<TqBitRSSArticleType>;
+    FisLoading: TValue;
+    lastBuildDate: TValue;
+    Ftitle: TValue;
+    Fuid: TValue;
+    Furl: TValue;
+  end;
+
+  TqBitRSSAllItemsType = class(TJX4Object)
+    Fitems: TJX4Dic<TqBitRSSItemType>;
+  end;
+
+  TqBitRSSRuleType  = class(TJX4Object)
+    Fenabled: TValue;
+    FmustContain: TValue;
+    FmustNotContain: TValue;
+    FuseRegex: TValue;
+    FepisodeFilter: TValue;
+    FsmartFilter: TValue;
+    FpreviouslyMatchedEpisodes: TValue;
+    FaffectedFeeds: TJX4ValList;
+    FignoreDays: TValue;
+    FlastMatch : TValue;
+    FaddPaused: TValue;
+    FassignedCategory: TValue;
+    FsavePath: TValue;
+  end;
+
+  TqBitRSSAllRulesType = class(TJX4Object)
+    Frules: TJX4Dic<TqBitRSSRuleType>;
+  end;
+
+  TqBitAutoDownloadingRulesType = class(TJX4Object)
+    Frules: TJX4Dic<TqBitRSSRuleType>;
+  end;
+
+  TqBitRSSArticlesType = class(TJX4Object)
+    Farticles: TJX4Dic<TStringList>;
+  end;
 
 implementation
 
