@@ -12,6 +12,9 @@
         <Projects Include="03 - FMXReport\FMXReport.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="04 - NOXMon\NOXMon.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="05 - TorrentReaderDemo\TorrentReader.dproj">
             <Dependencies/>
         </Projects>
@@ -50,6 +53,15 @@
     <Target Name="FMXReport:Make">
         <MSBuild Projects="03 - FMXReport\FMXReport.dproj" Targets="Make"/>
     </Target>
+    <Target Name="NOXMon">
+        <MSBuild Projects="04 - NOXMon\NOXMon.dproj"/>
+    </Target>
+    <Target Name="NOXMon:Clean">
+        <MSBuild Projects="04 - NOXMon\NOXMon.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="NOXMon:Make">
+        <MSBuild Projects="04 - NOXMon\NOXMon.dproj" Targets="Make"/>
+    </Target>
     <Target Name="TorrentReader">
         <MSBuild Projects="05 - TorrentReaderDemo\TorrentReader.dproj"/>
     </Target>
@@ -60,13 +72,13 @@
         <MSBuild Projects="05 - TorrentReaderDemo\TorrentReader.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="Simple;SimpleThreaded;FMXReport;TorrentReader"/>
+        <CallTarget Targets="Simple;SimpleThreaded;FMXReport;NOXMon;TorrentReader"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Simple:Clean;SimpleThreaded:Clean;FMXReport:Clean;TorrentReader:Clean"/>
+        <CallTarget Targets="Simple:Clean;SimpleThreaded:Clean;FMXReport:Clean;NOXMon:Clean;TorrentReader:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Simple:Make;SimpleThreaded:Make;FMXReport:Make;TorrentReader:Make"/>
+        <CallTarget Targets="Simple:Make;SimpleThreaded:Make;FMXReport:Make;NOXMon:Make;TorrentReader:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
