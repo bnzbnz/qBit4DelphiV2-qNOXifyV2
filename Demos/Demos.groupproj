@@ -18,6 +18,9 @@
         <Projects Include="05 - TorrentReaderDemo\TorrentReader.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="06 - IP-API\IPAPIDemo.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -71,14 +74,23 @@
     <Target Name="TorrentReader:Make">
         <MSBuild Projects="05 - TorrentReaderDemo\TorrentReader.dproj" Targets="Make"/>
     </Target>
+    <Target Name="IPAPIDemo">
+        <MSBuild Projects="06 - IP-API\IPAPIDemo.dproj"/>
+    </Target>
+    <Target Name="IPAPIDemo:Clean">
+        <MSBuild Projects="06 - IP-API\IPAPIDemo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="IPAPIDemo:Make">
+        <MSBuild Projects="06 - IP-API\IPAPIDemo.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="Simple;SimpleThreaded;FMXReport;NOXMon;TorrentReader"/>
+        <CallTarget Targets="Simple;SimpleThreaded;FMXReport;NOXMon;TorrentReader;IPAPIDemo"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Simple:Clean;SimpleThreaded:Clean;FMXReport:Clean;NOXMon:Clean;TorrentReader:Clean"/>
+        <CallTarget Targets="Simple:Clean;SimpleThreaded:Clean;FMXReport:Clean;NOXMon:Clean;TorrentReader:Clean;IPAPIDemo:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Simple:Make;SimpleThreaded:Make;FMXReport:Make;NOXMon:Make;TorrentReader:Make"/>
+        <CallTarget Targets="Simple:Make;SimpleThreaded:Make;FMXReport:Make;NOXMon:Make;TorrentReader:Make;IPAPIDemo:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

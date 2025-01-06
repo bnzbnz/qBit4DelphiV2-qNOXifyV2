@@ -133,8 +133,9 @@ type
     class function  SaveToFile(const Filename: string; const AStr: string; AEncoding: TEncoding): Int64;
 
  end;
- TJX4Obj = TJX4Object;
-
+ TJX4Obj =  TJX4Object;
+ TJX4 =     TJX4Object;
+ 
 implementation
 uses
     TypInfo
