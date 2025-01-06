@@ -30,7 +30,7 @@ var
   FrmSimpleThreaded: TFrmSimpleThreaded;
 implementation
 {$R *.dfm}
-uses uqBitSelectServerDlg;
+uses uqBitSelectServerDlg, uJX4Object;
 { TqBitThread }
 destructor TqBitThread.Destroy;
 begin
@@ -107,6 +107,9 @@ begin
   LBTorrents.Clear;
   for var T in qBMAin.torrents do
       LBTorrents.Items.Add( TqBitTorrentType(T.Value).name.AsString
-          + ' / ' + TqBitTorrentType(T.Value).state.AsString);
+          + ' / ' + TqBitTorrentType(T.Value).state.AsString
+          + ' / ' + TqBitTorrentType(T.Value).progress.Per100(2));
+
 end;
+
 end.
