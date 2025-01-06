@@ -133,9 +133,10 @@ type
     class function  SaveToFile(const Filename: string; const AStr: string; AEncoding: TEncoding): Int64;
 
  end;
- TJX4Obj =  TJX4Object;
- TJX4 =     TJX4Object;
- 
+ TJX4Obj = TJX4Object;
+ TJX4    = TJX4Object;
+
+
 implementation
 uses
     TypInfo
@@ -259,6 +260,16 @@ var
 begin
   Result := TValue.Empty;
 
+  case Self.Kind of
+    tkChar, tkString, tkWChar, tkLString, tkWString, tkUString:
+      LValue := '"' + TJX4Object.EscapeJSONStr(Self.AsString) + '"';
+    tkEnumeration: LValue := cBoolToStr[Self.AsBoolean];
+    tkInteger, tkInt64: LValue := Self.AsInt64.ToString;
+    tkFloat:  LValue := Self.AsExtended.ToString;
+  else
+    if joNullToEmpty in AIOBlock.Options then Exit;
+  end;
+
   if Assigned(AIOBlock.Field) then
   begin
     LName := AIOBlock.Field.Name;
@@ -267,16 +278,6 @@ begin
   end else
     LName := AIOBlock.FieldName;
   LName := TJX4Object.NameDecode(LName);
-
-  case Self.Kind of
-    tkChar, tkString, tkWChar, tkLString, tkWString, tkUString:
-      LValue := '"' + TJX4Object.EscapeJSONStr(Self.AsString) + '"';
-    tkEnumeration: LValue := cBoolToStr[Self.AsBoolean];
-    tkInteger, tkInt64: LValue := Self.AsInt64.ToString;
-    tkFloat:  LValue := Self.AsExtended.ToString;
-  else
-    Self := Nil;
-  end;
 
   if Self.IsEmpty then
   begin
