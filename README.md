@@ -6,9 +6,10 @@ Ani API to drive any qBittorent/NOX server form Delphi (100% Pure Pascal); It is
 
 How to install
 --------------
-1. Clone qBid4DelphiX2 own repository, you will be able too run any of the Demo's folder.
-2. To use it in your own app :Copy the units from the API  nd API/uJsonX4 folder to your delphi project forlder;
-
+1. Clone qBid4DelphiX2 own repository (JsonX4 units are included), you will be able too run any of the Demos.
+2. To use it in your own app : Copy the units from the API and API/uJsonX4 folder to your delphi project folder;
+3. Please note, that you need to enable the WebUI in your qBittorrent/NOX.
+   
 List of Calls:
 --------------
 
