@@ -469,16 +469,17 @@ type
   end;
 
  TqBitTorrentListRequestType = class(TJX4Object)
-    filter: TValue; // Str
-    category: TValue; // Str
-    tag: TValue; // Str
-    sort: TValue; // Str
-    reverse: TValue; // Bool
-    limit: TValue; // Num
-    offset: TValue; // Num
-    hashes: TValue; // Str
+    filter: string; // Str
+    category: string; // Str
+    tag: string; // Str
+    sort: string; // Str
+    reverse: Boolean; // Bool
+    limit: Integer; // Num
+    offset: Integer; // Num
+    hashes: TStringList; // Str
+    constructor Create;
+    destructor Destroy;
   end;
-
 
   TqBitTorrentInfoType = class(TJX4Object)
     comment: TValue; // Str
@@ -559,9 +560,10 @@ type
     cookie: TValue; // Str
     rename: TValue; // Str
     category: TValue; // Str
-    paused: TValue; // Bool
+    stopped: TValue; // Bool
     skip_Checking: TValue; // Bool
     contentLayout: TValue; // Str
+    stopCondition: TValue; // Str
     sequentialDownload: TValue; // Bool
     firstLastPiecePrio: TValue; // Bool
     upLimit: TValue;
@@ -576,13 +578,17 @@ type
     savePath : TValue; // Str
     rename: TValue; // Str
     category: TValue; // Str
-    paused: TValue; // Bool
+    stopped: TValue; // Bool
+    addToTopOfQueue: TValue; // Bool
+    stopCondition: TValue; //Str
     skip_Checking: TValue; // Bool
     contentLayout: TValue; // Str
     sequentialDownload: TValue; // Bool
     firstLastPiecePrio: TValue; // Bool
     upLimit: TValue;
     dlLimit: TValue;
+    constructor Create; overload;
+    destructor Destroy; override;
   end;
 
   TqBitTorrentSpeedsLimitType = class(TJX4Object)
@@ -649,6 +655,21 @@ type
 
 implementation
 
+constructor TqBitTorrentListRequestType.Create;
+begin
+  inherited;
+  Hashes := TStringList.Create;
+  Hashes.StrictDelimiter := True;
+  Hashes.QuoteChar := #0;
+  Hashes.Delimiter:='|';
+end;
+
+destructor TqBitTorrentListRequestType.Destroy;
+begin
+  Hashes.Free;
+  inherited;
+end;
+
 constructor TqBitNewTorrentUrlsType.Create;
 begin
   inherited;
@@ -656,11 +677,26 @@ begin
   upLimit := -1;
   dlLimit := -1;
   contentLayout := 'Original';
+  stopCondition := 'None';
 end;
 
 destructor TqBitNewTorrentUrlsType.Destroy;
 begin
   urls.Free;
+  inherited;
+end;
+
+constructor TqBitNewTorrentFileType.Create;
+begin
+  inherited;
+  upLimit := -1;
+  dlLimit := -1;
+  contentLayout := 'Original';
+  stopCondition := 'None';
+end;
+
+destructor TqBitNewTorrentFileType.Destroy;
+begin
   inherited;
 end;
 

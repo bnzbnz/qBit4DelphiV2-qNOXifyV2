@@ -557,14 +557,14 @@ var
 begin
   Result := nil;
   Lsl := TStringList.Create(#0, '&', [soStrictDelimiter]);
-  if not TorrentListRequest.filter.IsEmpty then Lsl.Add('filter=' + URLEncode(TorrentListRequest.filter.AsString));
-  if not TorrentListRequest.category.IsEmpty then Lsl.Add('category=' + URLEncode(TorrentListRequest.category.AsString));
-  if not TorrentListRequest.tag.IsEmpty then Lsl.Add('tag=' + URLEncode(TorrentListRequest.tag.AsString));
-  if not TorrentListRequest.sort.IsEmpty then Lsl.Add('sort=' + URLEncode(TorrentListRequest.sort.AsString));
-  if not TorrentListRequest.reverse.IsEmpty then Lsl.Add('reverse=' + URLEncode(cBoolToStr[TorrentListRequest.reverse.AsBoolean]));
-  if not TorrentListRequest.limit.IsEmpty then Lsl.Add('limit=' + URLEncode(TorrentListRequest.limit.AsString));
-  if not TorrentListRequest.offset.IsEmpty then Lsl.Add('offset=' + URLEncode(TorrentListRequest.offset.AsString));
-  if not TorrentListRequest.hashes.IsEmpty then Lsl.Add('hashes=' + URLEncode(TorrentListRequest.hashes.AsString));
+  if not TorrentListRequest.filter.IsEmpty then Lsl.Add('filter=' + URLEncode(TorrentListRequest.filter));
+  if not TorrentListRequest.category.IsEmpty then Lsl.Add('category=' + URLEncode(TorrentListRequest.category));
+  if not TorrentListRequest.tag.IsEmpty then Lsl.Add('tag=' + URLEncode(TorrentListRequest.tag));
+  if not TorrentListRequest.sort.IsEmpty then Lsl.Add('sort=' + URLEncode(TorrentListRequest.sort));
+  if TorrentListRequest.reverse then Lsl.Add('reverse=' + URLEncode(cBoolToStr[TorrentListRequest.reverse]));
+  if TorrentListRequest.limit > 0 then Lsl.Add('limit=' + URLEncode(TorrentListRequest.limit.ToString));
+  if TorrentListRequest.offset > 0 then Lsl.Add('offset=' + URLEncode(TorrentListRequest.offset.ToString));
+  if not TorrentListRequest.hashes.IsEmpty then Lsl.Add('hashes=' + URLEncode(TorrentListRequest.hashes.DelimitedText));
   var Body := Lsl.DelimitedText;
   if (qBGet('/torrents/info', Body) = 200) and (Body <> '')  then
     Result := TJX4Object.FromJSON<TqBitTorrentsListType>('{"torrents":' + Body + '}', []);
@@ -715,7 +715,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(cBoolToStr[NewTorrentUrls.paused.AsBoolean]);
+    SS.WriteString(cBoolToStr[NewTorrentUrls.stopped.AsBoolean]);
     SS.WriteString(#$D#$A);
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
@@ -802,6 +802,7 @@ begin
     var FileStream := TFileStream.Create(NewTorrentFile.filename.AsString, fmOpenRead or fmShareDenyWrite);
     SS.CopyFrom(FileStream, FileStream.Size);
     FileStream.Free;
+
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
     SS.WriteString('Content-Disposition: form-data; name="autoTMM"');
@@ -810,6 +811,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString(cBoolToStr[NewTorrentFile.autoTMM.AsBoolean]);
     SS.WriteString(#$D#$A);
+
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
     SS.WriteString('Content-Disposition: form-data; name="savepath"');
@@ -818,6 +820,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString(NewTorrentFile.savepath.AsString);
     SS.WriteString(#$D#$A);
+
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
     SS.WriteString('Content-Disposition: form-data; name="rename"');
@@ -826,6 +829,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString(NewTorrentFile.rename.AsString);
     SS.WriteString(#$D#$A);
+
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
     SS.WriteString('Content-Disposition: form-data; name="category"');
@@ -834,14 +838,34 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString(NewTorrentFile.category.AsString);
     SS.WriteString(#$D#$A);
+
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
-    SS.WriteString('Content-Disposition: form-data; name="paused"');
+    SS.WriteString('Content-Disposition: form-data; name="stopped"');
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    SS.WriteString(cBoolToStr[NewTorrentFile.paused.AsBoolean]);
+    SS.WriteString(cBoolToStr[NewTorrentFile.stopped.AsBoolean]);
     SS.WriteString(#$D#$A);
+
+    SS.WriteString('--' + Boundary);
+    SS.WriteString(#$D#$A);
+    SS.WriteString('Content-Disposition: form-data; name="addToTopOfQueue"');
+    SS.WriteString(#$D#$A);
+    SS.WriteString('');
+    SS.WriteString(#$D#$A);
+    SS.WriteString(cBoolToStr[NewTorrentFile.addToTopOfQueue.AsBoolean]);
+    SS.WriteString(#$D#$A);
+
+    SS.WriteString('--' + Boundary);
+    SS.WriteString(#$D#$A);
+    SS.WriteString('Content-Disposition: form-data; name="stopCondition"');
+    SS.WriteString(#$D#$A);
+    SS.WriteString('');
+    SS.WriteString(#$D#$A);
+    SS.WriteString(NewTorrentFile.stopCondition.AsString);
+    SS.WriteString(#$D#$A);
+
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
     SS.WriteString('Content-Disposition: form-data; name="skip_checking"');
@@ -850,6 +874,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString(cBoolToStr[NewTorrentFile.skip_Checking.AsBoolean]);
     SS.WriteString(#$D#$A);
+
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
     SS.WriteString('Content-Disposition: form-data; name="contentLayout"');
@@ -858,6 +883,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString((NewTorrentFile.contentLayout.AsString));
     SS.WriteString(#$D#$A);
+
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
     SS.WriteString('Content-Disposition: form-data; name="sequentialDownload"');
@@ -866,6 +892,7 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString(cBoolToStr[NewTorrentFile.sequentialDownload.AsBoolean]);
     SS.WriteString(#$D#$A);
+
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
     SS.WriteString('Content-Disposition: form-data; name="firstLastPiecePrio"');
@@ -874,22 +901,25 @@ begin
     SS.WriteString(#$D#$A);
     SS.WriteString(cBoolToStr[NewTorrentFile.firstLastPiecePrio.AsBoolean]);
     SS.WriteString(#$D#$A);
+
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
     SS.WriteString('Content-Disposition: form-data; name="dlLimit"');
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    if NewTorrentFile.dlLimit.AsInteger < 0 then SS.WriteString('NaN') else SS.WriteString(NewTorrentFile.dlLimit.AsString);
+    if NewTorrentFile.dlLimit.AsInteger < 0 then SS.WriteString('NaN') else SS.WriteString(NewTorrentFile.dlLimit.AsInteger.ToString);
     SS.WriteString(#$D#$A);
+
     SS.WriteString('--' + Boundary);
     SS.WriteString(#$D#$A);
     SS.WriteString('Content-Disposition: form-data; name="upLimit"');
     SS.WriteString(#$D#$A);
     SS.WriteString('');
     SS.WriteString(#$D#$A);
-    if NewTorrentFile.upLimit.AsInteger < 0 then SS.WriteString('NaN') else SS.WriteString(NewTorrentFile.upLimit.AsString);
+    if NewTorrentFile.upLimit.AsInteger < 0 then SS.WriteString('NaN') else SS.WriteString(NewTorrentFile.upLimit.AsInteger.ToString);
     SS.WriteString(#$D#$A);
+
     SS.WriteString('--' + Boundary+'--');
     SS.WriteString(#$D#$A);
     var Res := TStringStream.Create('', TEncoding.ASCII);

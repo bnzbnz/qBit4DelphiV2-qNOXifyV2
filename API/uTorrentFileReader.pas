@@ -68,7 +68,7 @@ type
     property BufferEndPtr: NativeUInt read FBufferEndPtr;
   end; 
   
-  TorrentFileOptions = set of (
+  TTorrentFileOptions = set of (
     trRaiseException,     // Will raise Exception on error (Default), silent otherwise will return nil on error
     trNoHash,             // Do Not Calculate Hashes (Default is False)
     trNoPiece             // Do not return torrent pieces/PieceLayers (Default is false)
@@ -100,7 +100,7 @@ type
     destructor Destroy; override;
   end;
 
-  TTorrentFileData = class(TObject)
+  TTTorrentFileData = class(TObject)
   public
     Announce: string;
     AnnouncesDict : TDictionary<Integer, TStringList>;
@@ -118,24 +118,24 @@ type
     destructor Destroy; override;
   end;
 
-  TorrentFile = class(TObject)
+  TTorrentFile = class(TObject)
   private
     FBe: TBEncoded;
-    FData: TTorrentFileData;
+    FData: TTTorrentFileData;
     FProcessingTimeMS: UInt64;
     function GetSHA1(Enc: TBEncoded): string;
     function GetSHA2(Enc: TBEncoded): string;
-    procedure Parse(Be: TBEncoded; Options: TorrentFileOptions);
+    procedure Parse(Be: TBEncoded; Options: TTorrentFileOptions);
   public
-    class function FromBufferPtr(BufferPtr, BufferEndPtr: PAnsiChar; Options: TorrentFileOptions = [trRaiseException]): TorrentFile;
-    class function FromMemoryStream(MemStream: TMemoryStream; Options: TorrentFileOptions = [trRaiseException]): TorrentFile;
-    class function FromFile(Filename: string; Options: TorrentFileOptions = [trRaiseException]): TorrentFile;
-    class function FromAnsiString(var AnsiStr: AnsiString; Options: TorrentFileOptions = [trRaiseException]): TorrentFile;
+    class function FromBufferPtr(BufferPtr, BufferEndPtr: PAnsiChar; Options: TTorrentFileOptions = [trRaiseException]): TTorrentFile;
+    class function FromMemoryStream(MemStream: TMemoryStream; Options: TTorrentFileOptions = [trRaiseException]): TTorrentFile;
+    class function FromFile(Filename: string; Options: TTorrentFileOptions = [trRaiseException]): TTorrentFile;
+    class function FromAnsiString(var AnsiStr: AnsiString; Options: TTorrentFileOptions = [trRaiseException]): TTorrentFile;
 
     constructor Create; overload;
     destructor Destroy; override;
     property BEncoded: TBEncoded read FBe;
-    property Data: TTorrentFileData read FData;
+    property Data: TTTorrentFileData read FData;
     property ProcessingTimeMS: UInt64 read FProcessingTimeMS;
   end;
 
@@ -356,9 +356,9 @@ begin
   Result := nil;
 end;
 
-{ TTorrentFileData }
+{ TTTorrentFileData }
 
-constructor TTorrentFileData.Create;
+constructor TTTorrentFileData.Create;
 begin
   inherited;
   Info := TTorrentDataInfo.Create;
@@ -371,7 +371,7 @@ begin
   Comment.Delimiter := #$A;
 end;
 
-destructor TTorrentFileData.Destroy;
+destructor TTTorrentFileData.Destroy;
 begin
   PieceLayers.Free;
   Comment.Free;
@@ -382,24 +382,24 @@ begin
   inherited;
 end;
 
-{ TorrentFile }
+{ TTorrentFile }
 
-constructor TorrentFile.Create;
+constructor TTorrentFile.Create;
 begin
   inherited;
   FBe := nil;
-  FData := TTorrentFileData.Create;
+  FData := TTTorrentFileData.Create;
   FProcessingTimeMS := 0;
 end;
 
-destructor TorrentFile.Destroy;
+destructor TTorrentFile.Destroy;
 begin
   FBe.Free;
   FData.Free;
   inherited;
 end;
 
-function TorrentFile.GetSHA1(Enc: TBEncoded): string;
+function TTorrentFile.GetSHA1(Enc: TBEncoded): string;
 begin
 {$IFDEF MSWINDOWS}
   Result := LowerCase(string(WinCryptSHA($8004, Pointer(Enc.BufferStartPtr), Enc.BufferEndPtr - Enc.BufferStartPtr)));
@@ -410,7 +410,7 @@ begin
 {$ENDIF}
 end;
 
-function TorrentFile.GetSHA2(Enc: TBEncoded): string;
+function TTorrentFile.GetSHA2(Enc: TBEncoded): string;
 begin
 {$IFDEF MSWINDOWS}
   Result := LowerCase(string(WinCryptSHA($800C, Pointer(Enc.BufferStartPtr), Enc.BufferEndPtr - Enc.BufferStartPtr)));
@@ -421,11 +421,11 @@ begin
 {$ENDIF}
 end;
 
-class function TorrentFile.FromBufferPtr(BufferPtr, BufferEndPtr: PAnsiChar; Options: TorrentFileOptions = [trRaiseException]): TorrentFile;
+class function TTorrentFile.FromBufferPtr(BufferPtr, BufferEndPtr: PAnsiChar; Options: TTorrentFileOptions = [trRaiseException]): TTorrentFile;
 begin
   Result := nil;
   try
-    Result := TorrentFile.Create;
+    Result := TTorrentFile.Create;
     var Sw := TStopWatch.StartNew;
     Result.FBe := TBEncoded.Create(BufferPtr, BufferEndPtr);
     Result.Parse(Result.FBe, Options);
@@ -439,14 +439,14 @@ begin
   end;
 end;
 
-class function TorrentFile.FromMemoryStream(MemStream: TMemoryStream; Options: TorrentFileOptions = [trRaiseException]): TorrentFile;
+class function TTorrentFile.FromMemoryStream(MemStream: TMemoryStream; Options: TTorrentFileOptions = [trRaiseException]): TTorrentFile;
 begin
   var BufferPtr := PAnsiChar(MemStream.Memory);
   Var EndPosPtr := PAnsiChar(NativeUInt(MemStream.Memory) + NativeUInt(MemStream.Size));
   Result := FromBufferPtr(BufferPtr, EndPosPtr, Options);
 end;
 
-class function TorrentFile.FromFile(Filename: string; Options: TorrentFileOptions = [trRaiseException]): TorrentFile;
+class function TTorrentFile.FromFile(Filename: string; Options: TTorrentFileOptions = [trRaiseException]): TTorrentFile;
 var
   MemStream: TMemoryStream;
 begin
@@ -460,12 +460,12 @@ begin
   end;
 end;
 
-class function TorrentFile.FromAnsiString(var AnsiStr: AnsiString; Options: TorrentFileOptions = [trRaiseException]): TorrentFile;
+class function TTorrentFile.FromAnsiString(var AnsiStr: AnsiString; Options: TTorrentFileOptions = [trRaiseException]): TTorrentFile;
 begin
   Result := FromBufferPtr(@AnsiStr[1], PAnsiChar( NativeUInt(@AnsiStr[1]) + NativeUInt(Length(AnsiStr)) ), Options);
 end;
 
-procedure TorrentFile.Parse(Be: TBEncoded; Options: TorrentFileOptions);
+procedure TTorrentFile.Parse(Be: TBEncoded; Options: TTorrentFileOptions);
 
   procedure ParseFileListV2(Dic: TBEncoded; const Path: string; FileData: TFileData);
   begin

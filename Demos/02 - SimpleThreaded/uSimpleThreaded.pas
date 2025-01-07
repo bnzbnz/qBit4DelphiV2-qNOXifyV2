@@ -98,7 +98,7 @@ end;
 procedure TFrmSimpleThreaded.SyncThread(Sender: TqBitThread);
 begin
   qBMain := Sender.qBMainTh;
-  caption := Sender.qB.HTTPDuration.ToString;
+  caption := Format('Last Request Duration : %s ms / (%d Torrents)', [Sender.qB.HTTPDuration.ToString, qBMain.torrents.Count]);
   UpdateUI;
 end;
 procedure TFrmSimpleThreaded.UpdateUI;
