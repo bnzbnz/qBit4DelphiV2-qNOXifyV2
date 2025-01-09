@@ -35,8 +35,14 @@ uses
   type
 
   TqBit = class(TqBitAPI)
-  private
   protected
+    FHTTPDuration: cardinal;
+    FHTTPStatus: integer;
+    FHTTPRetries: integer;
+    FHTTPResponse: string;
+    FPassword: string;
+    FHostPath: string;
+    FUsername: string;
   public
 
     class function Connect(HostPath, Username, Password : string): TqBit;
@@ -49,8 +55,12 @@ uses
     class function qBitWebAPIVersion: string; virtual;
     class function qBitCheckWebAPICompatibility(RemoteWebAPIVersion: string): Boolean; overload; virtual;
     function       qBitCheckWebAPICompatibility: Boolean; overload; virtual;
-
+    function       Clone: TqBit;
+    
     // API Helpers
+
+    function StopTorrents(Hashes: TStringList): boolean; overload; virtual;
+    function StartTorrents(Hashes: TStringList): boolean; overload; virtual;
 
     function DeleteTorrents(Hashes: TStringList; DeleteFiles: boolean = False): boolean; overload; virtual;
     function DeleteTorrents(Torrents: TqBitMainDataType; DeleteFiles: boolean = False): boolean; overload; virtual;
@@ -182,11 +192,27 @@ uses
 
 implementation
 
+function TqBit.Clone: TqBit;
+begin
+  Result := TqBit.Create(FHostPath);
+  Result.FSID := FSID;
+  Result.FHostPath := Self.FHostPath;
+  Result.FUsername := FUsername;
+  Result.FPassword := FPassword;
+  Result.FHTTPStatus := FHTTPStatus;
+  Result.FHTTPResponse := FHTTPResponse;
+  Result.FHTTPDuration := FHTTPDuration;
+  Result.FHTTPRetries := FHTTPRetries;
+end;
+
 class function TqBit.Connect(HostPath, Username, Password : string): TqBit;
 begin
   Result := TqBit.Create(HostPath);
   var CurRetries := Result.HTTPRetries;
   Result.FHTTPRetries := 1;
+  Result.FHostPath := HostPath;
+  Result.FUserName := Username;
+  Result.FPAssword := Password;
   if not Result.Login(Username, Password) then
     FreeAndNil(Result)
   else
@@ -238,6 +264,21 @@ function TqBit.qBitCheckWebAPICompatibility: Boolean;
 begin
   Result := qBitCheckWebAPICompatibility(GetAPIVersion);
 end;
+
+// StopTorrents
+function TqBit.StopTorrents(Hashes: TStringList): boolean;
+begin
+  Hashes.StrictDelimiter := True; Hashes.Delimiter := '|';
+  Result := StopTorrents(Hashes.DelimitedText);
+end;
+
+// StartTorrents
+function TqBit.StartTorrents(Hashes: TStringList): boolean;
+begin
+  Hashes.StrictDelimiter := True; Hashes.Delimiter := '|';
+  Result := StartTorrents(Hashes.DelimitedText);
+end;
+
 
 // DeleteTorrents
 function TqBit.DeleteTorrents(Hashes: TStringList; DeleteFiles: boolean = False): boolean;
