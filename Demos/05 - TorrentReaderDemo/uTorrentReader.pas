@@ -85,14 +85,14 @@ end;
 
 procedure TForm2.Button1Click(Sender: TObject);
 var
-  Torrent: TorrentFile;
+  Torrent: TTorrentFile;
   StringBuilder: TStringBuilder;
 begin
   Torrent := nil; StringBuilder := nil;
   Memo1.Clear;
   if not FileOpenDialog1.Execute then exit;
   try
-    Torrent := TorrentFile.FromFile(FileOpenDialog1.FileName, []);
+    Torrent := TTorrentFile.FromFile(FileOpenDialog1.FileName, []);
     if Torrent = nil then
     begin
       Memo1.Text := 'Invalid Torrent File Format';
