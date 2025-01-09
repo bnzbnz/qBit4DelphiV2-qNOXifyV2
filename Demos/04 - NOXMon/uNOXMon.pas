@@ -151,7 +151,7 @@ begin
       end
     );
     while
-      (GetTickCount - Tme < qBMainTh.server_state.refresh_interval.AsInteger)
+      (GetTickCount - Tme < qBMainTh.server_state.refresh_interval.AsInt64)
       and (not Terminated)
     do
       Sleep(250);

@@ -478,7 +478,7 @@ type
     offset: Integer; // Num
     hashes: TStringList; // Str
     constructor Create;
-    destructor Destroy;
+    destructor Destroy; override;
   end;
 
   TqBitTorrentInfoType = class(TJX4Object)

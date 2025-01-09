@@ -24,6 +24,9 @@
         <Projects Include="02 - SimpleThreaded\SimpleThreaded.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="09 - SimpleThreadedGrid\SimpleThreadedGrid.dproj">
+            <Dependencies/>
+        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -95,14 +98,23 @@
     <Target Name="SimpleThreaded:Make">
         <MSBuild Projects="02 - SimpleThreaded\SimpleThreaded.dproj" Targets="Make"/>
     </Target>
+    <Target Name="SimpleThreadedGrid">
+        <MSBuild Projects="09 - SimpleThreadedGrid\SimpleThreadedGrid.dproj"/>
+    </Target>
+    <Target Name="SimpleThreadedGrid:Clean">
+        <MSBuild Projects="09 - SimpleThreadedGrid\SimpleThreadedGrid.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SimpleThreadedGrid:Make">
+        <MSBuild Projects="09 - SimpleThreadedGrid\SimpleThreadedGrid.dproj" Targets="Make"/>
+    </Target>
     <Target Name="Build">
-        <CallTarget Targets="Simple;FMXReport;NOXMon;TorrentReader;IPAPIDemo;AddTorrent;SimpleThreaded"/>
+        <CallTarget Targets="Simple;FMXReport;NOXMon;TorrentReader;IPAPIDemo;AddTorrent;SimpleThreaded;SimpleThreadedGrid"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Simple:Clean;FMXReport:Clean;NOXMon:Clean;TorrentReader:Clean;IPAPIDemo:Clean;AddTorrent:Clean;SimpleThreaded:Clean"/>
+        <CallTarget Targets="Simple:Clean;FMXReport:Clean;NOXMon:Clean;TorrentReader:Clean;IPAPIDemo:Clean;AddTorrent:Clean;SimpleThreaded:Clean;SimpleThreadedGrid:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Simple:Make;FMXReport:Make;NOXMon:Make;TorrentReader:Make;IPAPIDemo:Make;AddTorrent:Make;SimpleThreaded:Make"/>
+        <CallTarget Targets="Simple:Make;FMXReport:Make;NOXMon:Make;TorrentReader:Make;IPAPIDemo:Make;AddTorrent:Make;SimpleThreaded:Make;SimpleThreadedGrid:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
