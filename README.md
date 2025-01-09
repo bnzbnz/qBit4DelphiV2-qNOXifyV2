@@ -4,6 +4,8 @@ Ani API to drive any qBittorent/NOX server form Delphi (100% Pure Pascal); It is
 - This project is sponsored by EA4D "Ebay Api 4 Delphi" (https://www.ea4d.com)
 - Contact : Laurent MEYER  qBit@lmeyer.fr
 
+![image info](Images/SimpleThreadedDemo.png)
+
 How to install
 --------------
 1. Clone qBid4DelphiX2 own repository (JsonX4 units are included), you will be able too run any of the Demos.
