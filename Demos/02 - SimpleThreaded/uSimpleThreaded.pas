@@ -108,7 +108,7 @@ begin
   for var T in qBMAin.torrents do
       LBTorrents.Items.Add( TqBitTorrentType(T.Value).name.AsString
           + ' / ' + TqBitTorrentType(T.Value).state.AsString
-          + ' / ' + TqBitTorrentType(T.Value).progress.Per100(2));
+          + ' / ' + TqBitTorrentType(T.Value).progress.ToPercent(2));
 
 end;
 

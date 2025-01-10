@@ -64,14 +64,14 @@ begin
   ////////////////  Few Properties...
   Caption := Format('Torrents : %d', [qBMain.torrents.Count]);
   Caption := Caption + ' / ';
-  Caption := Caption + Format('Dl : %s/s', [qBMain.server_state.dl_info_speed.BKiBMiB]);
+  Caption := Caption + Format('Dl : %s/s', [qBMain.server_state.dl_info_speed.ToBKiBMiB]);
   Caption := Caption + ' / ';
-  Caption := Caption + Format('Up : %s/s', [qBMain.server_state.up_info_speed.BKiBMiB]);
+  Caption := Caption + Format('Up : %s/s', [qBMain.server_state.up_info_speed.ToBKiBMiB]);
   LBTorrents.Clear;
   for var T in qBMain.torrents do
     LBTorrents.Items.Add(Format(
       '%s %s',
-      [TqBitTorrentType(T.Value).name.AsString, TqBitTorrentType(T.Value).progress.Per100]
+      [TqBitTorrentType(T.Value).name.AsString, TqBitTorrentType(T.Value).progress.ToPercent]
     ));
 end;
 

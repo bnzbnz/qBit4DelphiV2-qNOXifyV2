@@ -115,16 +115,16 @@ begin
       (M.server_state.up_info_data.AsExtended / Max(Int64(M.server_state.dl_info_data.AsInt64), 1)),
       (M.server_state.alltime_ul.AsInt64 / M.server_state.alltime_dl.AsInt64)
     ]);
-  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.dl_info_data.BKiBMiB;
-  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.up_info_data.BKiBMiB;
-  Inc(C); SG.Cells[C, Thread.RowIndex] := TValue(Traffic).BKiBMiB;
-  Inc(C); SG.Cells[C, Thread.RowIndex] := TValue(Delta).BKiBMiB;
-  Inc(C); SG.Cells[C, Thread.RowIndex] := TValue(Efficiency).Per100;
+  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.dl_info_data.ToBKiBMiB;
+  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.up_info_data.ToBKiBMiB;
+  Inc(C); SG.Cells[C, Thread.RowIndex] := TValue(Traffic).ToBKiBMiB;
+  Inc(C); SG.Cells[C, Thread.RowIndex] := TValue(Delta).ToBKiBMiB;
+  Inc(C); SG.Cells[C, Thread.RowIndex] := TValue(Efficiency).ToPercent;
 
-  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.dl_info_speed.BKiBMiB + '/s';
-  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.up_info_speed.BKiBMiB + '/s';
+  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.dl_info_speed.ToBKiBMiB + '/s';
+  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.up_info_speed.ToBKiBMiB + '/s';
   Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.read_cache_hits.AsString;
-  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.free_space_on_disk.BKiBMiB;
+  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.free_space_on_disk.ToBKiBMiB;
 
 end;
 
@@ -151,7 +151,7 @@ begin
       end
     );
     while
-      (GetTickCount - Tme < qBMainTh.server_state.refresh_interval.AsInteger)
+      (GetTickCount - Tme < qBMainTh.server_state.refresh_interval.AsInt64)
       and (not Terminated)
     do
       Sleep(250);

@@ -144,7 +144,7 @@ begin
   if Index = -1  then  Exit;
   var NewT := TNewTorrentInfo(LBFiles.Items.Objects[Index]);
   TIEditName.Text := NewT.FileData.Data.NiceName;
-  TIEditSize.Text := TValue(NewT.FileData.Data.Info.FilesSize).BKiBMiB;
+  TIEditSize.Text := TValue(NewT.FileData.Data.Info.FilesSize).ToBKiBMiB;
   if NewT.FileData.Data.HashV1 = '' then TIEditHashV1.Text := 'N/A' else TIEditHashV1.Text := NewT.FileData.Data.HashV1;
   if NewT.FileData.Data.HashV2 = '' then TIEditHashV2.Text := 'N/A' else TIEditHashV2.Text := NewT.FileData.Data.HashV2;
   TIEditComment.Text := NewT.FileData.Data.Comment.Text;

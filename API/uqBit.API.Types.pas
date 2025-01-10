@@ -484,7 +484,7 @@ type
     limit: Integer; // Num
     offset: Integer; // Num
     hashes: TStringList; // Str
-    constructor Create; overload;
+    constructor Create;
     destructor Destroy; override;
   end;
 
