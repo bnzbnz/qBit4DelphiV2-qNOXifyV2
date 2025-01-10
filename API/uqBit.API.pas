@@ -492,7 +492,11 @@ begin
   Result := nil;
   var Body := Format('hash=%s&rid=%d', [Hash, Rid]);
   if  qBPost('/sync/torrentPeers', Body) = 200 then
+  begin
     Result := TJX4Object.FromJSON<TqBitTorrentPeersDataType>(Body, []);
+    // Custom Fields
+    for var LEle in Result.peers do LEle.Value.hash := LEle.Key;
+  end;
 end;
 
 function TqBitAPI.GetGlobalTransferInfo: TqBitGlobalTransferInfoType;
@@ -583,7 +587,11 @@ begin
   Result := nil;
   var Body := Format('hash=%s', [Hash]);
   if (qBPost('/torrents/trackers', Body) = 200) and (Body <> '')  then
+  begin
     Result := TJX4Object.FromJSON<TqBitTrackersType>('{"trackers":' + Body + '}', []);
+    // Custom Fields
+    for var LEle in Result.trackers do LEle.hash := LEle.url;
+  end;
 end;
 
 function TqBitAPI.GetTorrentWebSeeds(Hash: string): TqBitWebSeedsType;

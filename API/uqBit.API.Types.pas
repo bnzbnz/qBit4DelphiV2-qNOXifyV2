@@ -294,6 +294,9 @@ type
     status: TValue; // Num
     tier: TValue; // Num
     url: TValue; // Str
+    // Custom Fields:
+    [TJX4Excluded]
+    hash: TValue;
   end;
 
   TqBitTrackersType  = class(TJX4Object)
@@ -358,6 +361,7 @@ type
     uploaded_session: TValue; // Num
     upspeed: TValue; // Num
     // Custom Fields:
+    [JX4Excluded]
     hash: TValue; // Str
   end;
 
@@ -441,6 +445,9 @@ type
     relevance: TValue; // Num
     up_speed: TValue; // Num
     uploaded: TValue; // Num
+    // Custom Fields
+    [TJX4Excluded]
+    hash: TValue
   end;
 
   TqBitTorrentPeersDataType = class(TJX4Object)
@@ -477,8 +484,8 @@ type
     limit: Integer; // Num
     offset: Integer; // Num
     hashes: TStringList; // Str
-    constructor Create;
-    destructor Destroy;
+    constructor Create; overload;
+    destructor Destroy; override;
   end;
 
   TqBitTorrentInfoType = class(TJX4Object)
