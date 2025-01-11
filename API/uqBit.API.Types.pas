@@ -34,7 +34,7 @@ uses
 
 const
 
-    qBitAPI_WebAPIVersion = '2.11.2';
+    qBitAPI_WebAPIVersion = '2.11.3';
 
 type
 
