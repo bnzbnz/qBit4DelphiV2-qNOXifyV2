@@ -572,6 +572,7 @@ begin
   var Body := Lsl.DelimitedText;
   if (qBGet('/torrents/info', Body) = 200) and (Body <> '')  then
     Result := TJX4Object.FromJSON<TqBitTorrentsListType>('{"torrents":' + Body + '}', []);
+  Lsl.Free;
 end;
 
 function TqBitAPI.GetTorrentGenericProperties(Hash: string): TqBitTorrentInfoType;

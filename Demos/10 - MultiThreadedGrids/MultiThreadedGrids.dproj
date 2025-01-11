@@ -131,6 +131,14 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\Common\uqBitThreads.pas"/>
+        <DCCReference Include="..\Common\Dialogs\uqBitAddTorrentDlg.pas">
+            <Form>qBitAddTorrentDlg</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
+        <DCCReference Include="..\Common\Dialogs\uqBitCategoriesDlg.pas">
+            <Form>qBitCategoriesDlg</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

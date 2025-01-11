@@ -15,7 +15,9 @@ uses
   uTorrentFileReader in '..\..\API\uTorrentFileReader.pas',
   uKobicAppTrackMenus in '..\Common\uKobicAppTrackMenus.pas',
   uqBitGrid in '..\Common\uqBitGrid.pas' {qBitFrame: TFrame},
-  uqBitThreads in '..\Common\uqBitThreads.pas';
+  uqBitThreads in '..\Common\uqBitThreads.pas',
+  uqBitAddTorrentDlg in '..\Common\Dialogs\uqBitAddTorrentDlg.pas' {qBitAddTorrentDlg},
+  uqBitCategoriesDlg in '..\Common\Dialogs\uqBitCategoriesDlg.pas' {qBitCategoriesDlg};
 
 {$R *.res}
 
@@ -26,6 +28,8 @@ begin
   Application.CreateForm(TFrmSTG, FrmSTG);
   Application.CreateForm(TqBitAddServerDlg, qBitAddServerDlg);
   Application.CreateForm(TqBitSelectServerDlg, qBitSelectServerDlg);
+  Application.CreateForm(TqBitAddTorrentDlg, qBitAddTorrentDlg);
+  Application.CreateForm(TqBitCategoriesDlg, qBitCategoriesDlg);
   Application.Run;
 end.
 

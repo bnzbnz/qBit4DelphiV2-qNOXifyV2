@@ -235,7 +235,7 @@ end;
 
 class function TqBit.qBitVersion: string;
 begin
-  Result := Format('%d.%.*d. (%s)', [qBitMajorVersion, 3, qBitMinorVersion, qBitAPI_WebAPIVersion]);
+  Result := Format('%d.%.*d (%s)', [qBitMajorVersion, 3, qBitMinorVersion, qBitAPI_WebAPIVersion]);
 end;
 
 class function TqBit.qBitWebAPIVersion: string;

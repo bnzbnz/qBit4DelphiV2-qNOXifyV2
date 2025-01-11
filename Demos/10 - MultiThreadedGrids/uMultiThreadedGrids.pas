@@ -24,6 +24,10 @@ type
     Splitter1: TSplitter;
     StatusBar1: TStatusBar;
     TrackersFrame: TqBitFrame;
+    Recheck1: TMenuItem;
+    N2: TMenuItem;
+    Add1: TMenuItem;
+    DlgOpenTorrent: TFileOpenDialog;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -32,6 +36,8 @@ type
     procedure PageControl1Change(Sender: TObject);
     procedure UnbanAll1Click(Sender: TObject);
     procedure BanPeers1Click(Sender: TObject);
+    procedure Recheck1Click(Sender: TObject);
+    procedure Add1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -60,7 +66,7 @@ var
 {$R *.dfm}
 
 implementation
-uses ShellAPI, uqBitSelectServerDlg,
+uses ShellAPI, uqBitSelectServerDlg, uqBitAddTorrentDlg,
      RTTI,  System.Generics.Collections, System.Generics.Defaults
      , uJX4Rtti
      , uJX4Object
@@ -185,6 +191,12 @@ begin
     PostMessage(Handle, WM_CLOSE,0 ,0);
 end;
 
+procedure TFrmSTG.Add1Click(Sender: TObject);
+begin
+  if DlgOpenTorrent.Execute then
+    qBitAddTorrentDlg.ShowAsModal(qB, DlgOpenTorrent.Files);
+end;
+
 procedure TFrmSTG.BanPeers1Click(Sender: TObject);
 begin
   var Sel := PeersFrame.GetSelectedKeys;
@@ -239,6 +251,17 @@ begin
   try
     if Keys.Count = 0 then Exit;
     qB.StopTorrents(Keys);
+  finally
+    Keys.Free;
+  end;
+end;
+
+procedure TFrmSTG.Recheck1Click(Sender: TObject);
+begin
+  var Keys := MainFrame.GetSelectedKeys;
+  try
+    if Keys.Count = 0 then Exit;
+    qB.RecheckTorrents(Keys);
   finally
     Keys.Free;
   end;

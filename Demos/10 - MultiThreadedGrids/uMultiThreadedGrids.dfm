@@ -108,6 +108,17 @@ object FrmSTG: TFrmSTG
       Caption = 'Start'
       OnClick = ResumeClick
     end
+    object Recheck1: TMenuItem
+      Caption = 'Recheck'
+      OnClick = Recheck1Click
+    end
+    object N2: TMenuItem
+      Caption = '-'
+    end
+    object Add1: TMenuItem
+      Caption = 'Add'
+      OnClick = Add1Click
+    end
     object N1: TMenuItem
       Caption = '-'
     end
@@ -127,5 +138,16 @@ object FrmSTG: TFrmSTG
       Caption = 'Unban All'
       OnClick = UnbanAll1Click
     end
+  end
+  object DlgOpenTorrent: TFileOpenDialog
+    DefaultExtension = '.torrent'
+    FavoriteLinks = <>
+    FileTypes = <
+      item
+        DisplayName = 'Torrent'
+        FileMask = '*.torrent'
+      end>
+    Options = [fdoAllowMultiSelect, fdoPathMustExist, fdoFileMustExist]
+    Left = 504
   end
 end

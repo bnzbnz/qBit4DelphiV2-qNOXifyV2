@@ -485,7 +485,6 @@ type
     offset: Integer; // Num
     hashes: TStringList; // Str
     constructor Create;
-    destructor Destroy; override;
   end;
 
   TqBitTorrentInfoType = class(TJX4Object)
@@ -576,7 +575,6 @@ type
     upLimit: TValue;
     dlLimit: TValue;
     constructor Create; overload;
-    destructor Destroy; override;
   end;
 
   TqBitNewTorrentFileType = class
@@ -595,7 +593,6 @@ type
     upLimit: TValue;
     dlLimit: TValue;
     constructor Create; overload;
-    destructor Destroy; override;
   end;
 
   TqBitTorrentSpeedsLimitType = class(TJX4Object)
@@ -665,32 +662,18 @@ implementation
 constructor TqBitTorrentListRequestType.Create;
 begin
   inherited;
-  Hashes := TStringList.Create;
   Hashes.StrictDelimiter := True;
   Hashes.QuoteChar := #0;
   Hashes.Delimiter:='|';
 end;
 
-destructor TqBitTorrentListRequestType.Destroy;
-begin
-  Hashes.Free;
-  inherited;
-end;
-
 constructor TqBitNewTorrentUrlsType.Create;
 begin
   inherited;
-  urls := TStringList.Create;
   upLimit := -1;
   dlLimit := -1;
   contentLayout := 'Original';
   stopCondition := 'None';
-end;
-
-destructor TqBitNewTorrentUrlsType.Destroy;
-begin
-  urls.Free;
-  inherited;
 end;
 
 constructor TqBitNewTorrentFileType.Create;
@@ -700,11 +683,6 @@ begin
   dlLimit := -1;
   contentLayout := 'Original';
   stopCondition := 'None';
-end;
-
-destructor TqBitNewTorrentFileType.Destroy;
-begin
-  inherited;
 end;
 
 ////////////////////////////////////////////////////////////////////////////////
