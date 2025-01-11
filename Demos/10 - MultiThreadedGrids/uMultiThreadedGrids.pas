@@ -28,6 +28,9 @@ type
     N2: TMenuItem;
     Add1: TMenuItem;
     DlgOpenTorrent: TFileOpenDialog;
+    Delete1: TMenuItem;
+    NoData1: TMenuItem;
+    WithData1: TMenuItem;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -38,6 +41,8 @@ type
     procedure BanPeers1Click(Sender: TObject);
     procedure Recheck1Click(Sender: TObject);
     procedure Add1Click(Sender: TObject);
+    procedure NoData1Click(Sender: TObject);
+    procedure WithData1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -223,7 +228,11 @@ procedure TFrmSTG.MainFramePopupEvent(Sender: TObject; X, Y, aCol, aRow: integer
 begin
   var Sel := MainFrame.GetSelectedKeys;
   try
-    if Sel.Count = 0 then Exit;
+    Pause1.Enabled    := not (Sel.Count = 0);
+    Pause2.Enabled    := not (Sel.Count = 0);
+    Recheck1.Enabled  := not (Sel.Count = 0);
+    Delete1.Enabled  := not (Sel.Count = 0);
+    ShowSelection1.Enabled  := not (Sel.Count = 0);
     MainPopup.Popup(X,Y);
   finally
     Sel.Free;
@@ -233,7 +242,8 @@ end;
 procedure TFrmSTG.MainFrameSelectEvent(Sender: TObject);
 begin
   var Keys := MainFrame.GetSelectedKeys;
-  ActiveKeyHash := Keys[Keys.Count - 1];
+  if Keys.Count > 0 then
+    ActiveKeyHash := Keys[Keys.Count - 1];
   Keys.Free;
 end;
 
@@ -300,6 +310,17 @@ end;
 procedure TFrmSTG.UnbanAll1Click(Sender: TObject);
 begin
   qB.UnbanAllPeers;
+end;
+
+procedure TFrmSTG.WithData1Click(Sender: TObject);
+begin
+  var Keys := MainFrame.GetSelectedKeys;
+  try
+    if Keys.Count = 0 then Exit;
+    qB.DeleteTorrents(Keys, True);
+  finally
+    Keys.Free;
+  end;
 end;
 
 procedure TFrmSTG.MainFrameUpdateEvent(Sender: TObject);
@@ -380,6 +401,17 @@ begin
         PostMessage(Self.Handle, WM_CLOSE, 0, 0);
       end;
     qtetIdle: ;
+  end;
+end;
+
+procedure TFrmSTG.NoData1Click(Sender: TObject);
+begin
+  var Keys := MainFrame.GetSelectedKeys;
+  try
+    if Keys.Count = 0 then Exit;
+    qB.DeleteTorrents(Keys, False);
+  finally
+    Keys.Free;
   end;
 end;
 
