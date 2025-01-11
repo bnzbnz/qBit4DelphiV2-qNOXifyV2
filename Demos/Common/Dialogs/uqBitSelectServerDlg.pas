@@ -56,7 +56,7 @@ var
   qBitSelectServerDlg: TqBitSelectServerDlg;
 
 implementation
-uses uqBitAddServerDlg, IOUtils, Rest.JSON;
+uses uqBitAddServerDlg, IOUtils, Rest.JSON, uJX4Object;
 
 {$R *.dfm}
 
@@ -116,6 +116,8 @@ begin
   CfgFileName := TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json';
   VerLabel.Caption := 'qBit4Delphi, API Version : ' + TqBit.qBitVersion;
   VerLabel.Caption := VerLabel.Caption + sLineBreak + 'By ' + qBitAPI_Developer;
+  SGInfo.Cells[1, 6] := TJX4Object.GetVersionStr;
+  SGInfo.Cells[1, 7] := qBitAPI_WebAPIVersion;
 end;
 
 procedure TqBitSelectServerDlg.FormDestroy(Sender: TObject);
@@ -143,6 +145,8 @@ begin
   SGInfo.Cells[0, 3] := 'OpenSSL';
   SGInfo.Cells[0, 4] := 'Qt';
   SGInfo.Cells[0, 5] := 'zlib';
+  SGInfo.Cells[0, 6] := 'Jsonx4';
+  SGInfo.Cells[0, 7] := 'qBitAPI';
   if FileExists(CfgFileName) and (LBSrv.Items.Count = 0) then
   begin
     var SS := TStringStream.Create;

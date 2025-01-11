@@ -33,7 +33,7 @@ uses
 const
 
   qBitAPI_MajorVersion = 2;
-  qBitAPI_MinorVersion = 1;
+  qBitAPI_MinorVersion = 2;
   qBitAPI_Developer = 'Laurent Meyer (qBit@lmeyer.fr)';
 
 type

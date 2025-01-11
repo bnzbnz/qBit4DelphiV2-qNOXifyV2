@@ -28,7 +28,7 @@ object qBitSelectServerDlg: TqBitSelectServerDlg
   object VerLabel: TLabel
     Left = 16
     Top = 228
-    Width = 89
+    Width = 41
     Height = 13
     Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = 'VerLabel'
@@ -105,13 +105,15 @@ object qBitSelectServerDlg: TqBitSelectServerDlg
         BevelInner = bvNone
         BevelOuter = bvNone
         DefaultColWidth = 92
-        RowCount = 6
+        RowCount = 8
         FixedRows = 0
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goFixedColDefAlign, goFixedRowDefAlign]
-        ScrollBars = ssNone
+        ScrollBars = ssVertical
         TabOrder = 0
         OnSelectCell = SGInfoSelectCell
         RowHeights = (
+          24
+          24
           24
           24
           24

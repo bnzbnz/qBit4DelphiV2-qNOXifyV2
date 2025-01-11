@@ -37,7 +37,6 @@ object FrmSTG: TFrmSTG
     inherited SG: TStringGrid
       Width = 1050
       Height = 325
-      DoubleBuffered = True
       ExplicitWidth = 1050
       ExplicitHeight = 325
     end
@@ -65,7 +64,6 @@ object FrmSTG: TFrmSTG
         inherited SG: TStringGrid
           Width = 1042
           Height = 169
-          DoubleBuffered = True
           ExplicitWidth = 1042
           ExplicitHeight = 169
         end
@@ -93,7 +91,6 @@ object FrmSTG: TFrmSTG
         inherited SG: TStringGrid
           Width = 1042
           Height = 188
-          DoubleBuffered = True
           ExplicitWidth = 1042
           ExplicitHeight = 188
         end
@@ -104,11 +101,11 @@ object FrmSTG: TFrmSTG
     Left = 152
     Top = 128
     object Pause1: TMenuItem
-      Caption = 'Pause'
+      Caption = 'Stop'
       OnClick = PauseClick
     end
     object Pause2: TMenuItem
-      Caption = 'Resume'
+      Caption = 'Start'
       OnClick = ResumeClick
     end
     object N1: TMenuItem
