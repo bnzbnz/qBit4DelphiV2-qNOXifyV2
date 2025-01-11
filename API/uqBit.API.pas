@@ -309,6 +309,7 @@ begin
     Http.ContentType := ContentType;
     Http.CustomHeaders['Referer'] := FHostPath;
     Http.CookieManager.AddServerCookie(Format('SID=%s', [FSID]), FHostPath);
+    Http.ConnectionTimeout := 5000;
     var Retries := FHTTPRetries;
     repeat
       Dec(Retries);

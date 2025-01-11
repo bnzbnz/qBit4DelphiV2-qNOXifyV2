@@ -361,7 +361,7 @@ type
     uploaded_session: TValue; // Num
     upspeed: TValue; // Num
     // Custom Fields:
-    [JX4Excluded]
+    [TJX4Excluded]
     hash: TValue; // Str
   end;
 
