@@ -274,11 +274,11 @@ type
   end;
 
   TqBitPeerLogType = class(TJX4Object)
+    blocked: variant;
     id: variant;
     ip: variant;
-    timestamp: variant;
-    blocked: variant;
     reason: variant;
+    timestamp: variant;
   end;
 
   TqBitPeerLogsType = class(TJX4Object)
@@ -394,24 +394,24 @@ type
   end;
 
   TqBitCategoryType = class(TJX4Object)
+    download_path: TValue; // Str // Default = null, No = false, Yes = TValue; // String value
     name: TValue; // Str
     savePath: TValue; // Str
-    download_path: TValue; // Str // Default = null, No = false, Yes = TValue; // String value
   end;
 
   TqBitMainDataType = class(TJX4Object)
   public
+    categories: TJX4Dict<TqBitCategoryType>;
+    categories_removed: TJX4ValList; // Str>;
     full_update: TValue; // Bool
     rid: TValue; // Num
     server_state: TqBitserver_stateType;
-    categories: TJX4Dict<TqBitCategoryType>;
-    categories_removed: TJX4ValList; // Str>;
     tags: TJX4ValList; // Str>;
     tags_removed: TJX4ValList; // Str>;
-    trackers: TJX4Dict<TJX4ValList>; // Str
-    trackers_removed: TJX4ValList; // Str>;
     torrents: TJX4Dict<TqBitTorrentType>;
     torrents_removed: TJX4ValList; // Str>;
+    trackers: TJX4Dict<TJX4ValList>; // Str
+    trackers_removed: TJX4ValList; // Str;
     procedure Merge(From: TqBitMainDataType);
   end;
 
@@ -463,12 +463,12 @@ type
     dl_info_data	: TValue; // Num
     dl_info_speed: TValue; // Num
     dl_rate_limit: TValue; // Num
+    queueing: TValue; // Bool
+    refresh_interval: TValue; // Num
     up_info_data: TValue; // Num
     up_info_speed: TValue; // Num
     up_rate_limit: TValue; // Num
-    queueing: TValue; // Bool
     use_alt_speed_limits: TValue; // Bool
-    refresh_interval: TValue; // Num
   end;
 
   TqBitTorrentsListType = class(TJX4Object)
@@ -476,18 +476,20 @@ type
   end;
 
  TqBitTorrentListRequestType = class(TJX4Object)
-    filter: string; // Str
     category: string; // Str
-    tag: string; // Str
-    sort: string; // Str
-    reverse: Boolean; // Bool
+    filter: string; // Str
+    hashes: TStringList; // Str
     limit: Integer; // Num
     offset: Integer; // Num
-    hashes: TStringList; // Str
+    reverse: Boolean; // Bool
+    sort: string; // Str
+    tag: string; // Str
     constructor Create;
   end;
 
   TqBitTorrentInfoType = class(TJX4Object)
+    &private: TValue; // Bool
+    addition_date: TValue; // Num
     comment: TValue; // Str
     completion_date: TValue; // Num
     created_by: TValue; // Str
@@ -512,7 +514,6 @@ type
     pieces_have: TValue; // Num
     pieces_num: TValue; // Num
     popularity: TValue; // Num
-    &private: TValue; // Bool
     reannounce: TValue; // Num
     save_path: TValue; // Str
     seeding_time: TValue; // Num
@@ -529,7 +530,6 @@ type
     up_limit: TValue; // Num
     up_speed_avg: TValue; // Num
     up_speed: TValue; // Num
-    addition_date: TValue; // Num
   end;
 
   TqBitWebSeedType  = class(TJX4Object)
@@ -560,38 +560,38 @@ type
   end;
 
   TqBitNewTorrentUrlsType = class
-    urls: TStringList; // Str
     autoTMM: TValue; // Bool
-    savePath : TValue; // Str
-    cookie: TValue; // Str
-    rename: TValue; // Str
     category: TValue; // Str
-    stopped: TValue; // Bool
-    skip_Checking: TValue; // Bool
     contentLayout: TValue; // Str
-    stopCondition: TValue; // Str
-    sequentialDownload: TValue; // Bool
-    firstLastPiecePrio: TValue; // Bool
-    upLimit: TValue;
+    cookie: TValue; // Str
     dlLimit: TValue;
+    firstLastPiecePrio: TValue; // Bool
+    rename: TValue; // Str
+    savePath : TValue; // Str
+    sequentialDownload: TValue; // Bool
+    skip_Checking: TValue; // Bool
+    stopCondition: TValue; // Str
+    stopped: TValue; // Bool
+    upLimit: TValue;
+    urls: TStringList; // Str
     constructor Create; overload;
   end;
 
   TqBitNewTorrentFileType = class
-    filename: TValue; // Str
-    autoTMM: TValue; // Bool
-    savePath : TValue; // Str
-    rename: TValue; // Str
-    category: TValue; // Str
-    stopped: TValue; // Bool
     addToTopOfQueue: TValue; // Bool
-    stopCondition: TValue; //Str
-    skip_Checking: TValue; // Bool
+    autoTMM: TValue; // Bool
+    category: TValue; // Str
     contentLayout: TValue; // Str
-    sequentialDownload: TValue; // Bool
-    firstLastPiecePrio: TValue; // Bool
-    upLimit: TValue;
     dlLimit: TValue;
+    filename: TValue; // Str
+    firstLastPiecePrio: TValue; // Bool
+    rename: TValue; // Str
+    savePath : TValue; // Str
+    sequentialDownload: TValue; // Bool
+    skip_Checking: TValue; // Bool
+    stopCondition: TValue; //Str
+    stopped: TValue; // Bool
+    upLimit: TValue;
     constructor Create; overload;
   end;
 
@@ -606,23 +606,24 @@ type
   TqBitTagsType = class(TJX4Object)
     tags: TJX4ValList; // Str
   end;
+
   TqBitRSSArticleType = class(TJX4Object)
-    Fcategory: TValue;
-    Fdata: TValue;
-    Fdescription: TValue;
-    Fid: TValue;
-    Flink: TValue;
-    Ftitle: TValue;
-    FtorrentURL: TValue;
+    category: TValue;
+    data: TValue;
+    description: TValue;
+    id: TValue;
+    link: TValue;
+    title: TValue;
+    torrentURL: TValue;
   end;
 
   TqBitRSSItemType = class(TJX4Object)
-    Farticles: TJX4List<TqBitRSSArticleType>;
-    FisLoading: TValue;
+    articles: TJX4List<TqBitRSSArticleType>;
+    isLoading: TValue;
     lastBuildDate: TValue;
-    Ftitle: TValue;
-    Fuid: TValue;
-    Furl: TValue;
+    title: TValue;
+    uid: TValue;
+    url: TValue;
   end;
 
   TqBitRSSAllItemsType = class(TJX4Object)
@@ -630,31 +631,31 @@ type
   end;
 
   TqBitRSSRuleType  = class(TJX4Object)
-    Fenabled: TValue;
-    FmustContain: TValue;
-    FmustNotContain: TValue;
-    FuseRegex: TValue;
-    FepisodeFilter: TValue;
-    FsmartFilter: TValue;
-    FpreviouslyMatchedEpisodes: TValue;
+    addPaused: TValue;
+    assignedCategory: TValue;
+    enabled: TValue;
+    episodeFilter: TValue;
     FaffectedFeeds: TJX4ValList;
-    FignoreDays: TValue;
-    FlastMatch : TValue;
-    FaddPaused: TValue;
-    FassignedCategory: TValue;
-    FsavePath: TValue;
+    ignoreDays: TValue;
+    lastMatch : TValue;
+    mustContain: TValue;
+    mustNotContain: TValue;
+    previouslyMatchedEpisodes: TValue;
+    savePath: TValue;
+    smartFilter: TValue;
+    useRegex: TValue;
   end;
 
   TqBitRSSAllRulesType = class(TJX4Object)
-    Frules: TJX4Dic<TqBitRSSRuleType>;
+    rules: TJX4Dic<TqBitRSSRuleType>;
   end;
 
   TqBitAutoDownloadingRulesType = class(TJX4Object)
-    Frules: TJX4Dic<TqBitRSSRuleType>;
+    rules: TJX4Dic<TqBitRSSRuleType>;
   end;
 
   TqBitRSSArticlesType = class(TJX4Object)
-    Farticles: TJX4Dic<TStringList>;
+    articles: TJX4Dic<TStringList>;
   end;
 
 implementation
