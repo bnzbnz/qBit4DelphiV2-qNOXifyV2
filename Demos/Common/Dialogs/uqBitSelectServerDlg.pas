@@ -39,8 +39,6 @@ type
     procedure FormShow(Sender: TObject);
     procedure BtnSelClick(Sender: TObject);
     procedure BtnDelClick(Sender: TObject);
-    procedure SGInfoSelectCell(Sender: TObject; ACol, ARow: Integer;
-      var CanSelect: Boolean);
     procedure LBSrvDblClick(Sender: TObject);
   private
     { Private declarations }
@@ -207,12 +205,6 @@ end;
 procedure TqBitSelectServerDlg.LBSrvDblClick(Sender: TObject);
 begin
   BtnSelClick(Self);
-end;
-
-procedure TqBitSelectServerDlg.SGInfoSelectCell(Sender: TObject; ACol,
-  ARow: Integer; var CanSelect: Boolean);
-begin
-  CanSelect := False;
 end;
 
 procedure TqBitServers.AddServer(Srv: TqBitServer);

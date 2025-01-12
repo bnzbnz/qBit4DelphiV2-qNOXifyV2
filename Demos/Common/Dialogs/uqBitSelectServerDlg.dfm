@@ -110,7 +110,6 @@ object qBitSelectServerDlg: TqBitSelectServerDlg
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goFixedColDefAlign, goFixedRowDefAlign]
         ScrollBars = ssVertical
         TabOrder = 0
-        OnSelectCell = SGInfoSelectCell
         RowHeights = (
           24
           24
