@@ -49,9 +49,8 @@ uses
     class function TorrentsToHashesList(Torrents: TqBitMainDataType): TStringList; overload;
     class function TorrentsToHashesList(Torrents: TqBitTorrentsListType): TStringList; overload;
 
-    class function qBitMajorVersion: Integer; virtual;
-    class function qBitMinorVersion: Integer; virtual;
-    class function qBitVersion: string; virtual;
+    class function Version: string; virtual;
+    class function VersionValue: Integer; virtual;
     class function qBitWebAPIVersion: string; virtual;
     class function qBitCheckWebAPICompatibility(RemoteWebAPIVersion: string): Boolean; overload; virtual;
     function       qBitCheckWebAPICompatibility: Boolean; overload; virtual;
@@ -233,31 +232,36 @@ begin
     Result.Add(TqBitTorrentType(Torrent).hash.AsString);
 end;
 
-class function TqBit.qBitVersion: string;
+class function TqBit.Version: string;
 begin
-  Result := Format('%d.%.*d (%s)', [qBitMajorVersion, 3, qBitMinorVersion, qBitAPI_WebAPIVersion]);
+  Result := Format('%0.2d.%0.2d-%0.2d.%0.2d.%0.2d', [
+                    (CqBitAPI_Version and $00FF00) shr 8,
+                    (CqBitAPI_Version and $0000FF),
+                    (CqBitAPI_WebAPIVersion and $FF0000) shr 16,
+                    (CqBitAPI_WebAPIVersion and $FF00) shr 8,
+                    (CqBitAPI_WebAPIVersion and $FF)
+  ]);
+end;
+
+class function TqBit.VersionValue: integer;
+begin
+  Result := (((CqBitAPI_Version and $FF00) shr 8) * 100) + (CqBitAPI_Version and $00FF);
 end;
 
 class function TqBit.qBitWebAPIVersion: string;
 begin
-  Result := qBitAPI_WebAPIVersion;
-end;
-
-class function TqBit.qBitMajorVersion: Integer;
-begin
-  Result := qBitAPI_MajorVersion;
-end;
-
-class function TqBit.qBitMinorVersion: Integer;
-begin
-  Result := qBitAPI_MinorVersion;
+  Result := Format('%0.2d.%0.2d%0.2d', [
+                    (CqBitAPI_WebAPIVersion and $FF0000) shr 16,
+                    (CqBitAPI_WebAPIVersion and $00FF00) shr 8,
+                    (CqBitAPI_WebAPIVersion and $0000FF)
+  ]);
 end;
 
 class function TqBit.qBitCheckWebAPICompatibility(RemoteWebAPIVersion: string): Boolean;
 begin
   var DigitsR := RemoteWebAPIVersion.Split(['.']);
-  var DigitsL := qBitAPI_WebAPIVersion.Split(['.']);
-  Result :=  CompareText(RemoteWebAPIVersion, qBitAPI_WebAPIVersion)  >= 0;
+  var DigitsL := qBitWebAPIVersion.Split(['.']);
+  Result := CompareText(RemoteWebAPIVersion, qBitWebAPIVersion)  >= 0;
 end;
 
 function TqBit.qBitCheckWebAPICompatibility: Boolean;

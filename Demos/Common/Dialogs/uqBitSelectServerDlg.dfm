@@ -98,13 +98,13 @@ object qBitSelectServerDlg: TqBitSelectServerDlg
     object TabSheet1: TTabSheet
       Caption = 'Server Info'
       object SGInfo: TStringGrid
-        Left = 20
+        Left = 6
         Top = 16
-        Width = 189
+        Width = 221
         Height = 153
         BevelInner = bvNone
         BevelOuter = bvNone
-        DefaultColWidth = 92
+        DefaultColWidth = 100
         RowCount = 8
         FixedRows = 0
         Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goFixedColDefAlign, goFixedRowDefAlign]

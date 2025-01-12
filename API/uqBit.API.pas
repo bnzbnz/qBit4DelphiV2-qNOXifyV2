@@ -1,4 +1,4 @@
-(*****************************************************************************
+(*  ****************************************************************************
 The MIT License (MIT)
 
 Copyright (c) 2020-2025 Laurent Meyer qBit@lmeyer.fr
@@ -32,8 +32,8 @@ uses
 
 const
 
-  qBitAPI_MajorVersion = 2;
-  qBitAPI_MinorVersion = 2;
+  CqBitAPI_Version = $0202; //2.02;
+
   qBitAPI_Developer = 'Laurent Meyer (qBit@lmeyer.fr)';
 
 type
@@ -255,6 +255,7 @@ uses
   , NetConsts
   , System.Hash
   , uJX4Object
+  , uqBit
   ;
 
 
@@ -302,8 +303,8 @@ begin
     Http.UserAgent :=
       Format(
         // Do not Alter....
-        'qBittorrent WebAPI for Delphi (qBit4Delphi, qB4D) - Version: %s.%d.%.*d -%s',
-        [qBitAPI_WebAPIVersion, qBitAPI_MajorVersion, 3, qBitAPI_MinorVersion, qBitAPI_Developer]
+        'qBittorrent WebAPI for Delphi (qBit4Delphi, qB4D) - Version: %s -%s',
+        [TqBit.Version, qBitAPI_Developer]
       );
     Http.AutomaticDecompression := [THTTPCompressionMethod.Any];
     Http.ContentType := ContentType;

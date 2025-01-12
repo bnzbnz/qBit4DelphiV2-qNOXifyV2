@@ -114,10 +114,10 @@ end;
 procedure TqBitSelectServerDlg.FormCreate(Sender: TObject);
 begin
   CfgFileName := TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json';
-  VerLabel.Caption := 'qBit4Delphi, API Version : ' + TqBit.qBitVersion;
+  VerLabel.Caption := 'qBit4Delphi, API Version : ' + TqBit.Version;
   VerLabel.Caption := VerLabel.Caption + sLineBreak + 'By ' + qBitAPI_Developer;
-  SGInfo.Cells[1, 6] := TJX4Object.GetVersionStr;
-  SGInfo.Cells[1, 7] := qBitAPI_WebAPIVersion;
+  SGInfo.Cells[1, 6] := TJX4Object.Version;
+  SGInfo.Cells[1, 7] := TqBit.Version;
 end;
 
 procedure TqBitSelectServerDlg.FormDestroy(Sender: TObject);
@@ -140,7 +140,7 @@ begin
   if MultiSelect then Caption :='Select multiple servers :';
   SGInfo.Selection:= NoSelection;
   SGInfo.Cells[0, 0] := 'Server Version :';
-  SGInfo.Cells[0, 1] := 'API Version :';
+  SGInfo.Cells[0, 1] := 'Web API :';
   SGInfo.Cells[0, 2] := 'libtorrent';
   SGInfo.Cells[0, 3] := 'OpenSSL';
   SGInfo.Cells[0, 4] := 'Qt';
