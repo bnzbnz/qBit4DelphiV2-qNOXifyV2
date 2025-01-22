@@ -4,7 +4,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uqBit, uqBit.API, uqBit.API.Types,
-  Vcl.ExtCtrls, Vcl.StdCtrls, uqBitGrid, uqBitThreads, Vcl.Menus, Vcl.ComCtrls;
+  Vcl.ExtCtrls, Vcl.StdCtrls, uqBitGrid, uqBitThreads, Vcl.Menus, Vcl.ComCtrls,
+  Vcl.Grids;
 
 type
   TFrmSTG = class(TForm)
@@ -31,6 +32,8 @@ type
     NoData1: TMenuItem;
     WithData1: TMenuItem;
     StatusBar1: TStatusBar;
+    TabSheet1: TTabSheet;
+    SGG: TStringGrid;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -44,6 +47,10 @@ type
     procedure NoData1Click(Sender: TObject);
     procedure WithData1Click(Sender: TObject);
     procedure StatusBar1Click(Sender: TObject);
+    function  GetSelectionHash: TqBitTorrentType;
+    procedure SGGMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+
   private
     { Private declarations }
   public
@@ -77,6 +84,7 @@ uses ShellAPI, uqBitSelectServerDlg, uqBitAddTorrentDlg,
      , uJX4Rtti
      , uJX4Object
      , System.TypInfo
+     , Vcl.Clipbrd
      ;
 
 function TValueFormatTrackerStatus(v: TValue): string;
@@ -289,6 +297,32 @@ begin
   end;
 end;
 
+function TFrmSTG.GetSelectionHash: TqBitTorrentType;
+begin
+  Self.MainThread.Pause := True;
+  Result := Nil;
+  var Sel := MainFrame.GetGridSel;
+  try
+    if Sel.Count = 0 then Exit;
+     var Data := TqBitGridData(Sel.Items[0]);
+     Result := TqBitTorrentType(Data.Obj);
+    Exit;
+  finally
+    Sel.Free;
+    Self.MainThread.Pause := False;
+  end;
+end;
+
+procedure TFrmSTG.SGGMouseUp(Sender: TObject; Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var
+  ACol, ARow: Integer;
+begin
+  SGG.MouseToCell(X, Y, ACol, ARow);
+  if (ACol <> -1) and (ARow <> -1) then
+    Clipboard.AsText := SGG.Cells[ACol, ARow];
+end;
+
 procedure TFrmSTG.ShowSelection1Click(Sender: TObject);
 begin
   Self.MainThread.Pause := True;
@@ -370,6 +404,54 @@ begin
         + ' (' + M.Main.server_state.alltime_ul.ToBKiBMiB + ') '
           + '🡻 ' + M.Main.server_state.dl_info_speed.ToBKiBMiB + '/s'
         + ' (' + M.Main.server_state.alltime_dl.ToBKiBMiB + ') ';
+
+      if Self.TabSheet1.Visible then
+      begin
+      var Torrent := GetSelectionHash;
+      if Assigned(Torrent) then
+      begin
+        var Content := qB.GetTorrentContents(Torrent.hash.AsString);
+        try
+          SGG.ColWidths[0] := 64;
+          SGG.ColWidths[3] := 64;
+          var Col := 1; var Row := 1;
+          Row := 1;
+          SGG.Cells[Col + 0, Row]     := 'Time Active: ';   SGG.Cells[Col + 1, Row] := Torrent.time_active.ToSecToDuration;
+          SGG.Cells[Col + 0, Row + 1] := 'Downloaded: ';     SGG.Cells[Col + 1, Row + 1] := Torrent.downloaded.ToBKiBMiB + ' (' + Torrent.downloaded_session.ToBKiBMiB +  ' this session)';
+          SGG.Cells[Col + 0, Row + 2] := 'Download Speed: '; SGG.Cells[Col + 1, Row + 2] := Torrent.dlspeed.ToBKiBMiB + '/s';
+          SGG.Cells[Col + 0, Row + 3] := 'Download Limit: '; SGG.Cells[Col + 1, Row + 3] := Torrent.dl_limit.ToLimit;
+          SGG.Cells[Col + 0, Row + 4] := 'Share Ratio: '; SGG.Cells[Col + 1, Row + 4] := Torrent.ratio.ToPercent(4, False);
+          SGG.Cells[Col + 0, Row + 5] := 'Popularity: '; SGG.Cells[Col + 1, Row + 5] := Torrent.popularity.ToStrFloat(4);
+          SGG.Cells[Col + 0, Row + 6] := 'ETA: '; SGG.Cells[Col + 1, Row + 6] := Torrent.eta.ToSecToDuration;
+          SGG.Cells[Col + 0, Row + 7] := 'Reannounce in: '; SGG.Cells[Col + 1, Row + 7] := Torrent.reannounce.ToSecToDuration;
+
+          SGG.Cells[Col + 3, Row]     := 'Uploaded: ';  SGG.Cells[Col + 4, Row] := Torrent.uploaded.ToBKiBMiB  + ' (' + Torrent.uploaded_session.ToBKiBMiB +  ' this session)';
+          SGG.Cells[Col + 3, Row + 1] := 'Upload Speed: '; SGG.Cells[Col + 4, Row + 1] := Torrent.upspeed.ToBKiBMiB + '/s';
+          SGG.Cells[Col + 3, Row + 2] := 'Upload Limit: '; SGG.Cells[Col + 4, Row + 2] := Torrent.up_limit.ToLimit;
+          SGG.Cells[Col + 3, Row + 3] := 'Connections: '; SGG.Cells[Col + 4, Row + 3] := M.Main.server_state.total_peer_connections.tostring;
+          SGG.Cells[Col + 3, Row + 4] := 'Seeds: '; SGG.Cells[Col + 4, Row + 4] := Torrent.num_seeds.ToString;
+          SGG.Cells[Col + 3, Row + 5] := 'Peers: '; SGG.Cells[Col + 4, Row + 5] := Torrent.num_leechs.ToString;
+          SGG.Cells[Col + 3, Row + 5] := 'Last Seen Complete: '; SGG.Cells[Col + 4, Row + 5] := Torrent.last_activity.TimestampStr;
+
+          Row := 10;
+          SGG.Cells[Col + 0, Row] := 'Total Size: ';    SGG.Cells[Col + 1, Row] := Torrent.total_size.ToBKiBMiB;
+          SGG.Cells[Col + 0, Row + 1] := 'Added on: ';  SGG.Cells[Col + 1, Row + 1] := Torrent.added_on.TimestampStr;
+          SGG.Cells[Col + 0, Row + 2] := 'Private: ';   SGG.Cells[Col + 1 ,Row  + 2] := cBoolToStr[Torrent.private.AsBoolean];
+          SGG.Cells[Col + 0, Row + 3] := 'Info Hash V1: '; SGG.Cells[Col + 1 ,Row  + 3] := Torrent.infohash_v1.AsString;
+          SGG.Cells[Col + 0, Row + 4] := 'Info Hash V2: '; SGG.Cells[Col + 1 ,Row  + 4] := Torrent.infohash_v2.AsString;
+          SGG.Cells[Col + 0, Row + 5] := 'Save Path: '; SGG.Cells[Col + 1 ,Row  + 5] := Torrent.save_path.ToString;
+          SGG.Cells[Col + 0, Row + 6] := 'Comment: '; SGG.Cells[Col + 1 ,Row  + 6] := Torrent.comment.ToString;
+
+          SGG.Cells[Col + 3, Row]     := 'Created By: ';  SGG.Cells[Col + 4, Row] := '';
+          SGG.Cells[Col + 3, Row + 1] := 'Pieces: '; SGG.Cells[Col + 4, Row + 1] := '';
+          SGG.Cells[Col + 3, Row + 2] := 'Created On: '; SGG.Cells[Col + 4, Row + 2] := Torrent.added_on.TimestampStr;
+          SGG.Cells[Col + 3, Row + 3] := 'Completed On: '; SGG.Cells[Col + 4, Row + 3] := Torrent.completion_on.TimestampStr;
+
+        finally
+          Content.Free;
+        end;
+      end;
+      end;
 
       var SortList := TObjectList<TqBitTorrentType>.Create(False);
 
@@ -476,10 +558,13 @@ begin
           end
       ));
 
-      PeersFrame.RowUpdateStart;
-      for var T in SortList do
-        PeersFrame.AddRow(TqBitTorrentPeerDataType(T).hash.AsString, T);
-      PeersFrame.RowUpdateEnd;
+      if PeersTabSheet.Visible then
+      begin
+        PeersFrame.RowUpdateStart;
+        for var T in SortList do
+          PeersFrame.AddRow(TqBitTorrentPeerDataType(T).hash.AsString, T);
+        PeersFrame.RowUpdateEnd;
+      end;
 
       FreeAndNil(SortList);
 
@@ -527,12 +612,14 @@ begin
           end
       ));
 
-      // Display Grid
-      TrackersFrame.RowUpdateStart;
-      for var T in SortList do
-        TrackersFrame.AddRow(TqBitTrackerType(T).hash.AsString, T);
-      TrackersFrame.RowUpdateEnd;
-
+      if TrakersTabSheet.Visible then
+      begin
+        // Display Grid
+        TrackersFrame.RowUpdateStart;
+        for var T in SortList do
+          TrackersFrame.AddRow(TqBitTrackerType(T).hash.AsString, T);
+        TrackersFrame.RowUpdateEnd;
+      end;
       FreeAndNil(SortList);
 
     end;

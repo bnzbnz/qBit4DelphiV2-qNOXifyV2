@@ -31,7 +31,7 @@ uses
   System.Generics.Collections,
   uqBit.API.Types, uqBit.API, uqBit, Vcl.Menus,
     uKobicAppTrackMenus
-  , RTTI;
+  , RTTI, Vcl.ComCtrls;
 
 const
 

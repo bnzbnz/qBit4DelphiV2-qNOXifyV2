@@ -1048,10 +1048,57 @@ object FrmSTG: TFrmSTG
     Top = 304
     Width = 1050
     Height = 216
-    ActivePage = PeersTabSheet
+    ActivePage = TabSheet1
     Align = alBottom
     TabOrder = 1
     OnChange = PageControl1Change
+    object TabSheet1: TTabSheet
+      Caption = 'Informations'
+      object SGG: TStringGrid
+        Left = 0
+        Top = 0
+        Width = 1042
+        Height = 188
+        Align = alClient
+        BevelEdges = []
+        BevelInner = bvNone
+        BevelOuter = bvNone
+        BorderStyle = bsNone
+        ColCount = 8
+        DefaultColWidth = 192
+        DoubleBuffered = True
+        DoubleBufferedMode = dbmRequested
+        FixedCols = 0
+        RowCount = 20
+        FixedRows = 0
+        Options = [goDrawFocusSelected, goAlwaysShowEditor, goThumbTracking, goFixedRowDefAlign]
+        ParentDoubleBuffered = False
+        ScrollBars = ssVertical
+        TabOrder = 0
+        OnMouseUp = SGGMouseUp
+        RowHeights = (
+          24
+          22
+          24
+          24
+          24
+          24
+          24
+          24
+          24
+          24
+          24
+          24
+          24
+          24
+          24
+          24
+          24
+          24
+          24
+          24)
+      end
+    end
     object PeersTabSheet: TTabSheet
       Caption = 'Peers'
       inline PeersFrame: TqBitFrame
@@ -1089,7 +1136,7 @@ object FrmSTG: TFrmSTG
           Height = 188
           DoubleBuffered = True
           ExplicitWidth = 1042
-          ExplicitHeight = 169
+          ExplicitHeight = 188
         end
       end
     end
@@ -1099,6 +1146,7 @@ object FrmSTG: TFrmSTG
     Top = 520
     Width = 1050
     Height = 24
+    Hint = 'Click to Toogle Speeds'
     Panels = <
       item
         Alignment = taCenter
@@ -1117,6 +1165,8 @@ object FrmSTG: TFrmSTG
         Text = 'dl'
         Width = 50
       end>
+    ParentShowHint = False
+    ShowHint = True
     OnClick = StatusBar1Click
   end
   object MainPopup: TPopupMenu
