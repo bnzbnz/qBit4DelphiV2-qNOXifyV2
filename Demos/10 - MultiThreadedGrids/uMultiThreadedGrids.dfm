@@ -1,7 +1,7 @@
 object FrmSTG: TFrmSTG
   Left = 0
   Top = 0
-  Caption = 'Simple Threaded Grid'
+  Caption = 'Multi Threaded Grid'
   ClientHeight = 544
   ClientWidth = 1050
   Color = clBtnFace
@@ -17,7 +17,7 @@ object FrmSTG: TFrmSTG
   TextHeight = 13
   object Splitter1: TSplitter
     Left = 0
-    Top = 325
+    Top = 301
     Width = 1050
     Height = 3
     Cursor = crVSplit
@@ -29,16 +29,17 @@ object FrmSTG: TFrmSTG
     Left = 0
     Top = 0
     Width = 1050
-    Height = 325
+    Height = 301
     Align = alClient
     TabOrder = 0
     ExplicitWidth = 1050
-    ExplicitHeight = 325
+    ExplicitHeight = 301
     inherited SG: TStringGrid
       Width = 1050
-      Height = 325
+      Height = 301
+      DoubleBuffered = True
       ExplicitWidth = 1050
-      ExplicitHeight = 325
+      ExplicitHeight = 301
       ColWidths = (
         80
         80
@@ -1044,7 +1045,7 @@ object FrmSTG: TFrmSTG
   end
   object PageControl1: TPageControl
     Left = 0
-    Top = 328
+    Top = 304
     Width = 1050
     Height = 216
     ActivePage = PeersTabSheet
@@ -1057,24 +1058,18 @@ object FrmSTG: TFrmSTG
         Left = 0
         Top = 0
         Width = 1042
-        Height = 169
+        Height = 188
         Align = alClient
         TabOrder = 0
         ExplicitWidth = 1042
-        ExplicitHeight = 169
+        ExplicitHeight = 188
         inherited SG: TStringGrid
           Width = 1042
-          Height = 169
+          Height = 188
+          DoubleBuffered = True
           ExplicitWidth = 1042
-          ExplicitHeight = 169
+          ExplicitHeight = 188
         end
-      end
-      object StatusBar1: TStatusBar
-        Left = 0
-        Top = 169
-        Width = 1042
-        Height = 19
-        Panels = <>
       end
     end
     object TrakersTabSheet: TTabSheet
@@ -1092,11 +1087,37 @@ object FrmSTG: TFrmSTG
         inherited SG: TStringGrid
           Width = 1042
           Height = 188
+          DoubleBuffered = True
           ExplicitWidth = 1042
-          ExplicitHeight = 188
+          ExplicitHeight = 169
         end
       end
     end
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Top = 520
+    Width = 1050
+    Height = 24
+    Panels = <
+      item
+        Alignment = taCenter
+        Bevel = pbNone
+        Text = 'Status'
+        Width = 80
+      end
+      item
+        Alignment = taCenter
+        Bevel = pbNone
+        Text = 'dht'
+        Width = 100
+      end
+      item
+        Alignment = taRightJustify
+        Text = 'dl'
+        Width = 50
+      end>
+    OnClick = StatusBar1Click
   end
   object MainPopup: TPopupMenu
     Left = 152

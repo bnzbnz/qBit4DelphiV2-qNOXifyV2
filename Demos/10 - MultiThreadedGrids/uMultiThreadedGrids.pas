@@ -1,4 +1,4 @@
-unit uMultiThreadedGrids;
+﻿unit uMultiThreadedGrids;
 
 interface
 uses
@@ -22,7 +22,6 @@ type
     BanPeers1: TMenuItem;
     UnbanAll1: TMenuItem;
     Splitter1: TSplitter;
-    StatusBar1: TStatusBar;
     TrackersFrame: TqBitFrame;
     Recheck1: TMenuItem;
     N2: TMenuItem;
@@ -31,6 +30,7 @@ type
     Delete1: TMenuItem;
     NoData1: TMenuItem;
     WithData1: TMenuItem;
+    StatusBar1: TStatusBar;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -43,6 +43,7 @@ type
     procedure Add1Click(Sender: TObject);
     procedure NoData1Click(Sender: TObject);
     procedure WithData1Click(Sender: TObject);
+    procedure StatusBar1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -307,6 +308,11 @@ begin
   end;
 end;
 
+procedure TFrmSTG.StatusBar1Click(Sender: TObject);
+begin
+  qB.ToggleAlternativeSpeedLimits;
+end;
+
 procedure TFrmSTG.UnbanAll1Click(Sender: TObject);
 begin
   qB.UnbanAllPeers;
@@ -353,6 +359,18 @@ begin
     qtetLoaded, qtetAfterMerging:
     begin
 
+      Caption := 'Multi Threaded Grid : ' + qb.Username + '@' + qb.HostPath;
+
+      StatusBar1.Panels[0].Text := M.Main.server_state.connection_status.AsString;
+      StatusBar1.Panels[1].Text := 'DHT nodes : ' + M.Main.server_state.dht_nodes.AsInt64.ToString;
+      StatusBar1.Panels[2].Text := '';
+      if M.Main.server_state.use_alt_speed_limits.AsBoolean then StatusBar1.Panels[2].Text := 'Alt. Speed   ';
+      StatusBar1.Panels[2].Text := StatusBar1.Panels[2].Text +
+        '🡹 ' + M.Main.server_state.up_info_speed.ToBKiBMiB + '/s'
+        + ' (' + M.Main.server_state.alltime_ul.ToBKiBMiB + ') '
+          + '🡻 ' + M.Main.server_state.dl_info_speed.ToBKiBMiB + '/s'
+        + ' (' + M.Main.server_state.alltime_dl.ToBKiBMiB + ') ';
+
       var SortList := TObjectList<TqBitTorrentType>.Create(False);
 
       if Assigned(M.Main.torrents) then
@@ -390,7 +408,6 @@ begin
       for var T in SortList do
         MainFrame.AddRow(TqBitTorrentType(T).hash.AsString, T);
       MainFrame.RowUpdateEnd;
-
       FreeAndNil(SortList);
 
     end;
