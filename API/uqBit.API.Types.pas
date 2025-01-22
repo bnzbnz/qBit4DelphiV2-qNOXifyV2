@@ -295,7 +295,6 @@ type
     tier: TValue; // Num
     url: TValue; // Str
     // Custom Fields:
-    [TJX4Excluded]
     hash: TValue;
   end;
 
@@ -361,7 +360,6 @@ type
     uploaded_session: TValue; // Num
     upspeed: TValue; // Num
     // Custom Fields:
-    [TJX4Excluded]
     hash: TValue; // Str
   end;
 
@@ -446,8 +444,7 @@ type
     up_speed: TValue; // Num
     uploaded: TValue; // Num
     // Custom Fields
-    [TJX4Excluded]
-    hash: TValue
+    hash: TValue;
   end;
 
   TqBitTorrentPeersDataType = class(TJX4Object)
@@ -455,6 +452,9 @@ type
     peers: TJX4Dict<TqBitTorrentPeerDataType>;
     rid: TValue; // Num
     show_flags: TValue; // Bool
+    peers_removed: TJX4ValList;
+    // Custom Fields
+    procedure Merge(From: TqBitTorrentPeersDataType);
   end;
 
   TqBitGlobalTransferInfoType = class(TJX4Object)
@@ -698,6 +698,15 @@ begin
   categories.Merge(From.categories_removed, [jmoDelete]);
   torrents.Merge(From.torrents, [jmoAdd, jmoUpdate, jmoStats]);
   torrents.Merge(From.torrents_removed, [jmoDelete]);
+end;
+
+procedure TqBitTorrentPeersDataType.Merge(From: TqBitTorrentPeersDataType);
+begin
+  Self.full_update := From.full_update;
+  Self.rid := From.rid;
+  Self.show_flags := From.show_flags;
+  Self.peers.Merge(From.peers, [jmoUpdate,  jmoAdd]);
+  Self.peers.Merge(From.peers_removed, [jmoDelete]);
 end;
 
 end.
