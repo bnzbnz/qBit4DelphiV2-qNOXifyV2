@@ -34,6 +34,9 @@ type
     StatusBar1: TStatusBar;
     TabSheet1: TTabSheet;
     SGG: TStringGrid;
+    N3: TMenuItem;
+    PMPausePeers: TMenuItem;
+    PMMainPause: TMenuItem;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -50,6 +53,8 @@ type
     function  GetSelectionHash: TqBitTorrentType;
     procedure SGGMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure PMPausePeersClick(Sender: TObject);
+    procedure PMMainPauseClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -116,7 +121,7 @@ begin
     MainFrame.AddCol('Progress', 'progress', TValueFormatPercent, 84, True);
     MainFrame.AddCol('Status', 'state', TValueFormatString, 84, True);
     MainFrame.AddCol('Seeds', 'num_seeds', TValueFormatString, 84, True);
-    MainFrame.AddCol('Peers', 'num_leechs', TValueFormatString, 84, True);
+    MainFrame.AddCol('Leechs', 'num_leechs', TValueFormatString, 84, True);
     MainFrame.AddCol('Ratio', 'ratio', TValueFormatFloat, 36, True);
     MainFrame.AddCol('Down Speed', 'dlspeed', TValueFormatBKMPerSec, 84, True);
     MainFrame.AddCol('Upload Speed', 'upspeed', TValueFormatBKMPerSec, 84, True);
@@ -149,7 +154,7 @@ begin
     PeersFrame.DoCreate;
     PeersFrame.SortField := 'ip';
     PeersFrame.SortReverse := False;
-    PeersFrame.AddCol('IP', 'ip', TValueFormatString, 104, True);
+    PeersFrame.AddCol('IP', 'ip', TValueFormatString, 216, True);
     PeersFrame.AddCol('Port', 'port', TValueFormatString, 84, True);
     PeersFrame.AddCol('Country', 'country', TValueFormatString, 84, True);
     PeersFrame.AddCol('Connection', 'connection', TValueFormatString, 72, True);
@@ -334,7 +339,8 @@ begin
       var Data := TqBitGridData(GridData);
       var Key :=  Data.Hash;
       var Torrent := TqBitTorrentType(Data.Obj);
-      ShowMessage( Torrent.hash.AsString + ' : ' + Torrent.name.AsString );
+      Clipboard.AsText := Torrent.hash.AsString;
+      ShowMessage(  Torrent.name.AsString + ' : ' + Torrent.hash.AsString);
     end;
   finally
     Sel.Free;
@@ -390,8 +396,11 @@ begin
   //  qtetInit, qtetLoaded, qtetError, qtetBeforeMerge, qtetAfterMerge, qtetIdle, qtetExit
   var M := TqBitMainThread( qBitThread );
   case EventType of
+    qtetInit: M.FullReload := 40;
     qtetLoaded, qtetAfterMerging:
     begin
+
+      if PMMainPause.Checked then Exit;
 
       Caption := 'Multi Threaded Grid : ' + qb.Username + '@' + qb.HostPath;
 
@@ -416,14 +425,14 @@ begin
           SGG.ColWidths[3] := 64;
           var Col := 1; var Row := 1;
           Row := 1;
-          SGG.Cells[Col + 0, Row]     := 'Time Active: ';   SGG.Cells[Col + 1, Row] := Torrent.time_active.ToSecToDuration;
+          SGG.Cells[Col + 0, Row]     := 'Time Active: ';   SGG.Cells[Col + 1, Row] := Torrent.time_active.FromSecToDuration;
           SGG.Cells[Col + 0, Row + 1] := 'Downloaded: ';     SGG.Cells[Col + 1, Row + 1] := Torrent.downloaded.ToBKiBMiB + ' (' + Torrent.downloaded_session.ToBKiBMiB +  ' this session)';
           SGG.Cells[Col + 0, Row + 2] := 'Download Speed: '; SGG.Cells[Col + 1, Row + 2] := Torrent.dlspeed.ToBKiBMiB + '/s';
           SGG.Cells[Col + 0, Row + 3] := 'Download Limit: '; SGG.Cells[Col + 1, Row + 3] := Torrent.dl_limit.ToLimit;
           SGG.Cells[Col + 0, Row + 4] := 'Share Ratio: '; SGG.Cells[Col + 1, Row + 4] := Torrent.ratio.ToPercent(4, False);
-          SGG.Cells[Col + 0, Row + 5] := 'Popularity: '; SGG.Cells[Col + 1, Row + 5] := Torrent.popularity.ToStrFloat(4);
-          SGG.Cells[Col + 0, Row + 6] := 'ETA: '; SGG.Cells[Col + 1, Row + 6] := Torrent.eta.ToSecToDuration;
-          SGG.Cells[Col + 0, Row + 7] := 'Reannounce in: '; SGG.Cells[Col + 1, Row + 7] := Torrent.reannounce.ToSecToDuration;
+          SGG.Cells[Col + 0, Row + 5] := 'Popularity: '; SGG.Cells[Col + 1, Row + 5] := Torrent.popularity.ToString(4);
+          SGG.Cells[Col + 0, Row + 6] := 'ETA: '; SGG.Cells[Col + 1, Row + 6] := Torrent.eta.FromSecToDuration;
+          SGG.Cells[Col + 0, Row + 7] := 'Reannounce in: '; SGG.Cells[Col + 1, Row + 7] := Torrent.reannounce.FromSecToDuration;
 
           SGG.Cells[Col + 3, Row]     := 'Uploaded: ';  SGG.Cells[Col + 4, Row] := Torrent.uploaded.ToBKiBMiB  + ' (' + Torrent.uploaded_session.ToBKiBMiB +  ' this session)';
           SGG.Cells[Col + 3, Row + 1] := 'Upload Speed: '; SGG.Cells[Col + 4, Row + 1] := Torrent.upspeed.ToBKiBMiB + '/s';
@@ -503,6 +512,16 @@ begin
   end;
 end;
 
+procedure TFrmSTG.PMMainPauseClick(Sender: TObject);
+begin
+  PMMainPause.Checked := not PMMainPause.Checked;
+end;
+
+procedure TFrmSTG.PMPausePeersClick(Sender: TObject);
+begin
+  PMPausePeers.Checked := not PMPausePeers.Checked;
+end;
+
 procedure TFrmSTG.NoData1Click(Sender: TObject);
 begin
   var Keys := MainFrame.GetSelectedKeys;
@@ -516,7 +535,7 @@ end;
 
 procedure TFrmSTG.PeersFrameUpdateEvent(Sender: TObject);
 begin
-    PeersThread.Refresh := True;
+  PeersThread.Refresh := True;
 end;
 
 procedure TFrmSTG.PeersThreadEvent(qBitThread: TThread; EventType: TqBitThreadEventCode);
@@ -526,6 +545,8 @@ begin
   case EventType of
     qtetLoaded, qtetAfterMerging:
     begin
+
+      if PMPausePeers.Checked then Exit;
 
       var SortList := TObjectList<TqBitTorrentPeerDataType>.Create(False);
 
@@ -565,12 +586,14 @@ begin
           PeersFrame.AddRow(TqBitTorrentPeerDataType(T).hash.AsString, T);
         PeersFrame.RowUpdateEnd;
       end;
+      PeersTabSheet.Caption := Format('Peers (%d)', [SortList.Count]);
 
       FreeAndNil(SortList);
 
     end;
     qtetError: ;
     qtetIdle: P.KeyHash := ActiveKeyHash;
+    qtetInit: P.FullReload := 20;
   end;
 end;
 
@@ -620,6 +643,7 @@ begin
           TrackersFrame.AddRow(TqBitTrackerType(T).hash.AsString, T);
         TrackersFrame.RowUpdateEnd;
       end;
+      TrakersTabSheet.Caption := Format('Trackers (%d)', [SortList.Count]);
       FreeAndNil(SortList);
 
     end;

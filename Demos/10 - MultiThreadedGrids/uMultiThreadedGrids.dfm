@@ -37,7 +37,6 @@ object FrmSTG: TFrmSTG
     inherited SG: TStringGrid
       Width = 1050
       Height = 301
-      DoubleBuffered = True
       ExplicitWidth = 1050
       ExplicitHeight = 301
       ColWidths = (
@@ -1053,7 +1052,7 @@ object FrmSTG: TFrmSTG
     TabOrder = 1
     OnChange = PageControl1Change
     object TabSheet1: TTabSheet
-      Caption = 'Informations'
+      Caption = 'Torrent Info.'
       object SGG: TStringGrid
         Left = 0
         Top = 0
@@ -1113,7 +1112,6 @@ object FrmSTG: TFrmSTG
         inherited SG: TStringGrid
           Width = 1042
           Height = 188
-          DoubleBuffered = True
           ExplicitWidth = 1042
           ExplicitHeight = 188
         end
@@ -1134,7 +1132,6 @@ object FrmSTG: TFrmSTG
         inherited SG: TStringGrid
           Width = 1042
           Height = 188
-          DoubleBuffered = True
           ExplicitWidth = 1042
           ExplicitHeight = 188
         end
@@ -1192,13 +1189,13 @@ object FrmSTG: TFrmSTG
       OnClick = Add1Click
     end
     object Delete1: TMenuItem
-      Caption = 'Delete'
+      Caption = 'Delete Torrent'
       object NoData1: TMenuItem
-        Caption = 'No Data'
+        Caption = 'Keep Data'
         OnClick = NoData1Click
       end
       object WithData1: TMenuItem
-        Caption = 'With Data'
+        Caption = #9888' With Data '#9888
         OnClick = WithData1Click
       end
     end
@@ -1206,8 +1203,12 @@ object FrmSTG: TFrmSTG
       Caption = '-'
     end
     object ShowSelection1: TMenuItem
-      Caption = 'Show Selection'
+      Caption = 'Show Selection Hash'
       OnClick = ShowSelection1Click
+    end
+    object PMMainPause: TMenuItem
+      Caption = 'Pause'
+      OnClick = PMMainPauseClick
     end
   end
   object PeersPopup: TPopupMenu
@@ -1220,6 +1221,13 @@ object FrmSTG: TFrmSTG
     object UnbanAll1: TMenuItem
       Caption = 'Unban All'
       OnClick = UnbanAll1Click
+    end
+    object N3: TMenuItem
+      Caption = '-'
+    end
+    object PMPausePeers: TMenuItem
+      Caption = 'Pause'
+      OnClick = PMPausePeersClick
     end
   end
   object DlgOpenTorrent: TFileOpenDialog

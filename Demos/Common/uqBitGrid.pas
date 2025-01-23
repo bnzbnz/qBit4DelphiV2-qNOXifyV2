@@ -167,12 +167,12 @@ end;
 
 function TValueFormatFloat(v: TValue): string;
 begin
-  Result := V.ToStrFloat(2);
+  Result := V.ToString(2);
 end;
 
 function TValueFormatMulti(v: TValue): string;
 begin
-  Result := V.ToStrFloat(2) + ' x';
+  Result := V.ToString(2) + ' x';
 end;
 
 function TValueFormatLimit(v: TValue): string;
@@ -186,12 +186,12 @@ end;
 
 function TValueFormatDeltaSec(v: TValue): string;
 begin
-  Result := v.ToSecondsFromNow;
+  Result := v.FromSecFromNow;
 end;
 
 function TValueFormatDuration(v: TValue): string;
 begin
-  Result := v.ToSecToDuration;
+  Result := v.FromSecToDuration;
 end;
 
 

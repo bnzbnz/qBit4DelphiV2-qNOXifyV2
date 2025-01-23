@@ -44,6 +44,7 @@ type
     FPause: Boolean;
     FMustExit: Boolean;
     FIntervalMS: Cardinal;
+    FFullReload: Integer;
   public
     constructor Create( qBClone: TqBit; OnEvent: TqBitThreadEvent); overload;
     procedure Execute; override;
@@ -54,6 +55,7 @@ type
     property MainUpdate: TqBitMainDataType read FMainUpdate;
     property IntervalMS: Cardinal read FIntervalMS write FIntervalMS;
     property Refresh: Boolean read FRefresh write FRefresh;
+    property FullReload: Integer read FFullReload write FFullReload;
     property Pause: Boolean read FPause write FPause;
     property MustExit: Boolean read FMustExit write FMustExit;
   end;
@@ -69,6 +71,7 @@ type
     FPause: Boolean;
     FRefresh: Boolean;
     FMustExit: Boolean;
+    FFullReload: Integer;
   public
     constructor Create( qBClone: TqBit; OnEvent: TqBitThreadEvent); overload;
     procedure Execute; override;
@@ -79,6 +82,7 @@ type
     property IntervalMS: Cardinal read FIntervalMS write FIntervalMS;
     property KeyHash: string read FKeyHash write FKeyHash;
     property Refresh: Boolean read FRefresh write FRefresh;
+    property FullReload: Integer read FFullReload write FFullReload;
     property MustExit: Boolean read FMustExit write FMustExit;
     property Pause: Boolean read FPause write FPause;
   end;
@@ -122,6 +126,7 @@ begin
   FRefresh := False;
   FPause := False;
   FIntervalMS := QBIT_DEFAULT_THREAD_WAIT_MS;
+  FFullReload := 0;
   inherited Create(False);
 end;
 
@@ -134,6 +139,8 @@ begin
 end;
 
 procedure TqBitMainThread.Execute;
+var
+  LReload: Integer;
 begin
   // Handle: qtetInit, qtetLoaded, qtetError, qtetBeforeMerge, qtetAfterMerge, qtetIdle, qtetExit
 
@@ -159,7 +166,13 @@ begin
         var StartTime := GetTickCount;
         try
           FRefresh := False;
-          FMainUpdate := FqB.GetMainData(Main.rid.AsInteger);
+          Inc(LReload);
+          if LReload = FFullReload then
+          begin
+            FMainUpdate := FqB.GetMainData(0);
+            LReload := 0;
+          end else
+            FMainUpdate := FqB.GetMainData(Main.rid.AsInteger);
           if FMainUpdate = Nil then
           begin
             Synchronize( procedure begin FOnEvent(Self, qtetError); end );
@@ -207,6 +220,7 @@ begin
   FMustExit := False;;
   FPause := False;
   FRefresh := False;
+  FFullReload := 0;
   inherited Create(False);
 end;
 
@@ -222,6 +236,7 @@ procedure TqBitPeersThread.Execute;
 begin
   // Handle: qtetInit, qtetNotFound, qtetError, qtetBeforeMerge, qtetAfterMerge, qtetIdle, qtetExit
 
+  var LReloadCnt :=  0;
   var CurKeyHash := '';
 
   try
@@ -239,6 +254,7 @@ begin
           CurKeyHash := KeyHash;
           FreeAndNil(FPeers);
           FPeers := FqB.GetTorrentPeersData(KeyHash, 0);
+          LReloadCnt := 0;
           if FPeers = Nil then
           begin
             CurKeyHash := '';
@@ -251,8 +267,14 @@ begin
             FOnEvent(Self, qtetLoaded);
 
         end else begin
+          Inc(LReloadCnt);
+          if LReloadCnt = FFullReload then
+          begin
+            FPeerUpdate := FqB.GetTorrentPeersData(KeyHash, 0);
+            LReloadCnt := 0;
+          end else
+            FPeerUpdate := FqB.GetTorrentPeersData(KeyHash, Peers.rid.AsInteger);
 
-          FPeerUpdate := FqB.GetTorrentPeersData(KeyHash, Peers.rid.AsInteger);
           if FPeerUpdate = Nil then
           begin
             CurKeyHash := '';
