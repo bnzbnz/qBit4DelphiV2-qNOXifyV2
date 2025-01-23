@@ -4,6 +4,13 @@ Ani API to drive any qBittorent/NOX server form Delphi (100% Pure Pascal); It is
 - This project is sponsored by EA4D "Ebay Api 4 Delphi" (https://www.ea4d.com) for JsonX4.
 - Contact : Laurent MEYER  qBit@lmeyer.fr
 
+Demo 10 - MultiThreadedGrids, is basically a Thin-Client for qBit/NOX server. ( Stay tuned for "ForqNOX" a multi instances client...)
+
+This package contains also :
+- TTorrentReader: a torrent file parser (UTF8 BEncode, Format: V1, V2 and Hybrid).
+- TIP_API : an interface to ip-api.com to get any IP data
+- uCountryFlags: country flags .png images from app. resources (ISO 639)
+
 How to install
 --------------
 1. Clone qBid4DelphiX2 own repository (JsonX4 units are included), you will be able too run any of the Demos.
