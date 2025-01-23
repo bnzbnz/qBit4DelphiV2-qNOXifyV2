@@ -173,7 +173,6 @@ uses
     TypInfo
   , Classes
   , DateUtils
-  , Variants
   ;
 
 function TJX4TValueHelper.TypeKind: TJX4TValueKind;
