@@ -26,18 +26,19 @@ object FrmSTG: TFrmSTG
     ExplicitWidth = 328
   end
   inline MainFrame: TqBitFrame
-    Left = 0
+    Left = 161
     Top = 0
-    Width = 1050
+    Width = 889
     Height = 301
     Align = alClient
     TabOrder = 0
-    ExplicitWidth = 1050
+    ExplicitLeft = 185
+    ExplicitWidth = 865
     ExplicitHeight = 301
     inherited SG: TStringGrid
-      Width = 1050
+      Width = 889
       Height = 301
-      ExplicitWidth = 1050
+      ExplicitWidth = 865
       ExplicitHeight = 301
       ColWidths = (
         80
@@ -1166,9 +1167,44 @@ object FrmSTG: TFrmSTG
     ShowHint = True
     OnClick = StatusBar1Click
   end
+  object Panel1: TPanel
+    Left = 0
+    Top = 0
+    Width = 161
+    Height = 301
+    Align = alLeft
+    BevelOuter = bvNone
+    TabOrder = 3
+    object Label1: TLabel
+      Left = 7
+      Top = 13
+      Width = 39
+      Height = 13
+      Caption = 'TAGS  :'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = [fsBold]
+      Font.Quality = fqAntialiased
+      ParentFont = False
+    end
+    object CLBTags: TCheckListBox
+      Left = 7
+      Top = 29
+      Width = 146
+      Height = 116
+      DoubleBuffered = True
+      ItemHeight = 13
+      ParentDoubleBuffered = False
+      PopupMenu = PMTags
+      Sorted = True
+      TabOrder = 0
+    end
+  end
   object MainPopup: TPopupMenu
-    Left = 152
-    Top = 128
+    Left = 264
+    Top = 88
     object Pause1: TMenuItem
       Caption = 'Stop'
       OnClick = PauseClick
@@ -1180,6 +1216,10 @@ object FrmSTG: TFrmSTG
     object Recheck1: TMenuItem
       Caption = 'Recheck'
       OnClick = Recheck1Click
+    end
+    object Reannounce1: TMenuItem
+      Caption = 'Reannounce'
+      OnClick = Reannounce1Click
     end
     object N2: TMenuItem
       Caption = '-'
@@ -1240,5 +1280,22 @@ object FrmSTG: TFrmSTG
       end>
     Options = [fdoAllowMultiSelect, fdoPathMustExist, fdoFileMustExist]
     Left = 504
+  end
+  object PMTags: TPopupMenu
+    Left = 24
+    Top = 40
+    object PMTags1: TMenuItem
+      Caption = 'Apply'
+      OnClick = PMTags1Click
+    end
+    object N4: TMenuItem
+      Caption = '-'
+    end
+    object Add2: TMenuItem
+      Caption = 'Add'
+    end
+    object Remove1: TMenuItem
+      Caption = 'Remove'
+    end
   end
 end

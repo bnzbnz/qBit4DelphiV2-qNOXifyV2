@@ -5,7 +5,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uqBit, uqBit.API, uqBit.API.Types,
   Vcl.ExtCtrls, Vcl.StdCtrls, uqBitGrid, uqBitThreads, Vcl.Menus, Vcl.ComCtrls,
-  Vcl.Grids;
+  Vcl.Grids, Vcl.CheckLst;
 
 type
   TFrmSTG = class(TForm)
@@ -37,6 +37,15 @@ type
     N3: TMenuItem;
     PMPausePeers: TMenuItem;
     PMMainPause: TMenuItem;
+    Reannounce1: TMenuItem;
+    Panel1: TPanel;
+    CLBTags: TCheckListBox;
+    PMTags: TPopupMenu;
+    PMTags1: TMenuItem;
+    N4: TMenuItem;
+    Add2: TMenuItem;
+    Remove1: TMenuItem;
+    Label1: TLabel;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -55,6 +64,8 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure PMPausePeersClick(Sender: TObject);
     procedure PMMainPauseClick(Sender: TObject);
+    procedure Reannounce1Click(Sender: TObject);
+    procedure PMTags1Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -111,6 +122,8 @@ begin
   begin
     var Server := qBitSelectServerDlg.GetServer;
     qB := TqBit.Connect(Server.FHP, Server.FUN, Server.FPW);
+
+    CLBTags.MultiSelect := True;
 
     MainFrame.DoCreate;
     MainFrame.SortField := 'name';
@@ -245,7 +258,7 @@ begin
     Pause1.Enabled    := not (Sel.Count = 0);
     Pause2.Enabled    := not (Sel.Count = 0);
     Recheck1.Enabled  := not (Sel.Count = 0);
-    Delete1.Enabled  := not (Sel.Count = 0);
+    Delete1.Enabled   := not (Sel.Count = 0);
     ShowSelection1.Enabled  := not (Sel.Count = 0);
     MainPopup.Popup(X,Y);
   finally
@@ -254,11 +267,32 @@ begin
 end;
 
 procedure TFrmSTG.MainFrameSelectEvent(Sender: TObject);
+var
+  Ts: TList<TqBitTorrentType>;
 begin
+  Ts := Nil;
+  var Lst := TStringList.Create(#0, ',', [soStrictDelimiter]);
   var Keys := MainFrame.GetSelectedKeys;
-  if Keys.Count > 0 then
+  try
+    if Keys.Count = 0 then Exit;
     ActiveKeyHash := Keys[Keys.Count - 1];
-  Keys.Free;
+    CLBTags.CheckAll(cbUnchecked, False, False);
+    Ts := MainFrame.GetSelectedTorrents;
+    for var T in Ts do
+    begin
+      Lst.DelimitedText := T.tags.ToString;
+      for var L in Lst do
+        if CLBTags.Items.IndexOf(L.Trim) > -1 then
+           CLBTags.Checked[ CLBTags.Items.IndexOf(L.Trim) ] := True;
+    end;
+    //tags;
+
+  finally
+    Lst.Free;
+    Ts.Free;
+    Keys.Free;
+  end;
+
 end;
 
 procedure TFrmSTG.PageControl1Change(Sender: TObject);
@@ -275,6 +309,17 @@ begin
   try
     if Keys.Count = 0 then Exit;
     qB.StopTorrents(Keys);
+  finally
+    Keys.Free;
+  end;
+end;
+
+procedure TFrmSTG.Reannounce1Click(Sender: TObject);
+begin
+  var Keys := MainFrame.GetSelectedKeys;
+  try
+    if Keys.Count = 0 then Exit;
+    qB.ReannounceTorrents(Keys);
   finally
     Keys.Free;
   end;
@@ -404,6 +449,28 @@ begin
 
       Caption := 'Multi Threaded Grid : ' + qb.Username + '@' + qb.HostPath;
 
+      // Tags
+
+      var Selected := TStringList.Create;
+      for var Sel := 0 to CLBTags.Items.Count - 1 do
+        if CLBTags.Checked[Sel] then Selected.Add(CLBTags.Items[Sel]);
+
+      if  M.Main.tags.Count > 0 then
+      for var Tag in M.Main.tags do
+        if CLBTags.Items.IndexOf(Tag.AsString.Trim) = -1  then
+          CLBTags.AddItem(Tag.AsString.Trim, Nil);
+      if M.Main.tags_removed.Count > 0 then
+      for var Tag in M.Main.tags_removed do
+        if CLBTags.Items.IndexOf(Tag.AsString.Trim) <> -1  then
+          CLBTags.Items.Delete(CLBTags.Items.IndexOf(Tag.AsString.Trim));
+      CLBTags.CheckAll(cbUnchecked, False, False);
+
+     for var ToSel := 0 to CLBTags.Items.Count - 1 do
+      if Selected.IndexOf(CLBTags.Items[ToSel])<>-1  then  CLBTags.Checked[toSel] := True;
+      Selected.Free;
+
+      // Tags End
+
       StatusBar1.Panels[0].Text := M.Main.server_state.connection_status.AsString;
       StatusBar1.Panels[1].Text := 'DHT nodes : ' + M.Main.server_state.dht_nodes.AsInt64.ToString;
       StatusBar1.Panels[2].Text := '';
@@ -520,6 +587,24 @@ end;
 procedure TFrmSTG.PMPausePeersClick(Sender: TObject);
 begin
   PMPausePeers.Checked := not PMPausePeers.Checked;
+end;
+
+procedure TFrmSTG.PMTags1Click(Sender: TObject);
+begin
+  var Lst := TStringList.Create(#0, ',', [soStrictDelimiter]);
+  var Ts := MainFrame.GetSelectedTorrents;
+  try
+    for var i := 0 to CLBTags.Items.Count - 1 do
+      if CLBTags.Checked[i] then Lst.Add(CLBTags.Items[i]);
+    for var T in TS do
+    begin
+      qB.RemoveTorrentTags(T.hash.AsString, '');
+      qB.AddTorrentTags(T.hash.AsString, Lst);
+    end;
+  finally
+    Ts.Free;
+    Lst.Free;
+  end;
 end;
 
 procedure TFrmSTG.NoData1Click(Sender: TObject);

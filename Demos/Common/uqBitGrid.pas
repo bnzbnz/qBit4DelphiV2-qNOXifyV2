@@ -111,6 +111,7 @@ type
     procedure RowUpdateEnd;
     procedure SelectAll;
     function GetSelectedKeys: TStringList;
+    function GetSelectedTorrents: TList<TqBitTorrentType>;
     function GetGridSel: tqBitGridSelection;
 
     property OnUpdateUIEvent: TqBitGridUpdateEvent read FOnUpdateUIEvent write FOnUpdateUIEvent;
@@ -234,6 +235,15 @@ begin
   Result := TStringList.Create;
   for var v in Sel do
     Result.Add(TqBitGridData(v).Hash);
+  Sel.Free;
+end;
+
+function TqBitFrame.GetSelectedTorrents: TList<TqBitTorrentType>;
+begin
+  var Sel := GetGridSel;
+  Result := TList<TqBitTorrentType>.Create;
+  for var v in Sel do
+    Result.Add(TqBitTorrentType(TqBitGridData(v).Obj));
   Sel.Free;
 end;
 
