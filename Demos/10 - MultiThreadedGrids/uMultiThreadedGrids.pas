@@ -46,6 +46,12 @@ type
     Add2: TMenuItem;
     Remove1: TMenuItem;
     Label1: TLabel;
+    MainMenu1: TMainMenu;
+    File1: TMenuItem;
+    MMLogout: TMenuItem;
+    MMExitqBittorent: TMenuItem;
+    N5: TMenuItem;
+    AddFiles1: TMenuItem;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -66,6 +72,10 @@ type
     procedure PMMainPauseClick(Sender: TObject);
     procedure Reannounce1Click(Sender: TObject);
     procedure PMTags1Click(Sender: TObject);
+    procedure MMLogoutClick(Sender: TObject);
+    procedure MMExitqBittorentClick(Sender: TObject);
+    procedure Add2Click(Sender: TObject);
+    procedure Remove1Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -95,13 +105,18 @@ var
 {$R *.dfm}
 
 implementation
-uses ShellAPI, uqBitSelectServerDlg, uqBitAddTorrentDlg,
-     RTTI,  System.Generics.Collections, System.Generics.Defaults
-     , uJX4Rtti
-     , uJX4Object
-     , System.TypInfo
-     , Vcl.Clipbrd
-     ;
+uses
+    ShellAPI
+  , uqBitSelectServerDlg
+  , uqBitAddTorrentDlg
+  , RTTI
+  , System.Generics.Collections
+  , System.Generics.Defaults
+  , uJX4Rtti
+  , uJX4Object
+  , System.TypInfo
+  , Vcl.Clipbrd
+  ;
 
 function TValueFormatTrackerStatus(v: TValue): string;
 begin
@@ -229,6 +244,13 @@ begin
     qBitAddTorrentDlg.ShowAsModal(qB, DlgOpenTorrent.Files);
 end;
 
+procedure TFrmSTG.Add2Click(Sender: TObject);
+begin
+  var InputString := InputBox('Create Tag', 'New Tag', 'Default tag');
+  if not InputString.Trim.IsEmpty then
+    qB.CreateTags(InputString);
+end;
+
 procedure TFrmSTG.BanPeers1Click(Sender: TObject);
 begin
   var Sel := PeersFrame.GetSelectedKeys;
@@ -334,6 +356,13 @@ begin
   finally
     Keys.Free;
   end;
+end;
+
+procedure TFrmSTG.Remove1Click(Sender: TObject);
+begin
+  for var i := 0 to CLBTags.Items.Count - 1 do
+    if CLBTags.Selected[i] then
+      qB.DeleteTags(CLBTags.Items[i]);
 end;
 
 procedure TFrmSTG.ResumeClick(Sender: TObject);
@@ -490,8 +519,8 @@ begin
         try
           SGG.ColWidths[0] := 64;
           SGG.ColWidths[3] := 64;
-          var Col := 1; var Row := 1;
-          Row := 1;
+          var Col := 1;
+          var Row := 1;
           SGG.Cells[Col + 0, Row]     := 'Time Active: ';   SGG.Cells[Col + 1, Row] := Torrent.time_active.FromSecToDuration;
           SGG.Cells[Col + 0, Row + 1] := 'Downloaded: ';     SGG.Cells[Col + 1, Row + 1] := Torrent.downloaded.ToBKiBMiB + ' (' + Torrent.downloaded_session.ToBKiBMiB +  ' this session)';
           SGG.Cells[Col + 0, Row + 2] := 'Download Speed: '; SGG.Cells[Col + 1, Row + 2] := Torrent.dlspeed.ToBKiBMiB + '/s';
@@ -577,6 +606,16 @@ begin
       end;
     qtetIdle: ;
   end;
+end;
+
+procedure TFrmSTG.MMExitqBittorentClick(Sender: TObject);
+begin
+    if qb.Shutdown then Close;
+end;
+
+procedure TFrmSTG.MMLogoutClick(Sender: TObject);
+begin
+  if qb.Logout then Close;
 end;
 
 procedure TFrmSTG.PMMainPauseClick(Sender: TObject);

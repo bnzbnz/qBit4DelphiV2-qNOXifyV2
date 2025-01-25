@@ -11,6 +11,7 @@ object FrmSTG: TFrmSTG
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
+  Menu = MainMenu1
   Position = poScreenCenter
   OnClose = FormClose
   OnShow = FormShow
@@ -32,13 +33,13 @@ object FrmSTG: TFrmSTG
     Height = 301
     Align = alClient
     TabOrder = 0
-    ExplicitLeft = 185
-    ExplicitWidth = 865
+    ExplicitLeft = 161
+    ExplicitWidth = 889
     ExplicitHeight = 301
     inherited SG: TStringGrid
       Width = 889
       Height = 301
-      ExplicitWidth = 865
+      ExplicitWidth = 889
       ExplicitHeight = 301
       ColWidths = (
         80
@@ -1293,9 +1294,33 @@ object FrmSTG: TFrmSTG
     end
     object Add2: TMenuItem
       Caption = 'Add'
+      OnClick = Add2Click
     end
     object Remove1: TMenuItem
       Caption = 'Remove'
+      OnClick = Remove1Click
+    end
+  end
+  object MainMenu1: TMainMenu
+    Left = 48
+    Top = 240
+    object File1: TMenuItem
+      Caption = 'File'
+      object AddFiles1: TMenuItem
+        Caption = 'Add Files'
+        OnClick = Add1Click
+      end
+      object N5: TMenuItem
+        Caption = '-'
+      end
+      object MMLogout: TMenuItem
+        Caption = 'Logout'
+        OnClick = MMLogoutClick
+      end
+      object MMExitqBittorent: TMenuItem
+        Caption = 'Exit qBittorent'
+        OnClick = MMExitqBittorentClick
+      end
     end
   end
 end

@@ -143,7 +143,7 @@ var
   LReload: Integer;
 begin
   // Handle: qtetInit, qtetLoaded, qtetError, qtetBeforeMerge, qtetAfterMerge, qtetIdle, qtetExit
-
+  LReload := 0;
   try
     Synchronize( procedure begin FOnEvent(Self, qtetInit); end );
 
