@@ -28,9 +28,9 @@ object FrmSTG: TFrmSTG
   end
   inline MainFrame: TqBitFrame
     Left = 161
-    Top = 0
+    Top = 29
     Width = 889
-    Height = 301
+    Height = 272
     Align = alClient
     TabOrder = 0
     ExplicitLeft = 161
@@ -38,7 +38,7 @@ object FrmSTG: TFrmSTG
     ExplicitHeight = 301
     inherited SG: TStringGrid
       Width = 889
-      Height = 301
+      Height = 272
       ExplicitWidth = 889
       ExplicitHeight = 301
       ColWidths = (
@@ -1170,15 +1170,17 @@ object FrmSTG: TFrmSTG
   end
   object Panel1: TPanel
     Left = 0
-    Top = 0
+    Top = 29
     Width = 161
-    Height = 301
+    Height = 272
     Align = alLeft
     BevelOuter = bvNone
     TabOrder = 3
+    ExplicitTop = 0
+    ExplicitHeight = 301
     object Label1: TLabel
       Left = 7
-      Top = 13
+      Top = 37
       Width = 39
       Height = 13
       Caption = 'TAGS  :'
@@ -1190,18 +1192,43 @@ object FrmSTG: TFrmSTG
       Font.Quality = fqAntialiased
       ParentFont = False
     end
-    object CLBTags: TCheckListBox
+    object Label2: TLabel
+      Left = 15
+      Top = 191
+      Width = 121
+      Height = 12
+      Caption = 'Use Shift/Ctrl/Right-Click...'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -10
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      Font.Quality = fqAntialiased
+      ParentFont = False
+    end
+    object LBTags: TListBox
       Left = 7
-      Top = 29
-      Width = 146
-      Height = 116
+      Top = 56
+      Width = 148
+      Height = 129
       DoubleBuffered = True
       ItemHeight = 13
+      MultiSelect = True
       ParentDoubleBuffered = False
       PopupMenu = PMTags
-      Sorted = True
       TabOrder = 0
     end
+  end
+  object ToolBar1: TToolBar
+    Left = 0
+    Top = 0
+    Width = 1050
+    Height = 29
+    Caption = 'ToolBar1'
+    TabOrder = 4
+    ExplicitLeft = 360
+    ExplicitTop = -40
+    ExplicitWidth = 150
   end
   object MainPopup: TPopupMenu
     Left = 264
@@ -1248,7 +1275,7 @@ object FrmSTG: TFrmSTG
       OnClick = ShowSelection1Click
     end
     object PMMainPause: TMenuItem
-      Caption = 'Pause'
+      Caption = 'Pause Display'
       OnClick = PMMainPauseClick
     end
   end
@@ -1267,7 +1294,7 @@ object FrmSTG: TFrmSTG
       Caption = '-'
     end
     object PMPausePeers: TMenuItem
-      Caption = 'Pause'
+      Caption = 'Pause Display'
       OnClick = PMPausePeersClick
     end
   end
@@ -1283,27 +1310,31 @@ object FrmSTG: TFrmSTG
     Left = 504
   end
   object PMTags: TPopupMenu
-    Left = 24
-    Top = 40
+    Left = 16
+    Top = 208
     object PMTags1: TMenuItem
-      Caption = 'Apply'
+      Caption = 'Assign'
       OnClick = PMTags1Click
+    end
+    object Clear1: TMenuItem
+      Caption = 'Remove'
+      OnClick = Clear1Click
     end
     object N4: TMenuItem
       Caption = '-'
     end
     object Add2: TMenuItem
-      Caption = 'Add'
+      Caption = 'Create Tags'
       OnClick = Add2Click
     end
     object Remove1: TMenuItem
-      Caption = 'Remove'
+      Caption = 'Delete Tags'
       OnClick = Remove1Click
     end
   end
   object MainMenu1: TMainMenu
-    Left = 48
-    Top = 240
+    Left = 88
+    Top = 208
     object File1: TMenuItem
       Caption = 'File'
       object AddFiles1: TMenuItem

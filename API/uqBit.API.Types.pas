@@ -692,7 +692,7 @@ procedure TqBitMainDataType.Merge(From: TqBitMainDataType);
 begin
   rid := From.rid;
   server_state.Merge(From.server_state, [jmoAdd, jmoUpdate]);
-  tags.Merge(From.tags, [jmoAdd, jmoDelete]);
+  tags.Merge(From.tags, [jmoAdd, jmoUpdate, jmoDelete]);
   tags_removed.Merge(From.tags_removed, [jmoAdd, jmoDelete]);
   categories.Merge(From.categories, [jmoAdd]);
   categories.Merge(From.categories_removed, [jmoDelete]);

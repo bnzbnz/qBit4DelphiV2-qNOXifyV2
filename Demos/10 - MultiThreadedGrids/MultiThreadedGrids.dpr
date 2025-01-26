@@ -17,12 +17,14 @@ uses
   uqBitGrid in '..\Common\uqBitGrid.pas' {qBitFrame: TFrame},
   uqBitThreads in '..\Common\uqBitThreads.pas',
   uqBitAddTorrentDlg in '..\Common\Dialogs\uqBitAddTorrentDlg.pas' {qBitAddTorrentDlg},
-  uqBitCategoriesDlg in '..\Common\Dialogs\uqBitCategoriesDlg.pas' {qBitCategoriesDlg};
+  uqBitCategoriesDlg in '..\Common\Dialogs\uqBitCategoriesDlg.pas' {qBitCategoriesDlg},
+  Vcl.Themes,
+  Vcl.Styles;
 
 {$R *.res}
 
 begin
- {$IFNDEF FASTMM4} {$IFDEF DEBUG} ReportMemoryLeaksOnShutdown := True; {$ENDIF} {$ENDIF}
+  ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.CreateForm(TFrmSTG, FrmSTG);

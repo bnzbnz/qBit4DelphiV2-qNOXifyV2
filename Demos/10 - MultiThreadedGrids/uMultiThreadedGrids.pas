@@ -5,7 +5,8 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uqBit, uqBit.API, uqBit.API.Types,
   Vcl.ExtCtrls, Vcl.StdCtrls, uqBitGrid, uqBitThreads, Vcl.Menus, Vcl.ComCtrls,
-  Vcl.Grids, Vcl.CheckLst;
+  Vcl.Grids, Vcl.CheckLst, Vcl.TitleBarCtrls, Vcl.ToolWin, Vcl.ActnMan,
+  Vcl.ActnCtrls;
 
 type
   TFrmSTG = class(TForm)
@@ -39,7 +40,6 @@ type
     PMMainPause: TMenuItem;
     Reannounce1: TMenuItem;
     Panel1: TPanel;
-    CLBTags: TCheckListBox;
     PMTags: TPopupMenu;
     PMTags1: TMenuItem;
     N4: TMenuItem;
@@ -52,6 +52,10 @@ type
     MMExitqBittorent: TMenuItem;
     N5: TMenuItem;
     AddFiles1: TMenuItem;
+    LBTags: TListBox;
+    Label2: TLabel;
+    Clear1: TMenuItem;
+    ToolBar1: TToolBar;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -76,6 +80,7 @@ type
     procedure MMExitqBittorentClick(Sender: TObject);
     procedure Add2Click(Sender: TObject);
     procedure Remove1Click(Sender: TObject);
+    procedure Clear1Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -138,12 +143,13 @@ begin
     var Server := qBitSelectServerDlg.GetServer;
     qB := TqBit.Connect(Server.FHP, Server.FUN, Server.FPW);
 
-    CLBTags.MultiSelect := True;
+    LBTags.Sorted := True;
+    LBTags.MultiSelect := True;
 
     MainFrame.DoCreate;
     MainFrame.SortField := 'name';
     MainFrame.SortReverse := False;
-    MainFrame.AddCol('Name', 'name', TValueFormatString, 320, True);
+    MainFrame.AddCol('Name', 'name', TValueFormatString, 180, True);
     MainFrame.AddCol('Size', 'size', TValueFormatBKM, 84, True);
     MainFrame.AddCol('Total Size', 'total_size', TValueFormatBKM, -1, True);
     MainFrame.AddCol('Progress', 'progress', TValueFormatPercent, 84, True);
@@ -262,6 +268,27 @@ begin
   end;
 end;
 
+procedure TFrmSTG.Clear1Click(Sender: TObject);
+begin
+  var Lst := TStringList.Create(#0, ',', [soStrictDelimiter]);
+  var Ts := MainFrame.GetSelectedTorrents;
+  try
+    for var i := 0 to LBTags.Items.Count - 1 do
+    begin
+      if LBTags.Selected[i] then
+      begin
+        for var T in TS do
+        begin
+          qB.RemoveTorrentTags(T.hash.AsString, LBTags.Items[i]);
+        end;
+      end;
+    end;
+  finally
+    Ts.Free;
+    Lst.Free;
+  end;
+end;
+
 procedure TFrmSTG.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   TrackersThread.Free;
@@ -298,14 +325,15 @@ begin
   try
     if Keys.Count = 0 then Exit;
     ActiveKeyHash := Keys[Keys.Count - 1];
-    CLBTags.CheckAll(cbUnchecked, False, False);
     Ts := MainFrame.GetSelectedTorrents;
+
+    for var T := 0 to LBTags.Count - 1 do LBTags.Selected[T] := False;
     for var T in Ts do
     begin
       Lst.DelimitedText := T.tags.ToString;
       for var L in Lst do
-        if CLBTags.Items.IndexOf(L.Trim) > -1 then
-           CLBTags.Checked[ CLBTags.Items.IndexOf(L.Trim) ] := True;
+        if LBTags.Items.IndexOf(L.Trim) > -1 then
+           LBTags.Selected[ LBTags.Items.IndexOf(L.Trim) ] := True;
     end;
     //tags;
 
@@ -360,9 +388,9 @@ end;
 
 procedure TFrmSTG.Remove1Click(Sender: TObject);
 begin
-  for var i := 0 to CLBTags.Items.Count - 1 do
-    if CLBTags.Selected[i] then
-      qB.DeleteTags(CLBTags.Items[i]);
+   for var i := 0 to LBTags.Items.Count - 1 do
+    if LBTags.Selected[i] then
+        qB.DeleteTags(LBTags.Items[i]);
 end;
 
 procedure TFrmSTG.ResumeClick(Sender: TObject);
@@ -479,26 +507,16 @@ begin
       Caption := 'Multi Threaded Grid : ' + qb.Username + '@' + qb.HostPath;
 
       // Tags
-
-      var Selected := TStringList.Create;
-      for var Sel := 0 to CLBTags.Items.Count - 1 do
-        if CLBTags.Checked[Sel] then Selected.Add(CLBTags.Items[Sel]);
-
-      if  M.Main.tags.Count > 0 then
+      if M.Main.tags.Count > 0 then
       for var Tag in M.Main.tags do
-        if CLBTags.Items.IndexOf(Tag.AsString.Trim) = -1  then
-          CLBTags.AddItem(Tag.AsString.Trim, Nil);
+        if LBTags.Items.IndexOf(Tag.AsString.Trim) = -1  then
+          LBTags.AddItem(Tag.AsString.Trim, Nil);
+
       if M.Main.tags_removed.Count > 0 then
       for var Tag in M.Main.tags_removed do
-        if CLBTags.Items.IndexOf(Tag.AsString.Trim) <> -1  then
-          CLBTags.Items.Delete(CLBTags.Items.IndexOf(Tag.AsString.Trim));
-      CLBTags.CheckAll(cbUnchecked, False, False);
-
-     for var ToSel := 0 to CLBTags.Items.Count - 1 do
-      if Selected.IndexOf(CLBTags.Items[ToSel])<>-1  then  CLBTags.Checked[toSel] := True;
-      Selected.Free;
-
-      // Tags End
+        if LBTags.Items.IndexOf(Tag.AsString.Trim) <> -1  then
+          LBTags.Items.Delete(  LBTags.Items.IndexOf(Tag.AsString.Trim) );
+       // Tags End
 
       StatusBar1.Panels[0].Text := M.Main.server_state.connection_status.AsString;
       StatusBar1.Panels[1].Text := 'DHT nodes : ' + M.Main.server_state.dht_nodes.AsInt64.ToString;
@@ -633,8 +651,8 @@ begin
   var Lst := TStringList.Create(#0, ',', [soStrictDelimiter]);
   var Ts := MainFrame.GetSelectedTorrents;
   try
-    for var i := 0 to CLBTags.Items.Count - 1 do
-      if CLBTags.Checked[i] then Lst.Add(CLBTags.Items[i]);
+    for var i := 0 to LBTags.Items.Count - 1 do
+      if LBTags.Selected[i] then Lst.Add(LBTags.Items[i]);
     for var T in TS do
     begin
       qB.RemoveTorrentTags(T.hash.AsString, '');

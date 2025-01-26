@@ -195,7 +195,6 @@ begin
   Result := v.FromSecToDuration;
 end;
 
-
 function TitleCase(const S: string): string;
 var
   IsUpper: boolean;
