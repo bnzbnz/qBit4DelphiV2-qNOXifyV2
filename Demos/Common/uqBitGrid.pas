@@ -444,6 +444,7 @@ var
 begin
   GetCursorPos(P) ;
   SG.MouseToCell(SG.ScreenToClient(P).X, SG.ScreenToClient(P).Y, ACol, ARow);
+  if (ACol = -1 ) or (ARow = -1) then Exit;
   var Field := Self.GetColData(ACol);
   if Field.Field = SortField then
     SortReverse := Not SortReverse

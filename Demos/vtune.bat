@@ -5,6 +5,6 @@ map2pdb.exe -bind:NOXMon.exe NOXMon.map
 map2pdb.exe -bind:TorrentReader.exe TorrentReader.map
 map2pdb.exe -bind:IPAPIDemo.exe IPAPIDemo.map
 map2pdb.exe -bind:SimpleThreadedGrid.exe SimpleThreadedGrid.map
-map2pdb.exe -bind:MultiThreadedGrids.exe MultiThreadedGrids.map
+map2pdb.exe -bind:qNOXThinClient.exe qNOXThinClient.map
 pause
  

@@ -1,9 +1,10 @@
-program MultiThreadedGrids;
+program qNOXThinClient;
 uses
   Vcl.Forms,
   uqBitAddServerDlg in '..\Common\Dialogs\uqBitAddServerDlg.pas' {qBitAddServerDlg},
+  uqBitCategoriesDlg in '..\Common\Dialogs\uqBitCategoriesDlg.pas' {qBitTagsDlg},
   uqBitSelectServerDlg in '..\Common\Dialogs\uqBitSelectServerDlg.pas' {qBitSelectServerDlg},
-  uMultiThreadedGrids in 'uMultiThreadedGrids.pas' {FrmSTG},
+  uqNOXThinClient in 'uqNOXThinClient.pas' {FrmSTG},
   uJX4Dict in '..\..\API\uJsonX4\uJX4Dict.pas',
   uJX4List in '..\..\API\uJsonX4\uJX4List.pas',
   uJX4Object in '..\..\API\uJsonX4\uJX4Object.pas',
@@ -17,7 +18,6 @@ uses
   uqBitGrid in '..\Common\uqBitGrid.pas' {qBitFrame: TFrame},
   uqBitThreads in '..\Common\uqBitThreads.pas',
   uqBitAddTorrentDlg in '..\Common\Dialogs\uqBitAddTorrentDlg.pas' {qBitAddTorrentDlg},
-  uqBitCategoriesDlg in '..\Common\Dialogs\uqBitCategoriesDlg.pas' {qBitCategoriesDlg},
   Vcl.Themes,
   Vcl.Styles;
 

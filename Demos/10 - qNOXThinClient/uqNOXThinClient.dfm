@@ -1,9 +1,9 @@
 object FrmSTG: TFrmSTG
   Left = 0
   Top = 0
-  Caption = 'Multi Threaded Grid'
-  ClientHeight = 544
-  ClientWidth = 1050
+  Caption = 'qNOX Thin Client : '
+  ClientHeight = 701
+  ClientWidth = 1443
   Color = clBtnFace
   DefaultMonitor = dmMainForm
   Font.Charset = DEFAULT_CHARSET
@@ -18,8 +18,8 @@ object FrmSTG: TFrmSTG
   TextHeight = 13
   object Splitter1: TSplitter
     Left = 0
-    Top = 301
-    Width = 1050
+    Top = 482
+    Width = 1443
     Height = 3
     Cursor = crVSplit
     Align = alBottom
@@ -27,20 +27,20 @@ object FrmSTG: TFrmSTG
     ExplicitWidth = 328
   end
   inline MainFrame: TqBitFrame
-    Left = 161
+    Left = 0
     Top = 29
-    Width = 889
-    Height = 272
+    Width = 1443
+    Height = 453
     Align = alClient
     TabOrder = 0
-    ExplicitLeft = 161
-    ExplicitWidth = 889
-    ExplicitHeight = 301
+    ExplicitTop = 29
+    ExplicitWidth = 1443
+    ExplicitHeight = 453
     inherited SG: TStringGrid
-      Width = 889
-      Height = 272
-      ExplicitWidth = 889
-      ExplicitHeight = 301
+      Width = 1443
+      Height = 453
+      ExplicitWidth = 1443
+      ExplicitHeight = 453
       ColWidths = (
         80
         80
@@ -1043,12 +1043,15 @@ object FrmSTG: TFrmSTG
         80
         80)
     end
+    inherited PMColHdr: TPopupMenu
+      AutoPopup = False
+    end
   end
   object PageControl1: TPageControl
     Left = 0
-    Top = 304
-    Width = 1050
-    Height = 216
+    Top = 485
+    Width = 1443
+    Height = 192
     ActivePage = TabSheet1
     Align = alBottom
     TabOrder = 1
@@ -1058,8 +1061,8 @@ object FrmSTG: TFrmSTG
       object SGG: TStringGrid
         Left = 0
         Top = 0
-        Width = 1042
-        Height = 188
+        Width = 1435
+        Height = 164
         Align = alClient
         BevelEdges = []
         BevelInner = bvNone
@@ -1105,17 +1108,17 @@ object FrmSTG: TFrmSTG
       inline PeersFrame: TqBitFrame
         Left = 0
         Top = 0
-        Width = 1042
-        Height = 188
+        Width = 1435
+        Height = 164
         Align = alClient
         TabOrder = 0
-        ExplicitWidth = 1042
-        ExplicitHeight = 188
+        ExplicitWidth = 1435
+        ExplicitHeight = 164
         inherited SG: TStringGrid
-          Width = 1042
-          Height = 188
-          ExplicitWidth = 1042
-          ExplicitHeight = 188
+          Width = 1435
+          Height = 164
+          ExplicitWidth = 1435
+          ExplicitHeight = 164
         end
       end
     end
@@ -1125,25 +1128,25 @@ object FrmSTG: TFrmSTG
       inline TrackersFrame: TqBitFrame
         Left = 0
         Top = 0
-        Width = 1042
-        Height = 188
+        Width = 1435
+        Height = 164
         Align = alClient
         TabOrder = 0
-        ExplicitWidth = 1042
-        ExplicitHeight = 188
+        ExplicitWidth = 1435
+        ExplicitHeight = 164
         inherited SG: TStringGrid
-          Width = 1042
-          Height = 188
-          ExplicitWidth = 1042
-          ExplicitHeight = 188
+          Width = 1435
+          Height = 164
+          ExplicitWidth = 1435
+          ExplicitHeight = 164
         end
       end
     end
   end
   object StatusBar1: TStatusBar
     Left = 0
-    Top = 520
-    Width = 1050
+    Top = 677
+    Width = 1443
     Height = 24
     Hint = 'Click to Toogle Speeds'
     Panels = <
@@ -1168,71 +1171,84 @@ object FrmSTG: TFrmSTG
     ShowHint = True
     OnClick = StatusBar1Click
   end
-  object Panel1: TPanel
-    Left = 0
-    Top = 29
-    Width = 161
-    Height = 272
-    Align = alLeft
-    BevelOuter = bvNone
-    TabOrder = 3
-    ExplicitTop = 0
-    ExplicitHeight = 301
-    object Label1: TLabel
-      Left = 7
-      Top = 37
-      Width = 39
-      Height = 13
-      Caption = 'TAGS  :'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = [fsBold]
-      Font.Quality = fqAntialiased
-      ParentFont = False
-    end
-    object Label2: TLabel
-      Left = 15
-      Top = 191
-      Width = 121
-      Height = 12
-      Caption = 'Use Shift/Ctrl/Right-Click...'
-      Font.Charset = DEFAULT_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -10
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      Font.Quality = fqAntialiased
-      ParentFont = False
-    end
-    object LBTags: TListBox
-      Left = 7
-      Top = 56
-      Width = 148
-      Height = 129
-      DoubleBuffered = True
-      ItemHeight = 13
-      MultiSelect = True
-      ParentDoubleBuffered = False
-      PopupMenu = PMTags
-      TabOrder = 0
-    end
-  end
   object ToolBar1: TToolBar
     Left = 0
     Top = 0
-    Width = 1050
+    Width = 1443
     Height = 29
+    ButtonHeight = 29
     Caption = 'ToolBar1'
-    TabOrder = 4
-    ExplicitLeft = 360
-    ExplicitTop = -40
-    ExplicitWidth = 150
+    TabOrder = 3
+    StyleElements = [seFont, seBorder]
+    object Panel2: TPanel
+      Left = 0
+      Top = 0
+      Width = 1046
+      Height = 29
+      Align = alClient
+      BevelOuter = bvNone
+      TabOrder = 0
+      object Label3: TLabel
+        Left = 4
+        Top = 9
+        Width = 54
+        Height = 13
+        Caption = 'FILTERS  :'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = [fsBold]
+        Font.Quality = fqAntialiased
+        ParentFont = False
+      end
+      object EDFilter: TEdit
+        Left = 73
+        Top = 5
+        Width = 256
+        Height = 21
+        TabOrder = 0
+      end
+      object BitBtn1: TBitBtn
+        Left = 329
+        Top = 4
+        Width = 22
+        Height = 22
+        Caption = 'X'
+        TabOrder = 1
+        OnClick = BitBtn1Click
+      end
+      object BitBtn2: TBitBtn
+        Left = 521
+        Top = 5
+        Width = 22
+        Height = 21
+        Caption = 'X'
+        TabOrder = 2
+        OnClick = BitBtn2Click
+      end
+      object CBCats: TComboBox
+        Left = 376
+        Top = 5
+        Width = 145
+        Height = 21
+        Style = csDropDownList
+        DoubleBuffered = False
+        ParentDoubleBuffered = False
+        TabOrder = 3
+        Items.Strings = (
+          'aa'
+          'bb'
+          'vvv')
+      end
+    end
   end
   object MainPopup: TPopupMenu
-    Left = 264
-    Top = 88
+    AutoHotkeys = maManual
+    OnClose = MainPopupClose
+    OnPopup = MainPopupPopup
+    Left = 192
+    Top = 136
     object Pause1: TMenuItem
       Caption = 'Stop'
       OnClick = PauseClick
@@ -1249,12 +1265,28 @@ object FrmSTG: TFrmSTG
       Caption = 'Reannounce'
       OnClick = Reannounce1Click
     end
+    object N8: TMenuItem
+      Caption = '-'
+    end
+    object CatsMenu: TMenuItem
+      Caption = 'Categories'
+    end
+    object TagsMenu: TMenuItem
+      Caption = 'Tags'
+    end
     object N2: TMenuItem
       Caption = '-'
     end
     object Add1: TMenuItem
       Caption = 'Add'
-      OnClick = Add1Click
+      object Files1: TMenuItem
+        Caption = 'Files'
+        OnClick = Files1Click
+      end
+      object Magnet1: TMenuItem
+        Caption = 'Magnet'
+        OnClick = Magnet1Click
+      end
     end
     object Delete1: TMenuItem
       Caption = 'Delete Torrent'
@@ -1280,8 +1312,8 @@ object FrmSTG: TFrmSTG
     end
   end
   object PeersPopup: TPopupMenu
-    Left = 460
-    Top = 424
+    Left = 484
+    Top = 496
     object BanPeers1: TMenuItem
       Caption = 'Ban Peers'
       OnClick = BanPeers1Click
@@ -1307,39 +1339,21 @@ object FrmSTG: TFrmSTG
         FileMask = '*.torrent'
       end>
     Options = [fdoAllowMultiSelect, fdoPathMustExist, fdoFileMustExist]
-    Left = 504
-  end
-  object PMTags: TPopupMenu
-    Left = 16
-    Top = 208
-    object PMTags1: TMenuItem
-      Caption = 'Assign'
-      OnClick = PMTags1Click
-    end
-    object Clear1: TMenuItem
-      Caption = 'Remove'
-      OnClick = Clear1Click
-    end
-    object N4: TMenuItem
-      Caption = '-'
-    end
-    object Add2: TMenuItem
-      Caption = 'Create Tags'
-      OnClick = Add2Click
-    end
-    object Remove1: TMenuItem
-      Caption = 'Delete Tags'
-      OnClick = Remove1Click
-    end
+    Left = 440
+    Top = 32
   end
   object MainMenu1: TMainMenu
-    Left = 88
-    Top = 208
+    Left = 192
+    Top = 200
     object File1: TMenuItem
       Caption = 'File'
       object AddFiles1: TMenuItem
         Caption = 'Add Files'
-        OnClick = Add1Click
+        OnClick = Files1Click
+      end
+      object AddURL1: TMenuItem
+        Caption = 'Add URL'
+        OnClick = Magnet1Click
       end
       object N5: TMenuItem
         Caption = '-'

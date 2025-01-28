@@ -1,12 +1,15 @@
-﻿unit uMultiThreadedGrids;
+﻿unit uqNOXThinClient;
 
 interface
 uses
+
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uqBit, uqBit.API, uqBit.API.Types,
   Vcl.ExtCtrls, Vcl.StdCtrls, uqBitGrid, uqBitThreads, Vcl.Menus, Vcl.ComCtrls,
   Vcl.Grids, Vcl.CheckLst, Vcl.TitleBarCtrls, Vcl.ToolWin, Vcl.ActnMan,
-  Vcl.ActnCtrls;
+  Vcl.ActnCtrls, Vcl.Buttons
+  , uKobicAppTrackMenus
+  ;
 
 type
   TFrmSTG = class(TForm)
@@ -39,23 +42,25 @@ type
     PMPausePeers: TMenuItem;
     PMMainPause: TMenuItem;
     Reannounce1: TMenuItem;
-    Panel1: TPanel;
-    PMTags: TPopupMenu;
-    PMTags1: TMenuItem;
-    N4: TMenuItem;
-    Add2: TMenuItem;
-    Remove1: TMenuItem;
-    Label1: TLabel;
     MainMenu1: TMainMenu;
     File1: TMenuItem;
     MMLogout: TMenuItem;
     MMExitqBittorent: TMenuItem;
     N5: TMenuItem;
     AddFiles1: TMenuItem;
-    LBTags: TListBox;
-    Label2: TLabel;
-    Clear1: TMenuItem;
     ToolBar1: TToolBar;
+    Panel2: TPanel;
+    EDFilter: TEdit;
+    Label3: TLabel;
+    BitBtn1: TBitBtn;
+    CatsMenu: TMenuItem;
+    TagsMenu: TMenuItem;
+    N8: TMenuItem;
+    Files1: TMenuItem;
+    Magnet1: TMenuItem;
+    BitBtn2: TBitBtn;
+    CBCats: TComboBox;
+    AddURL1: TMenuItem;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -65,7 +70,6 @@ type
     procedure UnbanAll1Click(Sender: TObject);
     procedure BanPeers1Click(Sender: TObject);
     procedure Recheck1Click(Sender: TObject);
-    procedure Add1Click(Sender: TObject);
     procedure NoData1Click(Sender: TObject);
     procedure WithData1Click(Sender: TObject);
     procedure StatusBar1Click(Sender: TObject);
@@ -75,15 +79,30 @@ type
     procedure PMPausePeersClick(Sender: TObject);
     procedure PMMainPauseClick(Sender: TObject);
     procedure Reannounce1Click(Sender: TObject);
-    procedure PMTags1Click(Sender: TObject);
     procedure MMLogoutClick(Sender: TObject);
     procedure MMExitqBittorentClick(Sender: TObject);
     procedure Add2Click(Sender: TObject);
-    procedure Remove1Click(Sender: TObject);
-    procedure Clear1Click(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
+    procedure AssigntoselectedTorrents1Click(Sender: TObject);
+    procedure RemoveCategories1Click(Sender: TObject);
+    procedure MainPopupPopup(Sender: TObject);
+    procedure MainPopupClose(Sender: TObject);
+    procedure Files1Click(Sender: TObject);
+    procedure Magnet1Click(Sender: TObject);
+    procedure BitBtn2Click(Sender: TObject);
 
   private
     { Private declarations }
+    procedure ClickEditCats(Sender: TObject);
+    procedure ClickClearCats(Sender: TObject);
+    procedure ClickSetCats(Sender: TObject);
+    procedure ClickClearTags(Sender: TObject);
+    procedure ClickCreateTags(Sender: TObject);
+  protected
+   procedure WMDropFiles(var Msg: TMessage); message WM_DROPFILES;
+   procedure TrackMenuNotifyHandler(Sender: TMenu; Item: TMenuItem; var CanClose: Boolean);
+   procedure PrepareMainPopup;
+   procedure ReleaseMainPopup;
   public
     { Public declarations }
     qB: TqBit;
@@ -91,6 +110,9 @@ type
     PeersThread: TqBitPeersThread;
     TrackersThread: TqBitTrackersThread;
     ActiveKeyHash: string;
+    TagsList: TStringList;
+    CatsList: TStringList;
+
     procedure MainThreadEvent(qBitThread: TThread; EventType: TqBitThreadEventCode);
     procedure MainFrameUpdateEvent(Sender: TObject);
     procedure MainFramePopupEvent(Sender: TObject; X, Y, aCol, aRow: integer);
@@ -113,6 +135,7 @@ implementation
 uses
     ShellAPI
   , uqBitSelectServerDlg
+  , uqBitCategoriesDlg
   , uqBitAddTorrentDlg
   , RTTI
   , System.Generics.Collections
@@ -121,6 +144,7 @@ uses
   , uJX4Object
   , System.TypInfo
   , Vcl.Clipbrd
+  , StrUtils
   ;
 
 function TValueFormatTrackerStatus(v: TValue): string;
@@ -136,6 +160,198 @@ begin
   end;
 end;
 
+procedure TFrmSTG.ReleaseMainPopup;
+begin
+   var Lst := TStringList.Create(#0, ',', [soStrictDelimiter]);
+   var Ts := MainFrame.GetSelectedTorrents;
+
+   for var T in TagsMenu do
+     if T.Checked then Lst.Add(T.Caption);
+
+   for var T in Ts do
+   begin
+    qB.RemoveTorrentTags(T.hash.AsString, '');
+    qB.AddTorrentTags(T.hash.AsString, LSt.Delimitedtext);
+   end;
+
+   Ts.Free;
+   Lst.free;
+end;
+
+procedure TFrmSTG.PrepareMainPopup;
+begin
+
+  var Lst := TStringList.Create(#0, ',', [soStrictDelimiter]);
+  var Ts := MainFrame.GetSelectedTorrents;
+  try
+    // Category
+    CatsMenu.Clear;
+    var SubMenu := TMenuItem.Create(Self);
+    SubMenu.Caption := 'Add / Edit / Delete';
+    SubMenu.tag := 0;
+    SubMenu.OnClick := ClickEditCats;
+    CatsMenu.Add(SubMenu);
+    SubMenu := TMenuItem.Create(Self);
+    SubMenu.OnClick := Nil;
+    SubMenu.Caption := '-';
+    CatsMenu.Add(SubMenu);
+    SubMenu := TMenuItem.Create(Self);
+    SubMenu.OnClick := ClickClearCats;
+    //SubMenu.Tag := 1;
+    SubMenu.Caption := '';
+    CatsMenu.Add(SubMenu);
+
+    var Idx := 2;
+    for var T in Ts do Lst.Add(T.category.AsString);
+    for var Cat in CatsList do
+    begin
+      SubMenu := TMenuItem.Create(Self);
+      SubMenu.Caption := Cat;
+      //SubMenu.AutoCheck := True;
+      //SubMenu.tag := Idx;
+      SubMenu.OnClick := ClickSetCats;
+      SubMenu.Checked := LSt.IndexOf(Cat) <> -1;
+      CatsMenu.Add(SubMenu);
+      Inc(Idx);
+    end;
+
+    // Tag
+    TagsMenu.Clear;
+    SubMenu := TMenuItem.Create(Self);
+    SubMenu.Caption := 'Add / Edit / Delete';
+    SubMenu.tag := 0;
+    SubMenu.OnClick := ClickCreateTags;
+    TagsMenu.Add(SubMenu);
+    SubMenu := TMenuItem.Create(Self);
+    SubMenu.OnClick := Nil;
+    SubMenu.Caption := '-';
+    TagsMenu.Add(SubMenu);
+    SubMenu := TMenuItem.Create(Self);
+    SubMenu.OnClick := ClickClearTags;
+    //SubMenu.Tag := 1;
+    SubMenu.Caption := '';
+    TagsMenu.Add(SubMenu);
+
+
+    Idx := 1; LSt.Clear; LSt.Duplicates := dupIgnore; var v := '';
+    for var T in Ts do Lst.Text := Lst.Text + ',' +  T.tags.AsString;
+    Lst.DelimitedText := Lst.Text;
+    for var Tag in TagsList do
+    begin
+      SubMenu := TMenuItem.Create(Self);
+      SubMenu.Caption := Tag;
+      SubMenu.AutoCheck := True;
+      SubMenu.tag := Idx;
+      SubMenu.OnClick := ClickSetCats;
+      SubMenu.Checked := (Lst.IndexOf(Tag) <> -1) or (Lst.IndexOf(' ' + Tag) <> -1);
+      TagsMenu.Add(SubMenu);
+      Inc(Idx);
+    end;
+
+  finally
+    Ts.Free;
+    Lst.Free;
+  end;
+end;
+
+procedure TFrmSTG.ClickCreateTags(Sender: TObject);
+begin
+  var Tags := qB.GetAllTags;
+  var Lst := TStringList.Create(#0, ',', [soStrictDelimiter]);
+  try
+    for var Tag in Tags.tags do Lst.Add(Tag.asString);
+    var InputString := InputBox('Manage Tags', 'Edit Tags (comma separated)', Lst.DelimitedText);
+
+    if not InputString.Trim.IsEmpty then
+    begin
+      var AlreadyExist: Boolean := False;
+      Lst.DelimitedText := InputString;
+      for var i in Lst do
+      begin
+        AlreadyExist := False;
+        for var j in Tags.tags do
+        begin
+          AlreadyExist := (i.Trim = j.AsString.Trim) or AlreadyExist;
+          if AlreadyExist then Break;
+        end;
+        if Not AlreadyExist then
+          qB.CreateTags(i.Trim);
+      end;
+
+      AlreadyExist := False;
+      Lst.DelimitedText := InputString;
+      for var j in Tags.tags do
+      begin
+        AlreadyExist := False;
+        for var i in Lst do
+        begin
+          AlreadyExist := (i.Trim = j.AsString.Trim) or AlreadyExist;
+          if AlreadyExist then Break;
+        end;
+        if Not AlreadyExist then
+          qB.DeleteTags(j.AsString.Trim);
+      end;
+
+    end else
+       for var j in Tags.tags do qB.DeleteTags(j.AsString);
+  finally
+    LSt.Free;
+    Tags.Free;
+  end;
+end;
+
+procedure TFrmSTG.ClickClearTags(Sender: TObject);
+begin
+ var Ts := MainFrame.GetSelectedTorrents;
+   try
+     for var T in Ts do
+       qB.RemoveTorrentTags(T.hash.AsString, '');
+   finally
+     Ts.Free;
+   end;
+end;
+
+procedure TFrmSTG.ClickSetCats(Sender: TObject);
+begin
+ var Ts := MainFrame.GetSelectedTorrents;
+   try
+     for var T in Ts do
+       qB.SetTorrentCategory(T.hash.AsString, TMenuItem(Sender).Caption);
+   finally
+     Ts.Free;
+   end;
+end;
+
+procedure TFrmSTG.ClickClearCats(Sender: TObject);
+begin
+   var Ts := MainFrame.GetSelectedTorrents;
+   try
+     for var T in Ts do
+       qB.SetTorrentCategory(T.hash.AsString, '');
+   finally
+     Ts.Free;
+   end;
+end;
+
+procedure TFrmSTG.ClickEditCats(Sender: TObject);
+begin
+  var Ts: TList<TqBitTorrentType>:= Nil;
+  var LstT: TStringList := Nil;
+  if qBitCategoriesDlg.ShowAsModal(qB, True) = mrOK then
+  begin
+    try
+      LstT := TStringList.Create;
+      Ts := MainFrame.GetSelectedTorrents;
+      for var Tt in  Ts do LstT.Add(Tt.hash.AsString);
+      qB.SetTorrentCategory(LstT, qBitCategoriesDlg.Selected.name.AsString);
+    finally
+      LstT.Free;
+      Ts.Free;
+    end;
+  end;
+end;
+
+
 procedure TFrmSTG.FormShow(Sender: TObject);
 begin
   if qBitSelectServerDlg.ShowModal = mrOk then
@@ -143,13 +359,20 @@ begin
     var Server := qBitSelectServerDlg.GetServer;
     qB := TqBit.Connect(Server.FHP, Server.FUN, Server.FPW);
 
-    LBTags.Sorted := True;
-    LBTags.MultiSelect := True;
+    DragAcceptFiles (Self.handle, True);
+    CatsList := TStringList.Create;
+    CatsList.Sorted := True;
+    TagsList := TStringList.Create;
+    TagsList.Sorted := True;
+
+    MainPopup.TrackMenu := True;
+    MainPopup.OnTrackMenuNotify := TrackMenuNotifyHandler;
+
 
     MainFrame.DoCreate;
     MainFrame.SortField := 'name';
     MainFrame.SortReverse := False;
-    MainFrame.AddCol('Name', 'name', TValueFormatString, 180, True);
+    MainFrame.AddCol('Name', 'name', TValueFormatString, 220, True);
     MainFrame.AddCol('Size', 'size', TValueFormatBKM, 84, True);
     MainFrame.AddCol('Total Size', 'total_size', TValueFormatBKM, -1, True);
     MainFrame.AddCol('Progress', 'progress', TValueFormatPercent, 84, True);
@@ -162,7 +385,7 @@ begin
     MainFrame.AddCol('ETA', 'eta', TValueFormatDeltaSec, 128, True);
     MainFrame.AddCol('Category', 'category', TValueFormatString, 84, True);
     MainFrame.AddCol('Tags', 'tags', TValueFormatString, 84, True);
-    MainFrame.AddCol('Added On', 'added_on', TValueFormatDate, 128, True);
+    MainFrame.AddCol('Added On', 'added_on', TValueFormatDate, 128, False);
     MainFrame.AddCol('Completed On', 'completion_on', TValueFormatDate, -1, True);
     MainFrame.AddCol('Tracker', 'tracker', TValueFormatString, -1, True);
     MainFrame.AddCol('Down Limit', 'dl_limit', TValueFormatLimit, -1, True);
@@ -244,17 +467,70 @@ begin
     PostMessage(Handle, WM_CLOSE,0 ,0);
 end;
 
-procedure TFrmSTG.Add1Click(Sender: TObject);
+procedure TFrmSTG.Files1Click(Sender: TObject);
 begin
   if DlgOpenTorrent.Execute then
     qBitAddTorrentDlg.ShowAsModal(qB, DlgOpenTorrent.Files);
 end;
 
+procedure TFrmSTG.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  MainThread.Pause := True;
+  CatsList.Free;
+  TagsList.Free;
+  TrackersThread.Free;
+  PeersThread.Free;
+  MainThread.Free;
+  TrackersFrame.DoDestroy;
+  PeersFrame.DoDestroy;
+  MainFrame.DoDestroy;
+  qB.Free;
+end;
+
+procedure TFrmSTG.WMDropFiles(var Msg: TMessage);
+var
+  hDrop: THandle;
+  FileName: WideString;
+begin
+  var FL := TStringList.Create;
+  hDrop:= Msg.wParam;
+  var FileCount := DragQueryFile (hDrop , $FFFFFFFF, nil, 0);
+  for var i := 0 to FileCount - 1 do
+  begin
+    var namelen := DragQueryFile(hDrop, I, nil, 0) + 1;
+    SetLength(FileName, namelen);
+    DragQueryFile(hDrop, I, Pointer(FileName), namelen);
+    SetLength(FileName, namelen - 1);
+    FL.Add(FileName);
+  end;
+  if FL.Count > 0 then
+    qBitAddTorrentDlg.ShowAsModal(qB, FL);
+  FL.Free;
+  DragFinish(hDrop);
+end;
+
+procedure TFrmSTG.TrackMenuNotifyHandler(Sender: TMenu; Item: TMenuItem; var CanClose: Boolean);
+begin
+  CanClose := Item.Tag = 0;
+end;
+
 procedure TFrmSTG.Add2Click(Sender: TObject);
 begin
-  var InputString := InputBox('Create Tag', 'New Tag', 'Default tag');
+  var InputString := InputBox('Create Tags (comma separator)', 'New Tags', 'Default tags');
   if not InputString.Trim.IsEmpty then
     qB.CreateTags(InputString);
+end;
+
+procedure TFrmSTG.AssigntoselectedTorrents1Click(Sender: TObject);
+begin
+  var s := TMenuItem(Sender).Caption;
+  var Ts := MainFrame.GetSelectedTorrents;
+  try
+    for var T in TS do
+      qB.SetTorrentCategory(T.hash.AsString, s);
+  finally
+    Ts.Free;
+  end;
 end;
 
 procedure TFrmSTG.BanPeers1Click(Sender: TObject);
@@ -268,36 +544,22 @@ begin
   end;
 end;
 
-procedure TFrmSTG.Clear1Click(Sender: TObject);
+procedure TFrmSTG.BitBtn1Click(Sender: TObject);
 begin
-  var Lst := TStringList.Create(#0, ',', [soStrictDelimiter]);
-  var Ts := MainFrame.GetSelectedTorrents;
-  try
-    for var i := 0 to LBTags.Items.Count - 1 do
-    begin
-      if LBTags.Selected[i] then
-      begin
-        for var T in TS do
-        begin
-          qB.RemoveTorrentTags(T.hash.AsString, LBTags.Items[i]);
-        end;
-      end;
-    end;
-  finally
-    Ts.Free;
-    Lst.Free;
-  end;
+   EDFilter.CLear;
 end;
 
-procedure TFrmSTG.FormClose(Sender: TObject; var Action: TCloseAction);
+
+procedure TFrmSTG.BitBtn2Click(Sender: TObject);
 begin
-  TrackersThread.Free;
-  PeersThread.Free;
-  MainThread.Free;
-  TrackersFrame.DoDestroy;
-  PeersFrame.DoDestroy;
-  MainFrame.DoDestroy;
-  qB.Free;
+  CBCats.ItemIndex := 0;
+end;
+
+procedure TFrmSTG.Magnet1Click(Sender: TObject);
+begin
+  var InputString := InputBox('Add Magnet URL', 'New Magnet', '');
+  if not InputString.Trim.IsEmpty then
+    qB.AddNewTorrentUrl(InputString);
 end;
 
 procedure TFrmSTG.MainFramePopupEvent(Sender: TObject; X, Y, aCol, aRow: integer);
@@ -326,16 +588,6 @@ begin
     if Keys.Count = 0 then Exit;
     ActiveKeyHash := Keys[Keys.Count - 1];
     Ts := MainFrame.GetSelectedTorrents;
-
-    for var T := 0 to LBTags.Count - 1 do LBTags.Selected[T] := False;
-    for var T in Ts do
-    begin
-      Lst.DelimitedText := T.tags.ToString;
-      for var L in Lst do
-        if LBTags.Items.IndexOf(L.Trim) > -1 then
-           LBTags.Selected[ LBTags.Items.IndexOf(L.Trim) ] := True;
-    end;
-    //tags;
 
   finally
     Lst.Free;
@@ -386,11 +638,12 @@ begin
   end;
 end;
 
-procedure TFrmSTG.Remove1Click(Sender: TObject);
+procedure TFrmSTG.RemoveCategories1Click(Sender: TObject);
 begin
-   for var i := 0 to LBTags.Items.Count - 1 do
-    if LBTags.Selected[i] then
-        qB.DeleteTags(LBTags.Items[i]);
+  var Ts := MainFrame.GetSelectedTorrents;
+  for var T in TS do
+      qB.SetTorrentCategory(T.hash.AsString, '');
+  Ts.Free;
 end;
 
 procedure TFrmSTG.ResumeClick(Sender: TObject);
@@ -476,6 +729,18 @@ begin
   MainThread.Refresh := True; //Thread Safe;
 end;
 
+procedure TFrmSTG.MainPopupClose(Sender: TObject);
+begin
+  ReleaseMainPopup;
+  MainThread.Pause := PMMainPause.Checked;
+end;
+
+procedure TFrmSTG.MainPopupPopup(Sender: TObject);
+begin
+  MainThread.Pause := True;
+  PrepareMainPopup;
+end;
+
 procedure TFrmSTG.TrackersFrameUpdateEvent(Sender: TObject);
 begin
   TrackersThread.Refresh := True; //Thread Safe;
@@ -493,7 +758,13 @@ begin
   end;
 end;
 
+function SubMenuByName(Menu: TMenu; Caption: string): TMenuItem;
+begin
+end;
+
 procedure TFrmSTG.MainThreadEvent(qBitThread: TThread; EventType: TqBitThreadEventCode);
+var
+  LCBCat: string;
 begin
   //  qtetInit, qtetLoaded, qtetError, qtetBeforeMerge, qtetAfterMerge, qtetIdle, qtetExit
   var M := TqBitMainThread( qBitThread );
@@ -504,19 +775,36 @@ begin
 
       if PMMainPause.Checked then Exit;
 
-      Caption := 'Multi Threaded Grid : ' + qb.Username + '@' + qb.HostPath;
+      Caption := 'qNOX Thin Client : ' + qb.Username + '@' + qb.HostPath;
 
-      // Tags
       if M.Main.tags.Count > 0 then
       for var Tag in M.Main.tags do
-        if LBTags.Items.IndexOf(Tag.AsString.Trim) = -1  then
-          LBTags.AddItem(Tag.AsString.Trim, Nil);
-
+        if TagsList.IndexOf(Tag.AsString.Trim) = -1  then
+            TagsList.Add(Tag.AsString.Trim);
       if M.Main.tags_removed.Count > 0 then
       for var Tag in M.Main.tags_removed do
-        if LBTags.Items.IndexOf(Tag.AsString.Trim) <> -1  then
-          LBTags.Items.Delete(  LBTags.Items.IndexOf(Tag.AsString.Trim) );
-       // Tags End
+        if TagsList.IndexOf(Tag.AsString.Trim) <> -1  then
+          TagsList.Delete(  TagsList.IndexOf(Tag.AsString.Trim) );
+
+       if M.Main.categories.Count > 0 then
+       for var Cat in M.Main.categories do
+          if CatsList.IndexOf(Cat.Key.Trim) = -1  then
+            CatsList.Add(Cat.Key.Trim);
+        if M.Main.categories_removed.Count > 0 then
+        for var Cat in M.Main.categories_removed do
+          if CatsList.IndexOf(Cat.AsString.Trim) <> -1  then
+            CatsList.Delete( CatsList.IndexOf(Cat.AsString.Trim) );
+
+       var Idx := CBCats.ItemIndex;
+       if Idx > -1  then
+       LCBCat:= CBCats.Items[Idx];
+       CBCats.Clear;
+       CBCats.AddItem('', Nil);
+       for var j := 0 to CatsList.count -1 do
+       begin
+          CBCats.AddItem(CatsList[j], Nil);
+          if CatsList[j] = LCBCat then CBCats.ItemIndex := j+1;
+       end;
 
       StatusBar1.Panels[0].Text := M.Main.server_state.connection_status.AsString;
       StatusBar1.Panels[1].Text := 'DHT nodes : ' + M.Main.server_state.dht_nodes.AsInt64.ToString;
@@ -610,10 +898,35 @@ begin
 
       // Display Grid
       MainFrame.RowUpdateStart;
+
+      // Filter
+      var Lst := TStringList.Create(#0, ',', [soStrictDelimiter]);
+      //Lst.DelimitedText := CBTags.Text;
+
+      var Fwl := TStringList.Create;
+      ExtractStrings([' '], [], PChar(EDFilter.Text), Fwl);
       for var T in SortList do
-        MainFrame.AddRow(TqBitTorrentType(T).hash.AsString, T);
-      MainFrame.RowUpdateEnd;
+      begin
+        var w := True;
+        for var i in Fwl do
+          w := w and (
+              LowerCase(TqBitTorrentType(T).name.AsString)
+            + ' ' + LowerCase(TqBitTorrentType(T).tags.AsString)
+            + ' ' + LowerCase(TqBitTorrentType(T).category.AsString)
+            + ' ' + LowerCase(TqBitTorrentType(T).comment.AsString)
+            ).Contains(LowerCase(i));
+
+        if (CBCats.ItemIndex > 0) then
+              w := w and (TqBitTorrentType(T).category.AsString = CBCats.Items[CBCats.ItemIndex]);
+
+        if w then
+          MainFrame.AddRow(TqBitTorrentType(T).hash.AsString, T);
+      end;
+      Lst.Free;
       FreeAndNil(SortList);
+      MainFrame.RowUpdateEnd;
+      Fwl.Free;
+
 
     end;
     qtetError:
@@ -644,24 +957,6 @@ end;
 procedure TFrmSTG.PMPausePeersClick(Sender: TObject);
 begin
   PMPausePeers.Checked := not PMPausePeers.Checked;
-end;
-
-procedure TFrmSTG.PMTags1Click(Sender: TObject);
-begin
-  var Lst := TStringList.Create(#0, ',', [soStrictDelimiter]);
-  var Ts := MainFrame.GetSelectedTorrents;
-  try
-    for var i := 0 to LBTags.Items.Count - 1 do
-      if LBTags.Selected[i] then Lst.Add(LBTags.Items[i]);
-    for var T in TS do
-    begin
-      qB.RemoveTorrentTags(T.hash.AsString, '');
-      qB.AddTorrentTags(T.hash.AsString, Lst);
-    end;
-  finally
-    Ts.Free;
-    Lst.Free;
-  end;
 end;
 
 procedure TFrmSTG.NoData1Click(Sender: TObject);
