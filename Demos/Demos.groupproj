@@ -27,10 +27,7 @@
         <Projects Include="09 - SimpleThreadedGrid\SimpleThreadedGrid.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="10 - MultiThreadedGrids\MultiThreadedGrids.dproj">
-            <Dependencies/>
-        </Projects>
-        <Projects Include="10 - qNOX Thin Client\qNOXThinClient.dproj">
+        <Projects Include="10 - qNOXThinClient\qNOXThinClient.dproj">
             <Dependencies/>
         </Projects>
     </ItemGroup>
@@ -113,32 +110,23 @@
     <Target Name="SimpleThreadedGrid:Make">
         <MSBuild Projects="09 - SimpleThreadedGrid\SimpleThreadedGrid.dproj" Targets="Make"/>
     </Target>
-    <Target Name="MultiThreadedGrids">
-        <MSBuild Projects="10 - MultiThreadedGrids\MultiThreadedGrids.dproj"/>
-    </Target>
-    <Target Name="MultiThreadedGrids:Clean">
-        <MSBuild Projects="10 - MultiThreadedGrids\MultiThreadedGrids.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="MultiThreadedGrids:Make">
-        <MSBuild Projects="10 - MultiThreadedGrids\MultiThreadedGrids.dproj" Targets="Make"/>
-    </Target>
     <Target Name="qNOXThinClient">
-        <MSBuild Projects="10 - qNOX Thin Client\qNOXThinClient.dproj"/>
+        <MSBuild Projects="10 - qNOXThinClient\qNOXThinClient.dproj"/>
     </Target>
     <Target Name="qNOXThinClient:Clean">
-        <MSBuild Projects="10 - qNOX Thin Client\qNOXThinClient.dproj" Targets="Clean"/>
+        <MSBuild Projects="10 - qNOXThinClient\qNOXThinClient.dproj" Targets="Clean"/>
     </Target>
     <Target Name="qNOXThinClient:Make">
-        <MSBuild Projects="10 - qNOX Thin Client\qNOXThinClient.dproj" Targets="Make"/>
+        <MSBuild Projects="10 - qNOXThinClient\qNOXThinClient.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="Simple;FMXReport;NOXMon;TorrentReader;IPAPIDemo;AddTorrent;SimpleThreaded;SimpleThreadedGrid;MultiThreadedGrids;qNOXThinClient"/>
+        <CallTarget Targets="Simple;FMXReport;NOXMon;TorrentReader;IPAPIDemo;AddTorrent;SimpleThreaded;SimpleThreadedGrid;qNOXThinClient"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Simple:Clean;FMXReport:Clean;NOXMon:Clean;TorrentReader:Clean;IPAPIDemo:Clean;AddTorrent:Clean;SimpleThreaded:Clean;SimpleThreadedGrid:Clean;MultiThreadedGrids:Clean;qNOXThinClient:Clean"/>
+        <CallTarget Targets="Simple:Clean;FMXReport:Clean;NOXMon:Clean;TorrentReader:Clean;IPAPIDemo:Clean;AddTorrent:Clean;SimpleThreaded:Clean;SimpleThreadedGrid:Clean;qNOXThinClient:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Simple:Make;FMXReport:Make;NOXMon:Make;TorrentReader:Make;IPAPIDemo:Make;AddTorrent:Make;SimpleThreaded:Make;SimpleThreadedGrid:Make;MultiThreadedGrids:Make;qNOXThinClient:Make"/>
+        <CallTarget Targets="Simple:Make;FMXReport:Make;NOXMon:Make;TorrentReader:Make;IPAPIDemo:Make;AddTorrent:Make;SimpleThreaded:Make;SimpleThreadedGrid:Make;qNOXThinClient:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>
