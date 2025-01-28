@@ -475,7 +475,7 @@ end;
 
 procedure TFrmSTG.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  MainThread.Pause := True;
+  if Assigned(MAinThread) then MainThread.Pause := True;
   CatsList.Free;
   TagsList.Free;
   TrackersThread.Free;
