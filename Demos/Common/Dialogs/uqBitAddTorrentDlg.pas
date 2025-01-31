@@ -87,7 +87,7 @@ var
   qBitAddTorrentDlg: TqBitAddTorrentDlg;
 
 implementation
-uses Math, uqBitCategoriesDlg, RTTI, uJX4Object;
+uses Math, uqBitCategoriesDlg, RTTI, uJX4Object, uJX4Value;
 
 {$R *.dfm}
 

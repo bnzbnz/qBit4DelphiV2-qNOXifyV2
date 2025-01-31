@@ -11,7 +11,8 @@ uses
   uqBit.API in '..\..\API\uqBit.API.pas',
   uqBit.API.Types in '..\..\API\uqBit.API.Types.pas',
   uqBit in '..\..\API\uqBit.pas',
-  uTorrentFileReader in '..\..\API\uTorrentFileReader.pas';
+  uTorrentFileReader in '..\..\API\uTorrentFileReader.pas',
+  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas';
 
 {$R *.res}
 

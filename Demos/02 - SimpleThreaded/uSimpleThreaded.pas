@@ -30,7 +30,8 @@ var
   FrmSimpleThreaded: TFrmSimpleThreaded;
 implementation
 {$R *.dfm}
-uses uqBitSelectServerDlg, uJX4Object;
+uses uqBitSelectServerDlg, uJX4Value;
+
 { TqBitThread }
 destructor TqBitThread.Destroy;
 begin

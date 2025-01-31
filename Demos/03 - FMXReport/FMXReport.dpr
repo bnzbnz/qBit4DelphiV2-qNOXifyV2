@@ -8,7 +8,8 @@ uses
   uJX4Dict in '..\..\API\uJsonX4\uJX4Dict.pas',
   uJX4List in '..\..\API\uJsonX4\uJX4List.pas',
   uJX4Object in '..\..\API\uJsonX4\uJX4Object.pas',
-  uJX4Rtti in '..\..\API\uJsonX4\uJX4Rtti.pas';
+  uJX4Rtti in '..\..\API\uJsonX4\uJX4Rtti.pas',
+  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas';
 
 {$R *.res}
 

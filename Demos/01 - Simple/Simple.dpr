@@ -4,13 +4,14 @@ uses
   uSimple in 'uSimple.pas' {FrmSimple},
   uqBitAddServerDlg in '..\Common\Dialogs\uqBitAddServerDlg.pas' {qBitAddServerDlg},
   uqBitSelectServerDlg in '..\Common\Dialogs\uqBitSelectServerDlg.pas' {qBitSelectServerDlg},
-  uqBit.API in '..\..\..\qBit4DelphiV2\API\uqBit.API.pas',
-  uqBit.API.Types in '..\..\..\qBit4DelphiV2\API\uqBit.API.Types.pas',
-  uqBit in '..\..\..\qBit4DelphiV2\API\uqBit.pas',
+  uqBit.API in '..\..\API\uqBit.API.pas',
+  uqBit.API.Types in '..\..\API\uqBit.API.Types.pas',
+  uqBit in '..\..\API\uqBit.pas',
   uJX4Dict in '..\..\..\JsonX4\uJsonX4\uJX4Dict.pas',
   uJX4List in '..\..\..\JsonX4\uJsonX4\uJX4List.pas',
   uJX4Object in '..\..\..\JsonX4\uJsonX4\uJX4Object.pas',
-  uJX4Rtti in '..\..\..\JsonX4\uJsonX4\uJX4Rtti.pas';
+  uJX4Rtti in '..\..\..\JsonX4\uJsonX4\uJX4Rtti.pas',
+  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas';
 
 {$R *.res}
 

@@ -116,6 +116,7 @@
         <DCCReference Include="..\..\API\uJsonX4\uJX4Object.pas"/>
         <DCCReference Include="..\..\API\uJsonX4\uJX4Rtti.pas"/>
         <DCCReference Include="..\..\API\uCountryFlags\uCountryFlags.pas"/>
+        <DCCReference Include="..\..\API\uJsonX4\uJX4Value.pas"/>
         <RcCompile Include="..\..\API\uCountryFlags\CountryFlags.rc">
             <Form>CountryFlags.res</Form>
         </RcCompile>

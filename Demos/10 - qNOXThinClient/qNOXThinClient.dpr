@@ -19,7 +19,8 @@ uses
   uqBitThreads in '..\Common\uqBitThreads.pas',
   uqBitAddTorrentDlg in '..\Common\Dialogs\uqBitAddTorrentDlg.pas' {qBitAddTorrentDlg},
   Vcl.Themes,
-  Vcl.Styles;
+  Vcl.Styles,
+  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas';
 
 {$R *.res}
 

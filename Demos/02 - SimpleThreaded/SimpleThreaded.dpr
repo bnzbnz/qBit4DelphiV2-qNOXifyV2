@@ -13,7 +13,8 @@ uses
   uqBitAddTorrentDlg in '..\Common\Dialogs\uqBitAddTorrentDlg.pas' {qBitAddTorrentDlg},
   uqBitCategoriesDlg in '..\Common\Dialogs\uqBitCategoriesDlg.pas' {qBitCategoriesDlg},
   uqBitSelectServerDlg in '..\Common\Dialogs\uqBitSelectServerDlg.pas' {qBitSelectServerDlg},
-  uTorrentFileReader in '..\..\API\uTorrentFileReader.pas';
+  uTorrentFileReader in '..\..\API\uTorrentFileReader.pas',
+  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas';
 
 {$R *.res}
 

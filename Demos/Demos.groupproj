@@ -27,6 +27,9 @@
         <Projects Include="09 - SimpleThreadedGrid\SimpleThreadedGrid.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="11 - VNStatDemo\vnStatDemo.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="10 - qNOXThinClient\qNOXThinClient.dproj">
             <Dependencies/>
         </Projects>
@@ -110,6 +113,15 @@
     <Target Name="SimpleThreadedGrid:Make">
         <MSBuild Projects="09 - SimpleThreadedGrid\SimpleThreadedGrid.dproj" Targets="Make"/>
     </Target>
+    <Target Name="vnStatDemo">
+        <MSBuild Projects="11 - VNStatDemo\vnStatDemo.dproj"/>
+    </Target>
+    <Target Name="vnStatDemo:Clean">
+        <MSBuild Projects="11 - VNStatDemo\vnStatDemo.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="vnStatDemo:Make">
+        <MSBuild Projects="11 - VNStatDemo\vnStatDemo.dproj" Targets="Make"/>
+    </Target>
     <Target Name="qNOXThinClient">
         <MSBuild Projects="10 - qNOXThinClient\qNOXThinClient.dproj"/>
     </Target>
@@ -120,13 +132,13 @@
         <MSBuild Projects="10 - qNOXThinClient\qNOXThinClient.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="Simple;FMXReport;NOXMon;TorrentReader;IPAPIDemo;AddTorrent;SimpleThreaded;SimpleThreadedGrid;qNOXThinClient"/>
+        <CallTarget Targets="Simple;FMXReport;NOXMon;TorrentReader;IPAPIDemo;AddTorrent;SimpleThreaded;SimpleThreadedGrid;vnStatDemo;qNOXThinClient"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Simple:Clean;FMXReport:Clean;NOXMon:Clean;TorrentReader:Clean;IPAPIDemo:Clean;AddTorrent:Clean;SimpleThreaded:Clean;SimpleThreadedGrid:Clean;qNOXThinClient:Clean"/>
+        <CallTarget Targets="Simple:Clean;FMXReport:Clean;NOXMon:Clean;TorrentReader:Clean;IPAPIDemo:Clean;AddTorrent:Clean;SimpleThreaded:Clean;SimpleThreadedGrid:Clean;vnStatDemo:Clean;qNOXThinClient:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Simple:Make;FMXReport:Make;NOXMon:Make;TorrentReader:Make;IPAPIDemo:Make;AddTorrent:Make;SimpleThreaded:Make;SimpleThreadedGrid:Make;qNOXThinClient:Make"/>
+        <CallTarget Targets="Simple:Make;FMXReport:Make;NOXMon:Make;TorrentReader:Make;IPAPIDemo:Make;AddTorrent:Make;SimpleThreaded:Make;SimpleThreadedGrid:Make;vnStatDemo:Make;qNOXThinClient:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

@@ -122,6 +122,7 @@
         <DCCReference Include="..\..\..\JsonX4\uJsonX4\uJX4List.pas"/>
         <DCCReference Include="..\..\..\JsonX4\uJsonX4\uJX4Object.pas"/>
         <DCCReference Include="..\..\..\JsonX4\uJsonX4\uJX4Rtti.pas"/>
+        <DCCReference Include="..\..\API\uJsonX4\uJX4Value.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

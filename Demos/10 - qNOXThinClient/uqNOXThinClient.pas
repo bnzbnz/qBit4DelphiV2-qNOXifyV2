@@ -142,6 +142,7 @@ uses
   , System.Generics.Defaults
   , uJX4Rtti
   , uJX4Object
+  , uJX4Value
   , System.TypInfo
   , Vcl.Clipbrd
   , StrUtils
@@ -201,18 +202,14 @@ begin
     SubMenu.Caption := '';
     CatsMenu.Add(SubMenu);
 
-    var Idx := 2;
     for var T in Ts do Lst.Add(T.category.AsString);
     for var Cat in CatsList do
     begin
       SubMenu := TMenuItem.Create(Self);
       SubMenu.Caption := Cat;
-      //SubMenu.AutoCheck := True;
-      //SubMenu.tag := Idx;
       SubMenu.OnClick := ClickSetCats;
       SubMenu.Checked := LSt.IndexOf(Cat) <> -1;
       CatsMenu.Add(SubMenu);
-      Inc(Idx);
     end;
 
     // Tag
@@ -228,12 +225,11 @@ begin
     TagsMenu.Add(SubMenu);
     SubMenu := TMenuItem.Create(Self);
     SubMenu.OnClick := ClickClearTags;
-    //SubMenu.Tag := 1;
     SubMenu.Caption := '';
     TagsMenu.Add(SubMenu);
 
 
-    Idx := 1; LSt.Clear; LSt.Duplicates := dupIgnore; var v := '';
+    var Idx := 1; LSt.Clear; LSt.Duplicates := dupIgnore; var v := '';
     for var T in Ts do Lst.Text := Lst.Text + ',' +  T.tags.AsString;
     Lst.DelimitedText := Lst.Text;
     for var Tag in TagsList do

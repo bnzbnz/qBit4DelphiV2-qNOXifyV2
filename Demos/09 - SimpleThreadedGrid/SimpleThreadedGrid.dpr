@@ -36,7 +36,8 @@ uses
   uJX4List in '..\..\API\uJsonX4\uJX4List.pas',
   uJX4Object in '..\..\API\uJsonX4\uJX4Object.pas',
   uJX4Rtti in '..\..\API\uJsonX4\uJX4Rtti.pas',
-  uqBitThreads in '..\Common\uqBitThreads.pas';
+  uqBitThreads in '..\Common\uqBitThreads.pas' {$R *.res},
+  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas';
 
 {$R *.res}
 

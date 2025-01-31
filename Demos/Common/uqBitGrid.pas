@@ -135,7 +135,7 @@ implementation
 uses
     Math
   , uJX4Rtti
-  , uJX4Object
+  , uJX4Value
   , System.TypInfo
   ;
 

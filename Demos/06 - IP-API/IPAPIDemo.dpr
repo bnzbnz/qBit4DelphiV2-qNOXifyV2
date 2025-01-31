@@ -31,7 +31,8 @@ uses
   uJX4List in '..\..\API\uJsonX4\uJX4List.pas',
   uJX4Object in '..\..\API\uJsonX4\uJX4Object.pas',
   uJX4Rtti in '..\..\API\uJsonX4\uJX4Rtti.pas',
-  uCountryFlags in '..\..\API\uCountryFlags\uCountryFlags.pas';
+  uCountryFlags in '..\..\API\uCountryFlags\uCountryFlags.pas',
+  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas';
 
 {$R 'CountryFlags.res'  '..\..\API\uCountryFlags\CountryFlags.rc'}
 {$R *.res}

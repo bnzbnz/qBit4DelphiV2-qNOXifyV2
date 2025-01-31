@@ -122,6 +122,7 @@
         <DCCReference Include="..\..\API\uqBit.API.Types.pas"/>
         <DCCReference Include="..\..\API\uqBit.pas"/>
         <DCCReference Include="..\..\API\uTorrentFileReader.pas"/>
+        <DCCReference Include="..\..\API\uJsonX4\uJX4Value.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -31,7 +31,11 @@ var
 
 implementation
 {$R *.dfm}
-uses ShellAPI, uqBitSelectServerDlg;
+uses
+    ShellAPI
+  , uJX4Value
+  , uqBitSelectServerDlg
+  ;
 
 procedure TFrmSimple.LinkLabel1LinkClick(Sender: TObject; const Link: string; LinkType: TSysLinkType);
 begin

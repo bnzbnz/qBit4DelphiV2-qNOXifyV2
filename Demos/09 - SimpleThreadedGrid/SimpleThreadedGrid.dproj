@@ -132,6 +132,7 @@
         <DCCReference Include="..\Common\uqBitThreads.pas">
             <Form>$R *.res</Form>
         </DCCReference>
+        <DCCReference Include="..\..\API\uJsonX4\uJX4Value.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

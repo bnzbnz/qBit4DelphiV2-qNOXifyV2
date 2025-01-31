@@ -34,7 +34,7 @@ var
   NOXMonDlg: TNOXMonDlg;
 
 implementation
-uses uqBitSelectServerDlg, Math, RTTI, uJX4Object;
+uses uqBitSelectServerDlg, Math, RTTI, uJX4Value;
 
 {$R *.dfm}
 

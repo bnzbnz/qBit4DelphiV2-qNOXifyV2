@@ -134,6 +134,7 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="..\..\API\uTorrentFileReader.pas"/>
+        <DCCReference Include="..\..\API\uJsonX4\uJX4Value.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
