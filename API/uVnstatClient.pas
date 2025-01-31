@@ -35,77 +35,73 @@ SOFTWARE.
 unit uVnstatClient;
 
 interface
+uses
+
+    uJX4Object
+  , uJX4List
+  , RTTI
+  ;
 
 type
 
-  TvnsDate = class
-    Fyear: Int64;
-    Fmonth: Int64;
-    Fday: Int64;
+  TvnsDate = class(TJX4OBject)
+    year: TValue; // Int64;
+    month: TValue; // Int64;
+    day: TValue; // Int64;
     function GetDate: TDate;
   end;
 
-  TvnsTime = class
-    Fhour: Int64;
-    Fminute: Int64;
+  TvnsTime = class(TJX4OBject)
+    hour: TValue; // Int64;
+    minute: TValue; // Int64;
     function GetTime: TTime;
   end;
 
-  TvnsDateCtx = class
-    Fdate: TvnsDate;
-    destructor Destroy; override;
+  TvnsDateCtx = class(TJX4OBject)
+    date: TvnsDate;
     function GetDate: TDate;
   end;
 
-  TvnsRxTx = class
-    Frx: Int64;
-    Ftx: Int64;
+  TvnsRxTx = class(TJX4OBject)
+    rx: TValue; // Int64;
+    tx: TValue; // Int64;
   end;
 
   TvnsInfo= class(TvnsRxTx)
-    Fid: Int64;
-    Fdate: TvnsDate;
-    Ftime: TvnsTime;
-    destructor Destroy; override;
+    id: TValue; // Int64;
+    date: TvnsDate;
+    time: TvnsTime;
     function GetDateTime: TDateTime;
   end;
 
-  TvnsTraffic = class
-    Ftotal: TvnsRxTx;
-    Ffiveminute: TArray<TvnsInfo>;
-    Fhour: TArray<TvnsInfo>;
-    Fday: TArray<TvnsInfo>;
-    Fmonth: TArray<TvnsInfo>;
-    Fyear: TArray<TvnsInfo>;
-    Ftop: TArray<TvnsInfo>;
-    destructor Destroy; override;
+  TvnsTraffic = class(TJX4OBject)
+    total: TvnsRxTx;
+    fiveminute: TJX4List<TvnsInfo>;
+    hour: TJX4List<TvnsInfo>;
+    day: TJX4List<TvnsInfo>;
+    month: TJX4List<TvnsInfo>;
+    year: TJX4List<TvnsInfo>;
+    top: TJX4List<TvnsInfo>;
   end;
 
-  TvnsInterface = class
-    Fname: string;
-    Falias: string;
-    Fcreated: TvnsDateCtx;
-    Fupdated: TvnsDateCtx;
-    Ftraffic: TvnsTraffic;
-    destructor Destroy; override;
+  TvnsInterface = class(TJX4OBject)
+    name: TValue; // string;
+    alias: TValue; // string;
+    created: TvnsDateCtx;
+    updated: TvnsDateCtx;
+     traffic: TvnsTraffic;
   end;
 
-  TvnStatClient = class
+  TvnStatClient = class(TJX4OBject)
   public
-    Fraw: string; // Custom not a json field
-    Fvnstatversion: string;
-    Fjsonversion: string;
-    Finterfaces: TArray<TvnsInterface>;
+    [TJX4Excluded]
+    RawJSON: string; // Custom not a json field
+    vnstatversion: TValue; // string;
+    jsonversion: TValue; // string;
+    interfaces: TJX4List<TvnsInterface>;
 
     class function FromJSON(JSONStr: string): TvnStatClient;
     class function FromURL(URL: string): TvnStatClient;
-    class function BtoMiB(Bytes: Int64): real;
-    class function BtoMB(Bytes: Int64): real;
-    class function BtoGiB(Bytes: Int64): real;
-    class function BtoGB(Bytes: Int64): real;
-    class function BtoTiB(Bytes: Int64): real;
-    class function BtoTB(Bytes: Int64): real;
-    destructor Destroy; override;
     function GetInterface(NetInterface: string): TvnsInterface;
     function GetYear(Intf: string; Year: Int64): TvnsInfo;
     function GetMonth(Intf: string; Year, Month: Int64): TvnsInfo;
@@ -116,9 +112,12 @@ type
   end;
 
 implementation
-uses  REST.Json,
-      System.Net.HttpClient,
-      System.SysUtils, System.DateUtils, System.Classes;
+uses
+    System.Net.HttpClient
+  , System.SysUtils
+  , System.DateUtils
+  , System.Classes
+  ;
 
 { TvnStatClient }
 
@@ -127,11 +126,11 @@ begin
   Result := nil;
   var Intrface := Self.GetInterface(Intf);
   if Intrface = nil then exit;
-  for var i in Intrface.Ftraffic.Fyear do
-    if (i.Fdate.Fyear = Year) then
+  for var i in Intrface.traffic.year do
+    if (i.date.year.AsInt64 = Year) then
     begin
       Result := i;
-      break;
+      Break;
     end;
 end;
 
@@ -140,11 +139,11 @@ begin
   Result := nil;
   var Intrface := Self.GetInterface(Intf);
   if Intrface = nil then exit;
-  for var i in Intrface.Ftraffic.Fmonth do
-    if (i.Fdate.Fyear = Year) and (i.Fdate.Fmonth = Month) then
+  for var i in Intrface.traffic.month do
+    if (i.date.year.AsInt64 = Year) and (i.date.month.AsInt64 = Month) then
     begin
       Result := i;
-      break;
+      Break;
     end;
 end;
 
@@ -153,11 +152,11 @@ begin
   Result := nil;
   var Intrface := Self.GetInterface(Intf);
   if Intrface = nil then exit;
-  for var i in Intrface.Ftraffic.Fmonth do
-    if (i.Fdate.Fyear = Year) and (i.Fdate.Fmonth = Month) and (i.Fdate.Fday = Day) then
+  for var i in Intrface.traffic.month do
+    if (i.date.year.AsInt64 = Year) and (i.date.month.AsInt64 = Month) and (i.date.day.AsInt64 = Day) then
     begin
       Result := i;
-      break;
+      Break;
     end;
 end;
 
@@ -194,88 +193,13 @@ begin
   Result := GetDay(Intf, AYear, AMonth, ADay);
 end;
 
-class function TvnStatClient.BtoMB(Bytes: Int64): real;
-begin
-  Result := Bytes / 1000000;
-end;
-
-class function TvnStatClient.BtoMiB(Bytes: Int64): real;
-begin
-  Result := Bytes / 1048576;
-end;
-
-class function TvnStatClient.BtoGB(Bytes: Int64): real;
-begin
-  Result := Bytes / 1000000000;
-end;
-
-class function TvnStatClient.BtoGiB(Bytes: Int64): real;
-begin
-  Result := Bytes / 1073741824
-end;
-
-class function TvnStatClient.BtoTB(Bytes: Int64): real;
-begin
-  Result := Bytes / 1000000000000;
-end;
-
-class function TvnStatClient.BtoTiB(Bytes: Int64): real;
-begin
-  Result := Bytes / 1099511627776;
-end;
-
-destructor TvnStatClient.Destroy;
-begin
-  for var i in Finterfaces do i.Free;
-  inherited Destroy;
-end;
-
-destructor TvnsTraffic.Destroy;
-begin
-  Ftotal.Free;
-  for var i in Ffiveminute do i.Free;
-  for var i in Fhour do i.Free;
-  for var i in Fday do i.Free;
-  for var i in Fmonth do i.Free;
-  for var i in Fyear do i.Free;
-  for var i in Ftop do i.Free;
-  inherited;
-end;
-
-{ TVNDateCtx }
-
-destructor TvnsDateCtx.Destroy;
-begin
-  Self.Fdate.Free;
-  inherited;
-end;
-
-{ TVNInterface }
-
-destructor TvnsInterface.Destroy;
-begin
-  Self.Fcreated.Free;
-  Self.Fupdated.Free;
-  Self.Ftraffic.Free;
-  inherited;
-end;
-
-{ TVNStatData }
-
-destructor TvnsInfo.Destroy;
-begin
-  Self.Fdate.Free;
-  Self.Ftime.Free;
-  inherited;
-end;
-
 function TvnStatClient.GetInterface(NetInterface: string): TvnsInterface;
 begin
-  for var i in Finterfaces do
-    if i.Fname = NetInterface then
+  for var i in interfaces do
+    if i.name.AsString = NetInterface then
     begin
-        Result := i;
-        exit;
+      Result := i;
+      Exit;
     end;
   Result := nil;
 end;
@@ -283,7 +207,7 @@ end;
 class function TvnStatClient.FromJSON(JSONStr: string): TvnStatClient;
 begin
   try
-    Result := TJSon.JsonToObject<TvnStatClient>(JSONStr);
+    Result := TJX4Object.FromJSON<TvnStatClient>(JSONStr, [joNullToEmpty]);
   except
     Result := nil;
   end;
@@ -302,8 +226,8 @@ begin
     var Res :=  Http.Get(URL, ReqSS);
     if Res.StatusCode = 200 then
     begin
-      Result := TvnStatClient.FromJSON(ReqSS.DataString);
-      if Result <> nil then Result.FRaw := ReqSS.DataString;
+      Result := FromJSON(ReqSS.DataString);
+      if Result <> nil then Result.RawJSON := ReqSS.DataString;
     end;
   finally
     ReqSS.Free;
@@ -317,21 +241,21 @@ end;
 
 function TvnsDate.GetDate: TDate;
 begin
-  Result := EncodeDate(Fyear, Fmonth, Fday);
+  Result := EncodeDate(year.AsInt64, month.AsInt64, day.AsInt64);
 end;
 
 { TvnsTime }
 
 function TvnsTime.GetTime: TTime;
 begin
-  Result := EncodeTime(Fhour, Fminute, 0, 0);
+  Result := EncodeTime(hour.AsInt64, minute.AsInt64, 0, 0);
 end;
 
 { TvnsDateCtx }
 
 function TvnsDateCtx.GetDate: TDate;
 begin
-  Result := EncodeDate(Fdate.Fyear, Fdate.Fmonth, Fdate. Fday);
+  Result := EncodeDate(date.year.AsInt64, date.month.AsInt64, date.day.AsInt64);
 end;
 
 { TvnsInfo }
@@ -339,11 +263,11 @@ end;
 function TvnsInfo.GetDateTime: TDateTime;
 begin
   Result := EncodeDateTime(
-    Self.Fdate.Fyear,
-    Self.Fdate.Fmonth,
-    Self.Fdate.Fday,
-    Self.Ftime.Fhour,
-    Self.Ftime.Fminute,
+    Self.date.year.AsInt64,
+    Self.date.month.AsInt64,
+    Self.date.day.AsInt64,
+    Self.time.hour.AsInt64,
+    Self.time.minute.AsInt64,
     0,
     0
   );
