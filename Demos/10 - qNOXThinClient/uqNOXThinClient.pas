@@ -9,6 +9,7 @@ uses
   Vcl.Grids, Vcl.CheckLst, Vcl.TitleBarCtrls, Vcl.ToolWin, Vcl.ActnMan,
   Vcl.ActnCtrls, Vcl.Buttons
   , uKobicAppTrackMenus
+  , uqBitSelectServerDlg
   ;
 
 type
@@ -112,6 +113,7 @@ type
     ActiveKeyHash: string;
     TagsList: TStringList;
     CatsList: TStringList;
+    Server: TqBitServer;
 
     procedure MainThreadEvent(qBitThread: TThread; EventType: TqBitThreadEventCode);
     procedure MainFrameUpdateEvent(Sender: TObject);
@@ -134,7 +136,6 @@ var
 implementation
 uses
     ShellAPI
-  , uqBitSelectServerDlg
   , uqBitCategoriesDlg
   , uqBitAddTorrentDlg
   , RTTI
@@ -146,6 +147,7 @@ uses
   , System.TypInfo
   , Vcl.Clipbrd
   , StrUtils
+  , uVnStatClient
   ;
 
 function TValueFormatTrackerStatus(v: TValue): string;
@@ -352,7 +354,7 @@ procedure TFrmSTG.FormShow(Sender: TObject);
 begin
   if qBitSelectServerDlg.ShowModal = mrOk then
   begin
-    var Server := qBitSelectServerDlg.GetServer;
+    Server := qBitSelectServerDlg.GetServer;
     qB := TqBit.Connect(Server.FHP, Server.FUN, Server.FPW);
 
     DragAcceptFiles (Self.handle, True);
@@ -381,13 +383,13 @@ begin
     MainFrame.AddCol('ETA', 'eta', TValueFormatDeltaSec, 128, True);
     MainFrame.AddCol('Category', 'category', TValueFormatString, 84, True);
     MainFrame.AddCol('Tags', 'tags', TValueFormatString, 84, True);
-    MainFrame.AddCol('Added On', 'added_on', TValueFormatDate, 128, False);
+    MainFrame.AddCol('Added On', 'added_on', TValueFormatDate, -1, False);
     MainFrame.AddCol('Completed On', 'completion_on', TValueFormatDate, -1, True);
     MainFrame.AddCol('Tracker', 'tracker', TValueFormatString, -1, True);
     MainFrame.AddCol('Down Limit', 'dl_limit', TValueFormatLimit, -1, True);
     MainFrame.AddCol('Up Limit', 'dl_limit', TValueFormatLimit, -1, True);
     MainFrame.AddCol('Downloaded', 'downloaded', TValueFormatBKM, -1, True);
-    MainFrame.AddCol('Uploaded  ', 'uploaded', TValueFormatBKM, -1, True);
+    MainFrame.AddCol('Uploaded  ', 'uploaded', TValueFormatBKM, 84, True);
     MainFrame.AddCol('Session Downloaded', 'downloaded_session', TValueFormatBKM, -1, True);
     MainFrame.AddCol('Session Uploaded  ', 'uploaded_session', TValueFormatBKM, -1, True);
     MainFrame.AddCol('Availability', 'availability', TValueFormatMulti, -1, True);
@@ -584,7 +586,6 @@ begin
     if Keys.Count = 0 then Exit;
     ActiveKeyHash := Keys[Keys.Count - 1];
     Ts := MainFrame.GetSelectedTorrents;
-
   finally
     Lst.Free;
     Ts.Free;
@@ -802,7 +803,24 @@ begin
           if CatsList[j] = LCBCat then CBCats.ItemIndex := j+1;
        end;
 
-      StatusBar1.Panels[0].Text := M.Main.server_state.connection_status.AsString;
+      if  (Server.FVS.IsEmpty) then
+        StatusBar1.Panels[0].Text := M.Main.server_state.connection_status.AsString;
+      if not (Server.FVS.IsEmpty) and ((M.Main.rid.AsInt64 mod 40) = 1) then
+      begin
+        var vn := TvnStatClient.FromURL(Server.FVS);
+        if Assigned(vn) then
+        begin
+          var Intf := vn.GetInterface(Server.FVSI);
+          if Assigned(Intf) then
+            StatusBar1.Panels[0].Text :=
+              Format('%s - Metered : %.2f TB', [
+                M.Main.server_state.connection_status.AsString,
+                Intf.traffic.total.rx.ToTB + Intf.traffic.total.tx.ToTB
+              ]);
+          vn.Free;
+        end;
+      end;
+
       StatusBar1.Panels[1].Text := 'DHT nodes : ' + M.Main.server_state.dht_nodes.AsInt64.ToString;
       StatusBar1.Panels[2].Text := '';
       if M.Main.server_state.use_alt_speed_limits.AsBoolean then StatusBar1.Panels[2].Text := 'Alt. Speed   ';

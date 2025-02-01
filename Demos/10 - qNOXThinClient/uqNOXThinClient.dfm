@@ -1154,7 +1154,7 @@ object FrmSTG: TFrmSTG
         Alignment = taCenter
         Bevel = pbNone
         Text = 'Status'
-        Width = 80
+        Width = 200
       end
       item
         Alignment = taCenter

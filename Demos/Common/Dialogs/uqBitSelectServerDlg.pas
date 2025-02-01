@@ -12,7 +12,14 @@ type
     FHP: string;
     FUN: string;
     FPW: string;
-    constructor Create(H, U, P: string);
+    FSH:  string;
+    FSPO: string;
+    FSU:  string;
+    FSPS: string;
+    FSK:  string;
+    FVS:  string;
+    FVSI: string;
+    constructor Create(H, U, P, SH, SPO, SU, SPS, SK, VS, VSI: string);
   end;
 
   TqBitServers = class
@@ -32,6 +39,7 @@ type
     TabSheet1: TTabSheet;
     SGInfo: TStringGrid;
     VerLabel: TLabel;
+    Button1: TButton;
     procedure btnAddClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure LBSrvClick(Sender: TObject);
@@ -40,6 +48,7 @@ type
     procedure BtnSelClick(Sender: TObject);
     procedure BtnDelClick(Sender: TObject);
     procedure LBSrvDblClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -77,14 +86,53 @@ begin
   BtnSel.Caption := 'Select'; BtnSel.Enabled := True;
 end;
 
+procedure TqBitSelectServerDlg.Button1Click(Sender: TObject);
+begin
+  if LBSrv.ItemIndex = -1 then Exit;
+  var Srv := TqBitServer(LBSrv.Items.Objects[LBSrv.ItemIndex]);
+  qBitAddServerDlg.HP.Text := Srv.FHP;
+  qBitAddServerDlg.UN.Text := Srv.FUN;
+  qBitAddServerDlg.PW.Text := Srv.FPW;
+  qBitAddServerDlg.Edit1.Text := Srv.FSH;
+  qBitAddServerDlg.Edit2.Text := Srv.FSPO;
+  qBitAddServerDlg.Edit3.Text := Srv.FSU;
+  qBitAddServerDlg.Edit4.Text := Srv.FSPS;
+  qBitAddServerDlg.Memo1.Text := Srv.FSK;
+  qBitAddServerDlg.Edit5.text := Srv.FVS;
+  qBitAddServerDlg.Edit6.text := Srv.FVSI;
+  if qBitAddServerDlg.ShowModal = mrOk then
+  begin
+    Srv.FHP := qBitAddServerDlg.HP.Text;
+    Srv.FUN := qBitAddServerDlg.UN.Text;
+    Srv.FPW := qBitAddServerDlg.PW.Text;
+    Srv.FSH := qBitAddServerDlg.Edit1.Text;
+    Srv.FSPO := qBitAddServerDlg.Edit2.Text;
+    Srv.FSU := qBitAddServerDlg.Edit3.Text;
+    Srv.FSPS := qBitAddServerDlg.Edit4.Text;
+    Srv.FSK := qBitAddServerDlg.Memo1.Text;
+    Srv.FVS :=  qBitAddServerDlg.Edit5.text;
+    Srv.FVSI :=  qBitAddServerDlg.Edit6.text;
+    LBSrvClick(Self);
+  end;
+end;
+
+
 procedure TqBitSelectServerDlg.btnAddClick(Sender: TObject);
 begin
   if qBitAddServerDlg.ShowModal = mrOk then
   begin
+
     var Srv := TqBitServer.Create(
       qBitAddServerDlg.HP.Text,
       qBitAddServerDlg.UN.Text,
-      qBitAddServerDlg.PW.Text
+      qBitAddServerDlg.PW.Text,
+      qBitAddServerDlg.Edit1.Text,
+      qBitAddServerDlg.Edit2.Text,
+      qBitAddServerDlg.Edit3.Text,
+      qBitAddServerDlg.Edit4.Text,
+      qBitAddServerDlg.Memo1.text,
+      qBitAddServerDlg.Edit5.text,
+      qBitAddServerDlg.Edit6.text
     );
     LBSrv.ItemIndex := LBSrv.Items.AddObject(Srv.FUN + '@' + Srv.FHP, Srv);
     LBSrvClick(Self);
@@ -101,12 +149,19 @@ end;
 
 { TqBitServer }
 
-constructor TqBitServer.Create(H, U, P: string);
+constructor TqBitServer.Create(H, U, P, SH, SPO, SU, SPS, SK, VS, VSI: string);
 begin
   inherited Create;
   FHP := H;
   FUN := U;
   FPW := P;
+  FSH := SH;
+  FSPO := SPO;
+  FSU := SU;
+  FSPS := SPS;
+  FSK := SK;
+  FVS := VS;
+  FVSI := VSI;
 end;
 
 procedure TqBitSelectServerDlg.FormCreate(Sender: TObject);
@@ -153,14 +208,14 @@ begin
     SS.Free;
     for var S in SrvLst.FServers do
     begin
-      var Srv := TqBitServer.Create(S.FHP, S.FUN, S.FPW);
+      var Srv := TqBitServer.Create(S.FHP, S.FUN, S.FPW, S.FSH, S.FSPO, S.FSU, S.FSPS, S.FSK, S.FVS, S.FVSI);
       LBSrv.Items.AddObject(Srv.FUN + '@' + Srv.FHP, Srv);
     end;
     SrvLst.Free;
   end;
   if LBSrv.Items.Count = 0 then
   begin
-     var Srv := TqBitServer.Create('http://127.0.0.1:8080', '', '');
+     var Srv := TqBitServer.Create('http://127.0.0.1:8080', '', '', '', '', '', '', '', '', '');
      LBSrv.Items.AddObject(Srv.FUN + '@' + Srv.FHP, Srv);
   end;
 end;

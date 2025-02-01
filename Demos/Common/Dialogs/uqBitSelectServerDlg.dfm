@@ -122,4 +122,13 @@ object qBitSelectServerDlg: TqBitSelectServerDlg
       end
     end
   end
+  object Button1: TButton
+    Left = 91
+    Top = 188
+    Width = 75
+    Height = 25
+    Caption = 'Edit'
+    TabOrder = 6
+    OnClick = Button1Click
+  end
 end

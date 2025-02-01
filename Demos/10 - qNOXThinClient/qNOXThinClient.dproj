@@ -137,6 +137,9 @@
             <Form>qBitAddTorrentDlg</Form>
         </DCCReference>
         <DCCReference Include="..\..\API\uJsonX4\uJX4Value.pas"/>
+        <DCCReference Include="..\..\API\TGPuttyLib\tgputtysftp.pas"/>
+        <DCCReference Include="..\..\API\TGPuttyLib\tgputtylib.pas"/>
+        <DCCReference Include="..\..\API\uVnstatClient.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
