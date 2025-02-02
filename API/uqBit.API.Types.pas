@@ -575,6 +575,7 @@ type
     upLimit: TValue;
     urls: TStringList; // Str
     constructor Create; overload;
+    destructor Destroy; override;
   end;
 
   TqBitNewTorrentFileType = class
@@ -671,10 +672,16 @@ end;
 constructor TqBitNewTorrentUrlsType.Create;
 begin
   inherited;
+  urls := TStringList.Create;
   upLimit := -1;
   dlLimit := -1;
   contentLayout := 'Original';
   stopCondition := 'None';
+end;
+
+destructor TqBitNewTorrentUrlsType.Destroy;
+begin
+  urls.Free;
 end;
 
 constructor TqBitNewTorrentFileType.Create;
