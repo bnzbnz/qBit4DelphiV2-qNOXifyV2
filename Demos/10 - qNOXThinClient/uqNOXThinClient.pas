@@ -14,21 +14,14 @@ uses
 
 type
   TFrmSTG = class(TForm)
-    MainFrame: TqBitFrame;
     MainPopup: TPopupMenu;
     Pause1: TMenuItem;
     Pause2: TMenuItem;
     N1: TMenuItem;
     ShowSelection1: TMenuItem;
-    PageControl1: TPageControl;
-    PeersTabSheet: TTabSheet;
-    PeersFrame: TqBitFrame;
-    TrakersTabSheet: TTabSheet;
     PeersPopup: TPopupMenu;
     BanPeers1: TMenuItem;
     UnbanAll1: TMenuItem;
-    Splitter1: TSplitter;
-    TrackersFrame: TqBitFrame;
     Recheck1: TMenuItem;
     N2: TMenuItem;
     Add1: TMenuItem;
@@ -37,8 +30,6 @@ type
     NoData1: TMenuItem;
     WithData1: TMenuItem;
     StatusBar1: TStatusBar;
-    TabSheet1: TTabSheet;
-    SGG: TStringGrid;
     N3: TMenuItem;
     PMPausePeers: TMenuItem;
     PMMainPause: TMenuItem;
@@ -49,19 +40,29 @@ type
     MMExitqBittorent: TMenuItem;
     N5: TMenuItem;
     AddFiles1: TMenuItem;
-    ToolBar1: TToolBar;
-    Panel2: TPanel;
-    EDFilter: TEdit;
-    Label3: TLabel;
-    BitBtn1: TBitBtn;
     CatsMenu: TMenuItem;
     TagsMenu: TMenuItem;
     N8: TMenuItem;
     Files1: TMenuItem;
     Magnet1: TMenuItem;
+    AddURL1: TMenuItem;
+    PCMain: TPageControl;
+    TabSheet2: TTabSheet;
+    Splitter1: TSplitter;
+    MainFrame: TqBitFrame;
+    Panel2: TPanel;
+    Label3: TLabel;
+    EDFilter: TEdit;
+    BitBtn1: TBitBtn;
     BitBtn2: TBitBtn;
     CBCats: TComboBox;
-    AddURL1: TMenuItem;
+    PageControl1: TPageControl;
+    TabSheet1: TTabSheet;
+    SGG: TStringGrid;
+    PeersTabSheet: TTabSheet;
+    PeersFrame: TqBitFrame;
+    TrakersTabSheet: TTabSheet;
+    TrackersFrame: TqBitFrame;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -91,7 +92,6 @@ type
     procedure Files1Click(Sender: TObject);
     procedure Magnet1Click(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
-
   private
     { Private declarations }
     procedure ClickEditCats(Sender: TObject);
@@ -100,10 +100,10 @@ type
     procedure ClickClearTags(Sender: TObject);
     procedure ClickCreateTags(Sender: TObject);
   protected
-   procedure WMDropFiles(var Msg: TMessage); message WM_DROPFILES;
-   procedure TrackMenuNotifyHandler(Sender: TMenu; Item: TMenuItem; var CanClose: Boolean);
-   procedure PrepareMainPopup;
-   procedure ReleaseMainPopup;
+    procedure WMDropFiles(var Msg: TMessage); message WM_DROPFILES;
+    procedure TrackMenuNotifyHandler(Sender: TMenu; Item: TMenuItem; var CanClose: Boolean);
+    procedure PrepareMainPopup;
+    procedure ReleaseMainPopup;
   public
     { Public declarations }
     qB: TqBit;
@@ -141,6 +141,7 @@ uses
   , RTTI
   , System.Generics.Collections
   , System.Generics.Defaults
+  , System.IOUtils
   , uJX4Rtti
   , uJX4Object
   , uJX4Value
@@ -357,6 +358,8 @@ begin
     Server := qBitSelectServerDlg.GetServer;
     qB := TqBit.Connect(Server.FHP, Server.FUN, Server.FPW);
 
+    PCMain.ActivePage := TabSheet2;
+
     DragAcceptFiles (Self.handle, True);
     CatsList := TStringList.Create;
     CatsList.Sorted := True;
@@ -365,7 +368,6 @@ begin
 
     MainPopup.TrackMenu := True;
     MainPopup.OnTrackMenuNotify := TrackMenuNotifyHandler;
-
 
     MainFrame.DoCreate;
     MainFrame.SortField := 'name';
@@ -383,15 +385,15 @@ begin
     MainFrame.AddCol('ETA', 'eta', TValueFormatDeltaSec, 128, True);
     MainFrame.AddCol('Category', 'category', TValueFormatString, 84, True);
     MainFrame.AddCol('Tags', 'tags', TValueFormatString, 84, True);
-    MainFrame.AddCol('Added On', 'added_on', TValueFormatDate, -1, False);
+    MainFrame.AddCol('Added On', 'added_on', TValueFormatDate, 120, False);
     MainFrame.AddCol('Completed On', 'completion_on', TValueFormatDate, -1, True);
     MainFrame.AddCol('Tracker', 'tracker', TValueFormatString, -1, True);
     MainFrame.AddCol('Down Limit', 'dl_limit', TValueFormatLimit, -1, True);
     MainFrame.AddCol('Up Limit', 'dl_limit', TValueFormatLimit, -1, True);
     MainFrame.AddCol('Downloaded', 'downloaded', TValueFormatBKM, -1, True);
     MainFrame.AddCol('Uploaded  ', 'uploaded', TValueFormatBKM, 84, True);
+    MainFrame.AddCol('Session Uploaded  ', 'uploaded_session', TValueFormatBKM, 84, True);
     MainFrame.AddCol('Session Downloaded', 'downloaded_session', TValueFormatBKM, -1, True);
-    MainFrame.AddCol('Session Uploaded  ', 'uploaded_session', TValueFormatBKM, -1, True);
     MainFrame.AddCol('Availability', 'availability', TValueFormatMulti, -1, True);
     var rttictx := TRttiContext.Create();
     var rttitype := rttictx.GetType(TqBitTorrentType);
@@ -1102,4 +1104,5 @@ begin
     qtetIdle: R.KeyHash := ActiveKeyHash;
   end;
 end;
+
 end.
