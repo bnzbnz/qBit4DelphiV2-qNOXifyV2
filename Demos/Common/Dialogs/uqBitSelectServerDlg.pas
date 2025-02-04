@@ -15,11 +15,10 @@ type
     FSH:  string;
     FSPO: string;
     FSU:  string;
-    FSPS: string;
     FSK:  string;
     FVS:  string;
     FVSI: string;
-    constructor Create(H, U, P, SH, SPO, SU, SPS, SK, VS, VSI: string);
+    constructor Create(H, U, P, SH, SPO, SU, SK, VS, VSI: string);
   end;
 
   TqBitServers = class
@@ -96,8 +95,7 @@ begin
   qBitAddServerDlg.Edit1.Text := Srv.FSH;
   qBitAddServerDlg.Edit2.Text := Srv.FSPO;
   qBitAddServerDlg.Edit3.Text := Srv.FSU;
-  qBitAddServerDlg.Edit4.Text := Srv.FSPS;
-  qBitAddServerDlg.Memo1.Text := Srv.FSK;
+  qBitAddServerDlg.Edit4.Text := Srv.FSK;
   qBitAddServerDlg.Edit5.text := Srv.FVS;
   qBitAddServerDlg.Edit6.text := Srv.FVSI;
   if qBitAddServerDlg.ShowModal = mrOk then
@@ -108,8 +106,7 @@ begin
     Srv.FSH := qBitAddServerDlg.Edit1.Text;
     Srv.FSPO := qBitAddServerDlg.Edit2.Text;
     Srv.FSU := qBitAddServerDlg.Edit3.Text;
-    Srv.FSPS := qBitAddServerDlg.Edit4.Text;
-    Srv.FSK := qBitAddServerDlg.Memo1.Text;
+    Srv.FSK := qBitAddServerDlg.Edit4.Text;
     Srv.FVS :=  qBitAddServerDlg.Edit5.text;
     Srv.FVSI :=  qBitAddServerDlg.Edit6.text;
     LBSrvClick(Self);
@@ -130,7 +127,6 @@ begin
       qBitAddServerDlg.Edit2.Text,
       qBitAddServerDlg.Edit3.Text,
       qBitAddServerDlg.Edit4.Text,
-      qBitAddServerDlg.Memo1.text,
       qBitAddServerDlg.Edit5.text,
       qBitAddServerDlg.Edit6.text
     );
@@ -149,7 +145,7 @@ end;
 
 { TqBitServer }
 
-constructor TqBitServer.Create(H, U, P, SH, SPO, SU, SPS, SK, VS, VSI: string);
+constructor TqBitServer.Create(H, U, P, SH, SPO, SU, SK, VS, VSI: string);
 begin
   inherited Create;
   FHP := H;
@@ -158,7 +154,6 @@ begin
   FSH := SH;
   FSPO := SPO;
   FSU := SU;
-  FSPS := SPS;
   FSK := SK;
   FVS := VS;
   FVSI := VSI;
@@ -208,14 +203,14 @@ begin
     SS.Free;
     for var S in SrvLst.FServers do
     begin
-      var Srv := TqBitServer.Create(S.FHP, S.FUN, S.FPW, S.FSH, S.FSPO, S.FSU, S.FSPS, S.FSK, S.FVS, S.FVSI);
+      var Srv := TqBitServer.Create(S.FHP, S.FUN, S.FPW, S.FSH, S.FSPO, S.FSU, S.FSK, S.FVS, S.FVSI);
       LBSrv.Items.AddObject(Srv.FUN + '@' + Srv.FHP, Srv);
     end;
     SrvLst.Free;
   end;
   if LBSrv.Items.Count = 0 then
   begin
-     var Srv := TqBitServer.Create('http://127.0.0.1:8080', '', '', '', '', '', '', '', '', '');
+     var Srv := TqBitServer.Create('http://127.0.0.1:8080', '', '', '', '', '', '', '', '');
      LBSrv.Items.AddObject(Srv.FUN + '@' + Srv.FHP, Srv);
   end;
 end;

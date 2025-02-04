@@ -71,6 +71,8 @@ type TGPuttySFTPException=class(Exception);
          FStreamWriteExceptionClassType:ExceptClass;
          FStreamWriteExceptionMessage:string;
 
+FOnListingCallback: TFunc<Pfxp_names, Boolean>;
+
          function GetHomeDir: AnsiString;
          function GetWorkDir: AnsiString;
          procedure SetVerbose(const Value: Boolean);
@@ -155,6 +157,8 @@ type TGPuttySFTPException=class(Exception);
          procedure SetIntegerConfigValueWithSubkey(const OptionName:AnsiString;const OptionSubKey,OptionValue:Integer);
          procedure SetStringConfigValue(const OptionName,OptionValue:AnsiString);
 
+procedure SetOnListingCallback(AFunc: TFunc<Pfxp_names, Boolean>);
+
          property HostName:AnsiString read FHostName write FHostName;
          property UserName:AnsiString read FUserName write FUserName;
          property Port:Integer read FPort write FPort;
@@ -198,14 +202,22 @@ implementation
 var GPuttyConfigIndex:tStringList;
     GPuttyConfigCS:TCriticalSection;
 
+procedure TTGPuttySFTP.SetOnListingCallback(AFunc: TFunc<Pfxp_names, Boolean>);
+begin
+  FOnListingCallback := AFunc;
+end;
+
 function ls_callback(const names:Pfxp_names;const libctx:PTGLibraryContext):Boolean; cdecl;
 var TGPSFTP:TTGPuttySFTP;
 begin
   TGPSFTP:=TTGPuttySFTP(libctx.Tag);
-  if Assigned(TGPSFTP.OnListing) then
-     Result:=TGPSFTP.OnListing(names)
+  if Assigned(TGPSFTP.FOnListingCallback) then
+    Result := TGPSFTP.FOnListingCallback(names)
   else
-     Result:=true;
+  if Assigned(TGPSFTP.OnListing) then
+     Result := TGPSFTP.OnListing(names)
+  else
+     Result := true;
   end;
 
 function getpassword_callback(const prompt:PAnsiChar;const echo:Boolean;const cancel:System.PBoolean;const libctx:PTGLibraryContext):PAnsiChar; cdecl;
@@ -394,7 +406,6 @@ begin
   FAttempts:=0;
   FLastMessages:='';
   Fcontext.fxp_errtype:=cDummyClearedErrorCode; // "clear" error field
-  Fcontext.timeoutticks :=  100;
   res:=tgsftp_connect(PAnsiChar(FHostName),PAnsiChar(FUserName),FPort,PAnsiChar(FPassword),@Fcontext);
   FConnected:=res=0; // 0 = success
   if not FConnected then

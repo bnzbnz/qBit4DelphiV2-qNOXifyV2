@@ -1249,8 +1249,8 @@ object FrmSTG: TFrmSTG
     AutoHotkeys = maManual
     OnClose = MainPopupClose
     OnPopup = MainPopupPopup
-    Left = 264
-    Top = 65512
+    Left = 288
+    Top = 72
     object Pause1: TMenuItem
       Caption = 'Stop'
       OnClick = PauseClick
@@ -1302,6 +1302,16 @@ object FrmSTG: TFrmSTG
       end
     end
     object N1: TMenuItem
+      Caption = '-'
+    end
+    object Download1: TMenuItem
+      Caption = 'Download (WinSCP)'
+      OnClick = Download1Click
+    end
+    object UploadWinSCP1: TMenuItem
+      Caption = 'Upload  (WinSCP)'
+    end
+    object N4: TMenuItem
       Caption = '-'
     end
     object ShowSelection1: TMenuItem
@@ -1369,5 +1379,9 @@ object FrmSTG: TFrmSTG
         OnClick = MMExitqBittorentClick
       end
     end
+  end
+  object DlgSaveTorrent: TOpenDialog
+    Left = 180
+    Top = 184
   end
 end

@@ -45,7 +45,7 @@ object qBitAddServerDlg: TqBitAddServerDlg
     Top = 24
     Width = 289
     Height = 246
-    ActivePage = TabSheet3
+    ActivePage = TabSheet2
     TabOrder = 2
     object TabSheet3: TTabSheet
       Caption = '  qBit / NOX  '
@@ -115,16 +115,9 @@ object qBitAddServerDlg: TqBitAddServerDlg
       object Label4: TLabel
         Left = 16
         Top = 104
-        Width = 53
+        Width = 57
         Height = 13
-        Caption = 'Password :'
-      end
-      object Label5: TLabel
-        Left = 16
-        Top = 131
-        Width = 54
-        Height = 13
-        Caption = 'Certificate:'
+        Caption = 'Certificate :'
       end
       object Edit1: TEdit
         Left = 88
@@ -151,26 +144,20 @@ object qBitAddServerDlg: TqBitAddServerDlg
       object Edit4: TEdit
         Left = 88
         Top = 100
-        Width = 185
+        Width = 161
         Height = 21
+        Enabled = False
         PasswordChar = '*'
         TabOrder = 3
       end
       object Button2: TButton
-        Left = 64
-        Top = 191
+        Left = 247
+        Top = 100
         Width = 25
         Height = 21
         Caption = '...'
         TabOrder = 4
         OnClick = Button2Click
-      end
-      object Memo1: TMemo
-        Left = 88
-        Top = 127
-        Width = 185
-        Height = 84
-        TabOrder = 5
       end
     end
     object TabSheet1: TTabSheet

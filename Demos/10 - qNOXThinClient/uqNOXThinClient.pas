@@ -8,11 +8,20 @@ uses
   Vcl.ExtCtrls, Vcl.StdCtrls, uqBitGrid, uqBitThreads, Vcl.Menus, Vcl.ComCtrls,
   Vcl.Grids, Vcl.CheckLst, Vcl.TitleBarCtrls, Vcl.ToolWin, Vcl.ActnMan,
   Vcl.ActnCtrls, Vcl.Buttons
+  , System.Generics.Collections
   , uKobicAppTrackMenus
   , uqBitSelectServerDlg
+  , tgputtylib
+  , tgputtysftp
   ;
 
 type
+  TRemoteFileListRec = record
+    FSData: fxp_name;
+    FileName: string;
+    Remote: Boolean;
+  end;
+
   TFrmSTG = class(TForm)
     MainPopup: TPopupMenu;
     Pause1: TMenuItem;
@@ -63,6 +72,10 @@ type
     PeersFrame: TqBitFrame;
     TrakersTabSheet: TTabSheet;
     TrackersFrame: TqBitFrame;
+    Download1: TMenuItem;
+    DlgSaveTorrent: TOpenDialog;
+    N4: TMenuItem;
+    UploadWinSCP1: TMenuItem;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -92,8 +105,12 @@ type
     procedure Files1Click(Sender: TObject);
     procedure Magnet1Click(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
+    procedure Download1Click(Sender: TObject);
   private
     { Private declarations }
+    FSFTPPass: string;
+    FNoMoreSFTPPass: Boolean;
+
     procedure ClickEditCats(Sender: TObject);
     procedure ClickClearCats(Sender: TObject);
     procedure ClickSetCats(Sender: TObject);
@@ -104,6 +121,7 @@ type
     procedure TrackMenuNotifyHandler(Sender: TMenu; Item: TMenuItem; var CanClose: Boolean);
     procedure PrepareMainPopup;
     procedure ReleaseMainPopup;
+    function  OnListing(const names:Pfxp_names):Boolean;
   public
     { Public declarations }
     qB: TqBit;
@@ -139,7 +157,6 @@ uses
   , uqBitCategoriesDlg
   , uqBitAddTorrentDlg
   , RTTI
-  , System.Generics.Collections
   , System.Generics.Defaults
   , System.IOUtils
   , uJX4Rtti
@@ -149,6 +166,8 @@ uses
   , Vcl.Clipbrd
   , StrUtils
   , uVnStatClient
+  , Registry
+  , System.NetEncoding
   ;
 
 function TValueFormatTrackerStatus(v: TValue): string;
@@ -321,6 +340,71 @@ begin
    end;
 end;
 
+
+function ListingCallback(const names:Pfxp_names):Boolean;
+begin
+
+end;
+
+function SFTPGetFileList(SFTP: TTGPuttySFTP; Path: String; FileList: TList<TRemoteFileListRec>): TStringList;
+begin
+  var Res: Boolean;
+  SFTP.SetOnListingCallback(
+    function(names: Pfxp_names): Boolean
+    begin
+      for var i:=0 to names.nnames-1 do
+      begin
+        if (names.names[i].filename <> '.')  and  (names.names[i].filename <> '..') then
+          if names.names[i].attrs.permissions and $F000 = $4000 then
+          begin
+            SFTPGetFileList(SFTP, names.names[i].filename, FileList);
+          end else begin
+            var Rec: TRemoteFileListRec;
+            Rec.FileName := names.names[i].filename;
+            Rec.FSData := names.names[i];
+            Rec.Remote := True;
+            FileList.Add(Rec);
+          end;
+      end;
+
+    end
+  );
+  SFTP.ListDir(Path);
+end;
+
+function TFrmSTG.OnListing(const names: Pfxp_names):Boolean;
+begin
+  for var i:=0 to names.nnames-1 do begin
+    var a:= names.names[i].attrs;
+  end;
+end;
+
+procedure TFrmSTG.Download1Click(Sender: TObject);
+begin
+  var Ts := MainFrame.GetSelectedTorrents;
+  if (FSFTPPass.Trim = '') and (not FNoMoreSFTPPass) then
+    FSFTPPass := InputBox('OPTIONAL : SSH PAssword','SSHPassword/Paraphrase', '');
+  FNoMoreSFTPPass := FSFTPPass.IsEmpty;
+  if Ts.Count > 0 then
+  begin
+    for var T in Ts do
+    begin
+      if T.progress.AsExtended = 1.00 then
+      begin
+        var pf := GetEnvironmentVariable('ProgramFiles');
+        var Path := pf + '\WINSCP\WinSCP.exe';
+        if FileExists(Path) then
+        begin
+          var Str := Format('"sftp://%s:%s@%s%s"', [Server.FSU, FSFTPPass, Server.FSH, T.content_path.AsString]);
+          ShellExecute(0, 'open', PChar(Path), PChar(Str), nil, SW_SHOWNORMAL);
+        end else
+          ShowMessage('Please install WinSCP...');
+        end;
+    end;
+  end;
+  Ts.Free;
+end;
+
 procedure TFrmSTG.ClickClearCats(Sender: TObject);
 begin
    var Ts := MainFrame.GetSelectedTorrents;
@@ -353,6 +437,7 @@ end;
 
 procedure TFrmSTG.FormShow(Sender: TObject);
 begin
+  MainThread := Nil;
   if qBitSelectServerDlg.ShowModal = mrOk then
   begin
     Server := qBitSelectServerDlg.GetServer;
@@ -475,7 +560,6 @@ end;
 
 procedure TFrmSTG.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  if Assigned(MAinThread) then MainThread.Pause := True;
   CatsList.Free;
   TagsList.Free;
   TrackersThread.Free;

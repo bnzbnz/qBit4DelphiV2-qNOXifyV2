@@ -27,10 +27,8 @@ type
     Edit3: TEdit;
     Label4: TLabel;
     Edit4: TEdit;
-    Label5: TLabel;
     Button2: TButton;
     FileOpenDialog1: TFileOpenDialog;
-    Memo1: TMemo;
     TabSheet1: TTabSheet;
     Label6: TLabel;
     Edit5: TEdit;
@@ -73,21 +71,6 @@ begin
       exit;
     end else ModalResult := mrOK;
   end;
-  if (ModalResult = mrOK) and (Edit1.Text<>'')then
-  begin
-    var SFTP: TTGPuttySFTP := TTGPuttySFTP.Create(False);
-    SFTP.HostName:=Utf8Encode(Edit1.Text);
-    SFTP.Port:=StrToIntDef(Edit2.Text, 22);
-    SFTP.UserName:=Utf8Encode(Edit3.Text);
-    SFTP.Password:=Utf8Encode(Edit4.Text);
-    try SFTP.Connect; except end;
-    if not SFTP.Connected then
-    begin
-      ShowMessage('SFTP : Cannot connect to ' + SFTP.HostName + ' with theses parameters');
-      ModalResult := mrNone;
-    end;
-    SFTP.Free;
-  end;
   if (ModalResult = mrOK) and (Edit5.Text<>'')then
   begin
     ModalResult := mrNone;
@@ -112,12 +95,7 @@ begin
   SFTP.HostName:=Utf8Encode(Edit1.Text);
   SFTP.Port:=StrToIntDef(Edit2.Text, 22);
   SFTP.UserName:=Utf8Encode(Edit3.Text);
-  if Trim(Memo1.Text) ='' then
-    SFTP.Password:=Utf8Encode( Edit4.Text)
-  else begin
-    SFTP.Keyfile:=Utf8Encode(Edit4.Text);
-    SFTP.KeyPassword:=Utf8Encode(Memo1.Text);
-  end;
+  SFTP.Keyfile:=Utf8Encode(Edit4.Text);
   SFTP.Connect;
   if not SFTP.Connected then
     ShowMessage('Cannot connect to : ' + SFTP.HostName)
@@ -129,12 +107,7 @@ end;
 procedure TqBitAddServerDlg.Button2Click(Sender: TObject);
 begin
   if FileOpenDialog1.Execute then
-  begin
-    var Lss := TStringStream.Create;
-    Lss.LoadFromFile(FileOpenDialog1.FileName);
-    Memo1.Text := Lss.DataString;
-    Lss.Free;
-  end;
+    Edit4.Text := FileOpenDialog1.FileName
 end;
 
 procedure TqBitAddServerDlg.FormShow(Sender: TObject);

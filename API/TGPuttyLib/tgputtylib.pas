@@ -223,7 +223,7 @@ type TUnsignedLong={$ifdef MSWINDOWS}
 
      fxp_names=record
        nnames:Integer;
-       names:Pfxp_name;
+       names:Pfxp_name_array;
        end;
      Pfxp_names=^fxp_names;
 
