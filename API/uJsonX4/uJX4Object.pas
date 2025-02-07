@@ -1,7 +1,7 @@
 ﻿(*****************************************************************************
 The MIT License (MIT)
 
-Copyright (c) 2020-2025 Laurent Meyer JsonX3@ea4d.com
+Copyright (c) 2020-2025 Laurent Meyer JsonX4@lmeyer.fr
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
