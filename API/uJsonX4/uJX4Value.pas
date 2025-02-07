@@ -212,7 +212,7 @@ begin
     tkvString: Result := Self.AsString;
     tkvBool: Result := cBoolToStr[Self.AsBoolean];
     tkvInteger: Result := Self.AsInt64.toString;
-    tkvFloat: Result := Self.AsExtended.ToString;
+    tkvFloat: Result :=FloatToStrF(Self.AsExtended, ffFixed, 16, Decimal);
   else
     Result := '';
   end;
