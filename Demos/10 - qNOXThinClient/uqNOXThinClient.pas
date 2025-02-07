@@ -11,15 +11,18 @@ uses
   , System.Generics.Collections
   , uKobicAppTrackMenus
   , uqBitSelectServerDlg
-  , tgputtylib
-  , tgputtysftp
+  , uJX4Object
+  , uJX4Dict
+  , RTTI
   ;
 
 type
-  TRemoteFileListRec = record
-    FSData: fxp_name;
-    FileName: string;
-    Remote: Boolean;
+
+  TJsonPrefs = class(TJX4Object)
+    MainGrid:   TJsonGrid;
+    PeersGrid:   TJSonGrid;
+    TrackersGrid: TJsonGrid;
+    Servers: TqBitServers;
   end;
 
   TFrmSTG = class(TForm)
@@ -76,6 +79,8 @@ type
     DlgSaveTorrent: TOpenDialog;
     N4: TMenuItem;
     UploadWinSCP1: TMenuItem;
+    SelectAll1: TMenuItem;
+    N6: TMenuItem;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -106,6 +111,7 @@ type
     procedure Magnet1Click(Sender: TObject);
     procedure BitBtn2Click(Sender: TObject);
     procedure Download1Click(Sender: TObject);
+    procedure SelectAll1Click(Sender: TObject);
   private
     { Private declarations }
     FSFTPPass: string;
@@ -121,10 +127,10 @@ type
     procedure TrackMenuNotifyHandler(Sender: TMenu; Item: TMenuItem; var CanClose: Boolean);
     procedure PrepareMainPopup;
     procedure ReleaseMainPopup;
-    function  OnListing(const names:Pfxp_names):Boolean;
   public
     { Public declarations }
     qB: TqBit;
+    Config: TJsonPrefs;
     MainThread: TqBitMainThread;
     PeersThread: TqBitPeersThread;
     TrackersThread: TqBitTrackersThread;
@@ -156,11 +162,9 @@ uses
     ShellAPI
   , uqBitCategoriesDlg
   , uqBitAddTorrentDlg
-  , RTTI
   , System.Generics.Defaults
   , System.IOUtils
   , uJX4Rtti
-  , uJX4Object
   , uJX4Value
   , System.TypInfo
   , Vcl.Clipbrd
@@ -340,45 +344,6 @@ begin
    end;
 end;
 
-
-function ListingCallback(const names:Pfxp_names):Boolean;
-begin
-
-end;
-
-function SFTPGetFileList(SFTP: TTGPuttySFTP; Path: String; FileList: TList<TRemoteFileListRec>): TStringList;
-begin
-  var Res: Boolean;
-  SFTP.SetOnListingCallback(
-    function(names: Pfxp_names): Boolean
-    begin
-      for var i:=0 to names.nnames-1 do
-      begin
-        if (names.names[i].filename <> '.')  and  (names.names[i].filename <> '..') then
-          if names.names[i].attrs.permissions and $F000 = $4000 then
-          begin
-            SFTPGetFileList(SFTP, names.names[i].filename, FileList);
-          end else begin
-            var Rec: TRemoteFileListRec;
-            Rec.FileName := names.names[i].filename;
-            Rec.FSData := names.names[i];
-            Rec.Remote := True;
-            FileList.Add(Rec);
-          end;
-      end;
-
-    end
-  );
-  SFTP.ListDir(Path);
-end;
-
-function TFrmSTG.OnListing(const names: Pfxp_names):Boolean;
-begin
-  for var i:=0 to names.nnames-1 do begin
-    var a:= names.names[i].attrs;
-  end;
-end;
-
 procedure TFrmSTG.Download1Click(Sender: TObject);
 begin
   var Ts := MainFrame.GetSelectedTorrents;
@@ -395,7 +360,7 @@ begin
         var Path := pf + '\WINSCP\WinSCP.exe';
         if FileExists(Path) then
         begin
-          var Str := Format('"sftp://%s:%s@%s%s"', [Server.FSU, FSFTPPass, Server.FSH, T.content_path.AsString]);
+          var Str := Format('"sftp://%s:%s@%s%s"', [Server.FSU.AsString, FSFTPPass, Server.FSH.AsString, T.content_path.AsString]);
           ShellExecute(0, 'open', PChar(Path), PChar(Str), nil, SW_SHOWNORMAL);
         end else
           ShowMessage('Please install WinSCP...');
@@ -437,11 +402,15 @@ end;
 
 procedure TFrmSTG.FormShow(Sender: TObject);
 begin
-  MainThread := Nil;
+  MainThread := Nil; Config := Nil;
+  Config := TJX4Object.LoadFromFile<TJsonPrefs>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+  if not assigned(Config) then Config := TJsonPrefs.Create;
+  qBitSelectServerDlg.LoadConfig(Config.Servers);
   if qBitSelectServerDlg.ShowModal = mrOk then
   begin
+
     Server := qBitSelectServerDlg.GetServer;
-    qB := TqBit.Connect(Server.FHP, Server.FUN, Server.FPW);
+    qB := TqBit.Connect(Server.FHP.AsString, Server.FUN.AsString, Server.FPW.AsString);
 
     PCMain.ActivePage := TabSheet2;
 
@@ -480,6 +449,7 @@ begin
     MainFrame.AddCol('Session Uploaded  ', 'uploaded_session', TValueFormatBKM, 84, True);
     MainFrame.AddCol('Session Downloaded', 'downloaded_session', TValueFormatBKM, -1, True);
     MainFrame.AddCol('Availability', 'availability', TValueFormatMulti, -1, True);
+
     var rttictx := TRttiContext.Create();
     var rttitype := rttictx.GetType(TqBitTorrentType);
     for var field in rttitype.GetFields do
@@ -489,6 +459,10 @@ begin
       MainFrame.AddCol(Title, field.Name, TValueFormatString, -2, False);
     end;
     rttictx.Free;
+
+    if Assigned(Config) then
+     MainFrame.SetJsonGrisPrefs(Config.MainGrid);
+
     MainFrame.OnUpdateUIEvent := MainFrameUpdateEvent;
     MainFrame.OnPopupEvent := self.MainFramePopupEvent;
     MainFrame.OnRowsSelectedEvent := self.MainFrameSelectEvent;
@@ -516,6 +490,10 @@ begin
       PeersFrame.AddCol(Title, field.Name, TValueFormatString, -2, False);
     end;
     rttictx.Free;
+
+    if Assigned(Config) then
+     PeersFrame.SetJsonGrisPrefs(Config.PeersGrid);
+
     PeersFrame.SortField := 'ip';
     PeersFrame.SortReverse := False;
     PeersFrame.OnPopupEvent := Self.PeersFramePopupEvent;
@@ -540,6 +518,10 @@ begin
       TrackersFrame.AddCol(Title, field.Name, TValueFormatString, -2, False);
     end;
     rttictx.Free;
+
+    if Assigned(Config) then
+     TrackersFrame.SetJsonGrisPrefs(Config.TrackersGrid);
+
     TrackersFrame.SortField := 'Furl';
     TrackersFrame.SortReverse := False;
     TrackersFrame.OnUpdateUIEvent := TrackersFrameUpdateEvent;
@@ -548,6 +530,7 @@ begin
     PeersThread := TqBitPeersThread.Create(qB.Clone, PeersThreadEvent);
     TrackersThread := TqBitTrackersThread.Create(qB.Clone, TrackersThreadEvent);
     TrackersThread.Pause := True;
+
   end else
     PostMessage(Handle, WM_CLOSE,0 ,0);
 end;
@@ -560,15 +543,29 @@ end;
 
 procedure TFrmSTG.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  CatsList.Free;
-  TagsList.Free;
-  TrackersThread.Free;
-  PeersThread.Free;
-  MainThread.Free;
-  TrackersFrame.DoDestroy;
-  PeersFrame.DoDestroy;
-  MainFrame.DoDestroy;
+  if assigned(MainThread) then
+  begin
+    var JsonObj := TJsonPrefs.Create;
+    FreeAndNil(JsonObj.MainGrid);
+    JsonObj.MainGrid := MainFrame.GetJsonGrisPrefs;
+    FreeAndNil(JsonObj.PeersGrid);
+    JsonObj.PeersGrid := PeersFrame.GetJsonGrisPrefs;
+    FreeAndNil(JsonObj.TrackersGrid);
+    JsonObj.TrackersGrid := TrackersFrame.GetJsonGrisPrefs;
+    qBitSelectServerDlg.SaveConfig(JsonObj.Servers);
+    JsonObj.SaveToFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+    FreeAndNil(JsonObj);
+    CatsList.Free;
+    TagsList.Free;
+    TrackersThread.Free;
+    PeersThread.Free;
+    MainThread.Free;
+    TrackersFrame.DoDestroy;
+    PeersFrame.DoDestroy;
+    MainFrame.DoDestroy;
+  end;
   qB.Free;
+  Config.Free;
 end;
 
 procedure TFrmSTG.WMDropFiles(var Msg: TMessage);
@@ -756,6 +753,11 @@ begin
   end;
 end;
 
+procedure TFrmSTG.SelectAll1Click(Sender: TObject);
+begin
+  Self.MainFrame.SelectAll;
+end;
+
 procedure TFrmSTG.SGGMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var
@@ -889,20 +891,26 @@ begin
           if CatsList[j] = LCBCat then CBCats.ItemIndex := j+1;
        end;
 
-      if  (Server.FVS.IsEmpty) then
-        StatusBar1.Panels[0].Text := M.Main.server_state.connection_status.AsString;
-      if not (Server.FVS.IsEmpty) and ((M.Main.rid.AsInt64 mod 40) = 1) then
+      if  (Server.FVS.AsString.IsEmpty) then
+        StatusBar1.Panels[0].Text :=M.Main.server_state.connection_status.AsString;
+      if not (Server.FVS.AsString.IsEmpty) and ((M.Main.rid.AsInt64 mod 40) = 1) and (Server.FVS.AsString.Trim <> '')then
       begin
-        var vn := TvnStatClient.FromURL(Server.FVS);
+
+        var vn := TvnStatClient.FromURL(Server.FVS.AsString);
         if Assigned(vn) then
         begin
-          var Intf := vn.GetInterface(Server.FVSI);
+          var Intf := vn.GetInterface(Server.FVSI.AsString);
           if Assigned(Intf) then
             StatusBar1.Panels[0].Text :=
-              Format('%s - Metered : %.2f TB', [
+              Format('%s - Metered : %.2f / %d TB', [
                 M.Main.server_state.connection_status.AsString,
-                Intf.traffic.total.rx.ToTB + Intf.traffic.total.tx.ToTB
+                Intf.traffic.total.rx.ToTB + Intf.traffic.total.tx.ToTB,
+                Server.FVSE.AsInt64
               ]);
+          if (Intf.traffic.total.rx.ToTB + Intf.traffic.total.tx.ToTB > Server.FVSE.AsInt64)  then
+            for var T in M.Main.torrents do
+                if (T.Value.state.AsString <> 'stoppedUP') and (T.Value.state.AsString <> 'stoppedDL') then
+                   qB.StopTorrents(T.Key);
           vn.Free;
         end;
       end;
@@ -957,7 +965,6 @@ begin
           SGG.Cells[Col + 3, Row + 1] := 'Pieces: '; SGG.Cells[Col + 4, Row + 1] := '';
           SGG.Cells[Col + 3, Row + 2] := 'Created On: '; SGG.Cells[Col + 4, Row + 2] := Torrent.added_on.TimestampStr;
           SGG.Cells[Col + 3, Row + 3] := 'Completed On: '; SGG.Cells[Col + 4, Row + 3] := Torrent.completion_on.TimestampStr;
-
         finally
           Content.Free;
         end;

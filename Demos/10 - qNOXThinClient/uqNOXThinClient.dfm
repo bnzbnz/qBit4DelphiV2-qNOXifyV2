@@ -77,6 +77,8 @@ object FrmSTG: TFrmSTG
         inherited SG: TStringGrid
           Width = 1435
           Height = 421
+          DoubleBuffered = True
+          FixedCols = 2
           ExplicitWidth = 1435
           ExplicitHeight = 421
           ColWidths = (
@@ -1118,7 +1120,7 @@ object FrmSTG: TFrmSTG
           Left = 329
           Top = 4
           Width = 22
-          Height = 22
+          Height = 23
           Caption = 'X'
           TabOrder = 1
           OnClick = BitBtn1Click
@@ -1217,6 +1219,7 @@ object FrmSTG: TFrmSTG
             inherited SG: TStringGrid
               Width = 1427
               Height = 164
+              DoubleBuffered = True
               ExplicitWidth = 1427
               ExplicitHeight = 164
             end
@@ -1237,6 +1240,7 @@ object FrmSTG: TFrmSTG
             inherited SG: TStringGrid
               Width = 1427
               Height = 164
+              DoubleBuffered = True
               ExplicitWidth = 1427
               ExplicitHeight = 164
             end
@@ -1251,6 +1255,13 @@ object FrmSTG: TFrmSTG
     OnPopup = MainPopupPopup
     Left = 288
     Top = 72
+    object SelectAll1: TMenuItem
+      Caption = 'Select All'
+      OnClick = SelectAll1Click
+    end
+    object N6: TMenuItem
+      Caption = '-'
+    end
     object Pause1: TMenuItem
       Caption = 'Stop'
       OnClick = PauseClick
