@@ -12,8 +12,8 @@ object qBitSelectServerDlg: TqBitSelectServerDlg
   Font.Name = 'Tahoma'
   Font.Style = []
   Position = poOwnerFormCenter
-  OnClose = FormClose
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
   DesignSize = (
     503

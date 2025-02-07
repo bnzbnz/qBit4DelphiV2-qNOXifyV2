@@ -461,7 +461,7 @@ begin
     rttictx.Free;
 
     if Assigned(Config) then
-     MainFrame.SetJsonGrisPrefs(Config.MainGrid);
+     MainFrame.SaveConfig(Config.MainGrid);
 
     MainFrame.OnUpdateUIEvent := MainFrameUpdateEvent;
     MainFrame.OnPopupEvent := self.MainFramePopupEvent;
@@ -492,7 +492,7 @@ begin
     rttictx.Free;
 
     if Assigned(Config) then
-     PeersFrame.SetJsonGrisPrefs(Config.PeersGrid);
+     PeersFrame.SaveConfig(Config.PeersGrid);
 
     PeersFrame.SortField := 'ip';
     PeersFrame.SortReverse := False;
@@ -520,7 +520,7 @@ begin
     rttictx.Free;
 
     if Assigned(Config) then
-     TrackersFrame.SetJsonGrisPrefs(Config.TrackersGrid);
+     TrackersFrame.SaveConfig(Config.TrackersGrid);
 
     TrackersFrame.SortField := 'Furl';
     TrackersFrame.SortReverse := False;
@@ -545,16 +545,11 @@ procedure TFrmSTG.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   if assigned(MainThread) then
   begin
-    var JsonObj := TJsonPrefs.Create;
-    FreeAndNil(JsonObj.MainGrid);
-    JsonObj.MainGrid := MainFrame.GetJsonGrisPrefs;
-    FreeAndNil(JsonObj.PeersGrid);
-    JsonObj.PeersGrid := PeersFrame.GetJsonGrisPrefs;
-    FreeAndNil(JsonObj.TrackersGrid);
-    JsonObj.TrackersGrid := TrackersFrame.GetJsonGrisPrefs;
-    qBitSelectServerDlg.SaveConfig(JsonObj.Servers);
-    JsonObj.SaveToFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
-    FreeAndNil(JsonObj);
+    MainFrame.LoadConfig(Config.MainGrid);
+    MainFrame.LoadConfig(Config.PeersGrid);
+    MainFrame.LoadConfig(Config.TrackersGrid);
+    qBitSelectServerDlg.SaveConfig(Config.Servers);
+    Config.SaveToFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
     CatsList.Free;
     TagsList.Free;
     TrackersThread.Free;

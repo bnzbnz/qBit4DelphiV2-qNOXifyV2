@@ -77,7 +77,6 @@ object FrmSTG: TFrmSTG
         inherited SG: TStringGrid
           Width = 1435
           Height = 421
-          DoubleBuffered = True
           FixedCols = 2
           ExplicitWidth = 1435
           ExplicitHeight = 421
@@ -1219,7 +1218,6 @@ object FrmSTG: TFrmSTG
             inherited SG: TStringGrid
               Width = 1427
               Height = 164
-              DoubleBuffered = True
               ExplicitWidth = 1427
               ExplicitHeight = 164
             end
@@ -1240,7 +1238,6 @@ object FrmSTG: TFrmSTG
             inherited SG: TStringGrid
               Width = 1427
               Height = 164
-              DoubleBuffered = True
               ExplicitWidth = 1427
               ExplicitHeight = 164
             end

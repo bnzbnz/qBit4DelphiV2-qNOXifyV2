@@ -30,7 +30,7 @@ var
   FrmSimpleThreaded: TFrmSimpleThreaded;
 implementation
 {$R *.dfm}
-uses uqBitSelectServerDlg, uJX4Value;
+uses uqBitSelectServerDlg, uJX4Value, uJX4Object, System.IOUtils;
 
 { TqBitThread }
 destructor TqBitThread.Destroy;
@@ -74,13 +74,22 @@ end;
 procedure TFrmSimpleThreaded.FormShow(Sender: TObject);
 begin
   Th := Nil;
+
+  var Config := TJX4Object.LoadFromFile<TqBitServers>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+  if not assigned(Config) then Config := TqBitServers.Create;
+  qBitSelectServerDlg.LoadConfig(Config);
+
   if qBitSelectServerDlg.ShowModal = mrOk then
   begin
+    qBitSelectServerDlg.SaveConfig(Config);
+    Config.SaveToFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+
     var Server := qBitSelectServerDlg.GetServer;
     Th := TqBitThread.Create(True);
-    Th.qB := TqBit.Connect(Server.FHP, Server.FUN, Server.FPW);
+    Th.qB := TqBit.Connect(Server.FHP.AsString, Server.FUN.AsString, Server.FPW.Asstring);
     TH.Start;
   end else Close;
+  Config.Free;
 end;
 procedure TFrmSimpleThreaded.Disconnected(Sender: TqBitThread);
 begin

@@ -34,7 +34,7 @@ var
   NOXMonDlg: TNOXMonDlg;
 
 implementation
-uses uqBitSelectServerDlg, Math, RTTI, uJX4Value;
+uses uqBitSelectServerDlg, Math, System.IOUtils, RTTI, uJX4Object, uJX4Value;
 
 {$R *.dfm}
 
@@ -43,9 +43,17 @@ var
   Srvs: TObjectList<TqBitServer>;
   Th : TqBitThread;
 begin
+  var Config := TJX4Object.LoadFromFile<TqBitServers>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+  if not assigned(Config) then Config := TqBitServers.Create;
+  qBitSelectServerDlg.LoadConfig(Config);
+
   qBitSelectServerDlg.MultiSelect := True;
   if qBitSelectServerDlg.ShowModal = mrOk then
   begin
+    qBitSelectServerDlg.SaveConfig(Config);
+    Config.SaveToFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+
+
     UpdateHeaders;
     ThList := TObjectList<TqBitThread>.Create(False);
     Srvs :=  qBitSelectServerDlg.GetMultiServers;
@@ -55,12 +63,13 @@ begin
       Th := TqBitThread.Create(True);
       Th.RowIndex := RowIndex;
       Inc(RowIndex);
-      Th.qB := TqBit.Connect(Srv.FHP, Srv.FUN, Srv.FPW);
+      Th.qB := TqBit.Connect(Srv.FHP.AsString, Srv.FUN.AsString, Srv.FPW.AsString);
       ThList.Add(Th);
       Th.Start;
     end;
     Srvs.Free;
   end else Close;
+  Config.Free;
 end;
 
 

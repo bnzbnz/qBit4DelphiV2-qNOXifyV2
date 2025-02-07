@@ -29,7 +29,7 @@ var
 
 implementation
 {$R *.dfm}
-uses ShellAPI, uqBitSelectServerDlg, uqBitAddServerDlg, uqBitAddTorrentDlg;
+uses ShellAPI, uqBitSelectServerDlg, uqBitAddServerDlg, uqBitAddTorrentDlg, uJX4Object, System.IOUtils;
 
 
 procedure TFrmAddTorrent.Button1Click(Sender: TObject);
@@ -46,12 +46,21 @@ end;
 procedure TFrmAddTorrent.FormShow(Sender: TObject);
 begin
   DragAcceptFiles (Self.handle, True);
+
+  var Config := TJX4Object.LoadFromFile<TqBitServers>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+  if not assigned(Config) then Config := TqBitServers.Create;
+  qBitSelectServerDlg.LoadConfig(Config);
+
   if qBitSelectServerDlg.ShowModal = mrOk then
   begin
+    qBitSelectServerDlg.SaveConfig(Config);
+    Config.SaveToFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+
     var Server := qBitSelectServerDlg.GetServer;
-    qB := TqBit.Connect(Server.FHP, Server.FUN, Server.FPW);
+    qB := TqBit.Connect(Server.FHP.AsString, Server.FUN.AsString, Server.FPW.AsString);
   end else
     PostMessage(Handle, WM_CLOSE,0 ,0);
+  Config.Free;
 end;
 
 procedure TFrmAddTorrent.UpdateUI;

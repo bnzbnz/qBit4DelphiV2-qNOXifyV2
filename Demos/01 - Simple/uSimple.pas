@@ -35,11 +35,12 @@ uses
     ShellAPI
   , uJX4Value
   , uqBitSelectServerDlg
+  , System.IOUtils
   ;
 
 procedure TFrmSimple.LinkLabel1LinkClick(Sender: TObject; const Link: string; LinkType: TSysLinkType);
 begin
- ShellExecute(0, 'Open', PChar(Link), PChar(''), nil, SW_SHOWNORMAL);
+  ShellExecute(0, 'Open', PChar(Link), PChar(''), nil, SW_SHOWNORMAL);
 end;
 
 procedure TFrmSimple.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -50,13 +51,23 @@ end;
 
 procedure TFrmSimple.FormShow(Sender: TObject);
 begin
+  var Config := TJX4Object.LoadFromFile<TqBitServers>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+  if not assigned(Config) then Config := TqBitServers.Create;
+  qBitSelectServerDlg.LoadConfig(Config);
+
   if qBitSelectServerDlg.Showmodal <> mrOK then
   begin
     PostMessage(Handle, WM_CLOSE,0 ,0);
+    Config.Free;
     Exit;
   end;
+
+  qBitSelectServerDlg.SaveConfig(Config);
+  Config.SaveToFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+  Config.Free;
+
   var Server := qBitSelectServerDlg.GetServer;
-  qB := TqBit.Connect(Server.FHP, Server.FUN, Server.FPW);
+  qB := TqBit.Connect(Server.FHP.AsString, Server.FUN.AsString, Server.FPW.AsString);
   qBMain := qB.GetMainData(0); // >> Full Data
   UpdateUI;
   Timer1.Interval := qBMain.server_state.refresh_interval.AsInteger; // The update interval is defined by the server

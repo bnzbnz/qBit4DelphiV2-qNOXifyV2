@@ -74,14 +74,23 @@ uses
   , System.TypInfo
   , System.Generics.Collections
   , System.Generics.Defaults
+  , uJX4Object
+  , System.IOUtils
   ;
 
 procedure TFrmSTG.FormShow(Sender: TObject);
 begin
+  var Config := TJX4Object.LoadFromFile<TqBitServers>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+  if not assigned(Config) then Config := TqBitServers.Create;
+  qBitSelectServerDlg.LoadConfig(Config);
+
   if qBitSelectServerDlg.ShowModal = mrOk then
   begin
+    qBitSelectServerDlg.SaveConfig(Config);
+    Config.SaveToFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+
     var Server := qBitSelectServerDlg.GetServer;
-    qB := TqBit.Connect(Server.FHP, Server.FUN, Server.FPW);
+    qB := TqBit.Connect(Server.FHP.AsString, Server.FUN.AsString, Server.FPW.AsString);
 
     MainFrame.DoCreate;
     MainFrame.OnUpdateUIEvent := MainFramUpdateEvent;
@@ -127,6 +136,7 @@ begin
     MainThread := TqBitMainThread.Create(qB.Clone, MainThreadEvent);
   end else
     PostMessage(Handle, WM_CLOSE,0 ,0);
+  Config.Free;
 end;
 
 procedure TFrmSTG.FormClose(Sender: TObject; var Action: TCloseAction);

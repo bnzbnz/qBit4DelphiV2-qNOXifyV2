@@ -119,8 +119,8 @@ type
     SortField: string;
     SortReverse: boolean;
 
-    function  GetJsonGrisPrefs: TJsonGrid;
-    procedure SetJsonGrisPrefs(Prefs: TJsonGrid);
+    procedure LoadConfig(Prefs: TJsonGrid);
+    procedure SaveConfig(Prefs: TJsonGrid);
     function  AddCol(Name, Field: string; Fmt: TValueDataFormater; Width: Integer; Visible: Boolean): TqBitGridData;
     procedure AddRow(K: string; V: TObject);
     procedure DoCreate;
@@ -363,9 +363,9 @@ begin
   Result := TqBitGridData(SG.Objects[Index, 0]);
 end;
 
-function TqBitFrame.GetJsonGrisPrefs: TJsonGrid;
+procedure TqBitFrame.LoadConfig(Prefs: TJsonGrid);
 begin
-  Result := TJsonGrid.Create;
+  Prefs.Grid.Clear;
   for var i := 1 to SG.ColCount - 2  do
   begin
     var Obj := TqBitGridData(SG.Objects[i, 0]);
@@ -374,7 +374,7 @@ begin
       var Layout := TGridColPref.Create;
       Layout.Size := SG.ColWidths[i];
       Layout.Position := i;
-      Result.Grid.Add(Obj.Name, Layout);
+      Prefs.Grid.Add(Obj.Name, Layout);
       if SortField = Obj.Field then
       begin
         Layout.SortField := SortField;
@@ -384,7 +384,7 @@ begin
   end;
 end;
 
-procedure TqBitFrame.SetJsonGrisPrefs(Prefs: TJsonGrid);
+procedure TqBitFrame.SaveConfig(Prefs: TJsonGrid);
 begin
   for var C in Prefs.Grid do
   begin

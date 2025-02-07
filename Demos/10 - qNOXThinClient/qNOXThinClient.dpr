@@ -32,7 +32,6 @@ begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
   Application.Title := 'qBOX Thin Client';
-  TStyleManager.TrySetStyle('Sky');
   Application.CreateForm(TFrmSTG, FrmSTG);
   Application.CreateForm(TqBitAddServerDlg, qBitAddServerDlg);
   Application.CreateForm(TqBitSelectServerDlg, qBitSelectServerDlg);

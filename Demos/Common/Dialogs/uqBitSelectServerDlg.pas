@@ -52,7 +52,7 @@ type
     procedure BtnDelClick(Sender: TObject);
     procedure LBSrvDblClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
   public
@@ -170,16 +170,6 @@ begin
   FVSE := VSE;
 end;
 
-procedure TqBitSelectServerDlg.FormClose(Sender: TObject;
-  var Action: TCloseAction);
-begin
-  if ModalResult <> mrOK then
-  begin
-    for var i := 0 to LBSrv.Items.Count -1 do
-      LBSrv.Items.Objects[i].Free;
-  end;
-end;
-
 procedure TqBitSelectServerDlg.FormCreate(Sender: TObject);
 begin
   VerLabel.Caption := 'qBit4Delphi, API Version : ' + TqBit.Version;
@@ -188,10 +178,17 @@ begin
   SGInfo.Cells[1, 7] := TqBit.Version;
 end;
 
+procedure TqBitSelectServerDlg.FormDestroy(Sender: TObject);
+begin
+  for var i := LBSrv.Items.Count -1 downto 0 do
+    TqBitServer(LBSrv.Items.Objects[i]).Free;
+end;
+
 procedure TqBitSelectServerDlg.SaveConfig(AConfig: TqBitServers);
 begin
+  AConfig.Servers.Clear;
   for var i := 0 to LBSrv.Items.Count -1 do
-    AConfig.AddServer(TqBitServer(LBSrv.Items.Objects[i]));
+    AConfig.AddServer(TqBitServer(LBSrv.Items.Objects[i]).Clone<TqBitServer>);
 end;
 
 procedure TqBitSelectServerDlg.LoadConfig(AConfig: TqBitServers);

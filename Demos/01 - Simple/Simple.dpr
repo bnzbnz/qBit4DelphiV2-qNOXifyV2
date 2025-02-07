@@ -11,7 +11,9 @@ uses
   uJX4List in '..\..\..\JsonX4\uJsonX4\uJX4List.pas',
   uJX4Object in '..\..\..\JsonX4\uJsonX4\uJX4Object.pas',
   uJX4Rtti in '..\..\..\JsonX4\uJsonX4\uJX4Rtti.pas',
-  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas';
+  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas',
+  Vcl.Themes,
+  Vcl.Styles;
 
 {$R *.res}
 
@@ -19,6 +21,7 @@ begin
   ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
+  TStyleManager.TrySetStyle('Aqua Light Slate');
   Application.CreateForm(TFrmSimple, FrmSimple);
   Application.CreateForm(TqBitAddServerDlg, qBitAddServerDlg);
   Application.CreateForm(TqBitSelectServerDlg, qBitSelectServerDlg);
