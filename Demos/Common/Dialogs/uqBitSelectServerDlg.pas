@@ -3,26 +3,31 @@ unit uqBitSelectServerDlg;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, uqBit.API.Types, uqBit.API, uqBit,
-  Vcl.ExtCtrls, Vcl.Grids, Vcl.ComCtrls, System.Generics.Collections;
+  Vcl.ExtCtrls, Vcl.Grids, Vcl.ComCtrls, System.Generics.Collections
+  , RTTI
+  , uJX4Object
+  , uJX4List
+  ;
 
 type
-  TqBitServer = class
-    FHP: string;
-    FUN: string;
-    FPW: string;
-    FSH:  string;
-    FSPO: string;
-    FSU:  string;
-    FSK:  string;
-    FVS:  string;
-    FVSI: string;
-    constructor Create(H, U, P, SH, SPO, SU, SK, VS, VSI: string);
+  TqBitServer = class(TJX4Object)
+    FHP: TValue;
+    FUN: TValue;
+    FPW: TValue;
+    FSH:  TValue;
+    FSPO: TValue;
+    FSU:  TValue;
+    FSK:  TValue;
+    FVS:  TValue;
+    FVSI: TValue;
+    FVSE: TValue; // Int
+    constructor Create(H, U, P, SH, SPO, SU, SK, VS, VSI: TValue; VSE: TValue);
   end;
 
-  TqBitServers = class
-    FServers: TArray<tqBitServer>;
+  TqBitServers = class(TJX4Object)
+    Servers: TJX4List<tqBitServer>;
     procedure AddServer(Srv: TqBitServer);
     destructor Destroy; override;
   end;
@@ -40,7 +45,6 @@ type
     VerLabel: TLabel;
     Button1: TButton;
     procedure btnAddClick(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
     procedure LBSrvClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
@@ -48,21 +52,25 @@ type
     procedure BtnDelClick(Sender: TObject);
     procedure LBSrvDblClick(Sender: TObject);
     procedure Button1Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private declarations }
   public
     { Public declarations }
     MultiSelect: Boolean;
-    CfgFileName: string;
+    Config: TqBitServers;
     function GetServer: TqBitServer;
     function GetMultiServers: TObjectList<TqBitServer>;
+    procedure SaveConfig(AConfig: TqBitServers) ;
+    procedure LoadConfig(AConfig: TqBitServers) ;
+
   end;
 
 var
   qBitSelectServerDlg: TqBitSelectServerDlg;
 
 implementation
-uses uqBitAddServerDlg, IOUtils, Rest.JSON, uJX4Object;
+uses uqBitAddServerDlg, IOUtils, SysUtils;
 
 {$R *.dfm}
 
@@ -72,7 +80,7 @@ begin
   BtnSel.Caption := '...Checking...'; BtnSel.Enabled := False;
   ModalResult := mrNone;
   var Srv := TqBitServer(LBSrv.Items.Objects[LBSrv.ItemIndex]);
-  var qB := TqBit.Connect(Srv.FHP, Srv.FUN, Srv.FPW);
+  var qB := TqBit.Connect(Srv.FHP.AsString, Srv.FUN.AsString, Srv.FPW.AsString);
   if assigned(qB) then
   begin
     if not qB.qBitCheckWebAPICompatibility then
@@ -80,7 +88,7 @@ begin
     else
       ModalResult := mrOK
   end else
-    ShowMessage('Can not connect to : ' + Srv.FHP);
+    ShowMessage('Can not connect to : ' + Srv.FHP.AsString);
   qB.Free;
   BtnSel.Caption := 'Select'; BtnSel.Enabled := True;
 end;
@@ -89,30 +97,31 @@ procedure TqBitSelectServerDlg.Button1Click(Sender: TObject);
 begin
   if LBSrv.ItemIndex = -1 then Exit;
   var Srv := TqBitServer(LBSrv.Items.Objects[LBSrv.ItemIndex]);
-  qBitAddServerDlg.HP.Text := Srv.FHP;
-  qBitAddServerDlg.UN.Text := Srv.FUN;
-  qBitAddServerDlg.PW.Text := Srv.FPW;
-  qBitAddServerDlg.Edit1.Text := Srv.FSH;
-  qBitAddServerDlg.Edit2.Text := Srv.FSPO;
-  qBitAddServerDlg.Edit3.Text := Srv.FSU;
-  qBitAddServerDlg.Edit4.Text := Srv.FSK;
-  qBitAddServerDlg.Edit5.text := Srv.FVS;
-  qBitAddServerDlg.Edit6.text := Srv.FVSI;
+  qBitAddServerDlg.HP.Text := Srv.FHP.AsString;
+  qBitAddServerDlg.UN.Text := Srv.FUN.AsString;
+  qBitAddServerDlg.PW.Text := Srv.FPW.AsString;
+  qBitAddServerDlg.Edit1.Text := Srv.FSH.AsString;
+  qBitAddServerDlg.Edit2.Text := Srv.FSPO.AsString;
+  qBitAddServerDlg.Edit3.Text := Srv.FSU.AsString;
+  qBitAddServerDlg.Edit4.Text := Srv.FSK.AsString;
+  qBitAddServerDlg.Edit5.text := Srv.FVS.AsString;
+  qBitAddServerDlg.Edit6.text := Srv.FVSI.AsString;
+  qBitAddServerDlg.SE1.Value := Srv.FVSE.AsInt64;
   if qBitAddServerDlg.ShowModal = mrOk then
   begin
-    Srv.FHP := qBitAddServerDlg.HP.Text;
-    Srv.FUN := qBitAddServerDlg.UN.Text;
-    Srv.FPW := qBitAddServerDlg.PW.Text;
-    Srv.FSH := qBitAddServerDlg.Edit1.Text;
-    Srv.FSPO := qBitAddServerDlg.Edit2.Text;
-    Srv.FSU := qBitAddServerDlg.Edit3.Text;
-    Srv.FSK := qBitAddServerDlg.Edit4.Text;
-    Srv.FVS :=  qBitAddServerDlg.Edit5.text;
-    Srv.FVSI :=  qBitAddServerDlg.Edit6.text;
+    Srv.FHP := Trim(qBitAddServerDlg.HP.Text);
+    Srv.FUN := Trim(qBitAddServerDlg.UN.Text);
+    Srv.FPW := Trim(qBitAddServerDlg.PW.Text);
+    Srv.FSH := Trim(qBitAddServerDlg.Edit1.Text);
+    Srv.FSPO := Trim(qBitAddServerDlg.Edit2.Text);
+    Srv.FSU := Trim(qBitAddServerDlg.Edit3.Text);
+    Srv.FSK := Trim(qBitAddServerDlg.Edit4.Text);
+    Srv.FVS := Trim(qBitAddServerDlg.Edit5.text);
+    Srv.FVSI := Trim(qBitAddServerDlg.Edit6.text);
+    Srv.FVSE := qBitAddServerDlg.SE1.Value;
     LBSrvClick(Self);
   end;
 end;
-
 
 procedure TqBitSelectServerDlg.btnAddClick(Sender: TObject);
 begin
@@ -128,9 +137,10 @@ begin
       qBitAddServerDlg.Edit3.Text,
       qBitAddServerDlg.Edit4.Text,
       qBitAddServerDlg.Edit5.text,
-      qBitAddServerDlg.Edit6.text
+      qBitAddServerDlg.Edit6.text,
+      qBitAddServerDlg.SE1.Value
     );
-    LBSrv.ItemIndex := LBSrv.Items.AddObject(Srv.FUN + '@' + Srv.FHP, Srv);
+    LBSrv.ItemIndex := LBSrv.Items.AddObject(Srv.FUN.AsString + '@' + Srv.FHP.AsString, Srv);
     LBSrvClick(Self);
   end;
 end;
@@ -145,7 +155,7 @@ end;
 
 { TqBitServer }
 
-constructor TqBitServer.Create(H, U, P, SH, SPO, SU, SK, VS, VSI: string);
+constructor TqBitServer.Create(H, U, P, SH, SPO, SU, SK, VS, VSI: TValue; VSE: TValue);
 begin
   inherited Create;
   FHP := H;
@@ -157,27 +167,43 @@ begin
   FSK := SK;
   FVS := VS;
   FVSI := VSI;
+  FVSE := VSE;
+end;
+
+procedure TqBitSelectServerDlg.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  if ModalResult <> mrOK then
+  begin
+    for var i := 0 to LBSrv.Items.Count -1 do
+      LBSrv.Items.Objects[i].Free;
+  end;
 end;
 
 procedure TqBitSelectServerDlg.FormCreate(Sender: TObject);
 begin
-  CfgFileName := TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json';
   VerLabel.Caption := 'qBit4Delphi, API Version : ' + TqBit.Version;
   VerLabel.Caption := VerLabel.Caption + sLineBreak + 'By ' + qBitAPI_Developer;
   SGInfo.Cells[1, 6] := TJX4Object.Version;
   SGInfo.Cells[1, 7] := TqBit.Version;
 end;
 
-procedure TqBitSelectServerDlg.FormDestroy(Sender: TObject);
+procedure TqBitSelectServerDlg.SaveConfig(AConfig: TqBitServers);
 begin
-  var SrvLst := TqBitServers.Create;
   for var i := 0 to LBSrv.Items.Count -1 do
-    SrvLst.AddServer(TqBitServer(LBSrv.Items.Objects[i]));
-  var Json := TJson.ObjectToJsonString(SrvLst);
-  var SS := TStringStream.Create( TJson.ObjectToJsonString(SrvLst) );
-  SS.SaveToFile(CfgFileName);
-  SS.Free;
-  SrvLst.Free;
+    AConfig.AddServer(TqBitServer(LBSrv.Items.Objects[i]));
+end;
+
+procedure TqBitSelectServerDlg.LoadConfig(AConfig: TqBitServers);
+begin
+  if Assigned(AConfig) and (LBSrv.Items.Count = 0) then
+  begin
+     for var S in AConfig.Servers do
+    begin
+      var Srv := TqBitServer.Create(S.FHP.AsString, S.FUN.AsString, S.FPW.AsString, S.FSH.AsString, S.FSPO.AsString, S.FSU.AsString, S.FSK.AsString, S.FVS.AsString, S.FVSI.AsString, S.FVSE.AsInt64);
+      LBSrv.Items.AddObject(Srv.FUN.AsString + '@' + Srv.FHP.AsString, Srv);
+    end;
+  end;
 end;
 
 procedure TqBitSelectServerDlg.FormShow(Sender: TObject);
@@ -195,24 +221,6 @@ begin
   SGInfo.Cells[0, 5] := 'zlib';
   SGInfo.Cells[0, 6] := 'Jsonx4';
   SGInfo.Cells[0, 7] := 'qBitAPI';
-  if FileExists(CfgFileName) and (LBSrv.Items.Count = 0) then
-  begin
-    var SS := TStringStream.Create;
-    SS.LoadFromFile(CfgFileName);
-    var SrvLst := TJson.JsonToObject<TqBitServers>(SS.DataString);
-    SS.Free;
-    for var S in SrvLst.FServers do
-    begin
-      var Srv := TqBitServer.Create(S.FHP, S.FUN, S.FPW, S.FSH, S.FSPO, S.FSU, S.FSK, S.FVS, S.FVSI);
-      LBSrv.Items.AddObject(Srv.FUN + '@' + Srv.FHP, Srv);
-    end;
-    SrvLst.Free;
-  end;
-  if LBSrv.Items.Count = 0 then
-  begin
-     var Srv := TqBitServer.Create('http://127.0.0.1:8080', '', '', '', '', '', '', '', '');
-     LBSrv.Items.AddObject(Srv.FUN + '@' + Srv.FHP, Srv);
-  end;
 end;
 
 function TqBitSelectServerDlg.GetMultiServers: TObjectList<TqBitServer>;
@@ -237,7 +245,7 @@ begin
   BtnSel.Enabled := not (LBSrv.ItemIndex = -1);
   if LBSrv.ItemIndex = -1 then Exit;
   var Srv := TqBitServer(LBSrv.Items.Objects[LBSrv.ItemIndex]);
-  var qB := TqBit.Connect(Srv.FHP, Srv.FUN, Srv.FPW);
+  var qB := TqBit.Connect(Srv.FHP.AsString, Srv.FUN.AsString, Srv.FPW.AsString);
   if assigned(qB) then
   begin;
     var B := qB.GetBuildInfo;
@@ -259,14 +267,11 @@ end;
 
 procedure TqBitServers.AddServer(Srv: TqBitServer);
 begin
-  SetLength(FServers, Length(FServers) + 1);
-  FServers[ Length(FServers) - 1 ] := Srv;
+  Servers.Add(Srv);
 end;
 
 destructor TqBitServers.Destroy;
 begin
-  for var i := 0 to Length(FServers) -1 do
-    FServers[i].Free;
   inherited;
 end;
 

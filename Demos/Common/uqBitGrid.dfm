@@ -14,7 +14,7 @@ object qBitFrame: TqBitFrame
     DefaultColWidth = 80
     DefaultRowHeight = 18
     DoubleBuffered = True
-    FixedCols = 2
+    FixedCols = 3
     RowCount = 1000
     Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goColMoving, goThumbTracking, goFixedColClick, goFixedRowClick, goFixedHotTrack, goFixedRowDefAlign]
     ParentDoubleBuffered = False

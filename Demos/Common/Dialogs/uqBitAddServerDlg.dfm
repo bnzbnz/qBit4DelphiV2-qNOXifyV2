@@ -45,7 +45,7 @@ object qBitAddServerDlg: TqBitAddServerDlg
     Top = 24
     Width = 289
     Height = 246
-    ActivePage = TabSheet2
+    ActivePage = TabSheet1
     TabOrder = 2
     object TabSheet3: TTabSheet
       Caption = '  qBit / NOX  '
@@ -177,6 +177,13 @@ object qBitAddServerDlg: TqBitAddServerDlg
         Height = 13
         Caption = 'Interface :'
       end
+      object Label5: TLabel
+        Left = 200
+        Top = 61
+        Width = 62
+        Height = 13
+        Caption = 'Stop at (TB):'
+      end
       object Edit5: TEdit
         Left = 3
         Top = 34
@@ -186,9 +193,9 @@ object qBitAddServerDlg: TqBitAddServerDlg
       end
       object Memo2: TMemo
         Left = 3
-        Top = 112
+        Top = 120
         Width = 275
-        Height = 90
+        Height = 95
         Lines.Strings = (
           'Use a server running vnstat, a webserver(nginx, '
           'lighthttpd, apache...), php'
@@ -201,9 +208,19 @@ object qBitAddServerDlg: TqBitAddServerDlg
       object Edit6: TEdit
         Left = 3
         Top = 80
-        Width = 275
+        Width = 174
         Height = 21
         TabOrder = 2
+      end
+      object SE1: TSpinEdit
+        Left = 200
+        Top = 80
+        Width = 63
+        Height = 22
+        MaxValue = 1000
+        MinValue = 1
+        TabOrder = 3
+        Value = 95
       end
     end
   end

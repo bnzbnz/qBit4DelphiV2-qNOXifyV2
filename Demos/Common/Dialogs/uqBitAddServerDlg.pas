@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls,
-  uqBit.API.Types, uqBit.API, uqBit, Vcl.Mask, Vcl.ComCtrls;
+  uqBit.API.Types, uqBit.API, uqBit, Vcl.Mask, Vcl.ComCtrls, Vcl.Samples.Spin;
 
 type
 
@@ -35,8 +35,9 @@ type
     Memo2: TMemo;
     Label7: TLabel;
     Edit6: TEdit;
+    Label5: TLabel;
+    SE1: TSpinEdit;
     procedure BtnOKClick(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure FormShow(Sender: TObject);
   private
@@ -49,7 +50,6 @@ var
   qBitAddServerDlg: TqBitAddServerDlg;
 
 implementation
-uses tgputtysftp, uVnStatClient;
 
 {$R *.dfm}
 
@@ -71,37 +71,10 @@ begin
       exit;
     end else ModalResult := mrOK;
   end;
-  if (ModalResult = mrOK) and (Edit5.Text<>'')then
-  begin
-    ModalResult := mrNone;
-    var vn := TvnStatClient.FromURL(Edit5.Text);
-    var Intf: TvnsInterface := Nil;
-    if Assigned(vn) then Intf := vn.GetInterface(Edit6.Text);
-    if not Assigned(vn) or not Assigned(Intf) then
-      ShowMessage('VnStat : Cannot connect to ' + Edit5.Text)
-    else
-      ModalResult := mrOK;
-    vn.Free;
-  end;
   finally
     BtnOK.Caption := 'Ok'; BtnOK.Enabled := True;
     qB.Free;
   end
-end;
-
-procedure TqBitAddServerDlg.Button1Click(Sender: TObject);
-begin
-  var SFTP: TTGPuttySFTP := TTGPuttySFTP.Create(False);
-  SFTP.HostName:=Utf8Encode(Edit1.Text);
-  SFTP.Port:=StrToIntDef(Edit2.Text, 22);
-  SFTP.UserName:=Utf8Encode(Edit3.Text);
-  SFTP.Keyfile:=Utf8Encode(Edit4.Text);
-  SFTP.Connect;
-  if not SFTP.Connected then
-    ShowMessage('Cannot connect to : ' + SFTP.HostName)
-  else
-    ShowMessage('Connected Successfully');
-  SFTP.Free;
 end;
 
 procedure TqBitAddServerDlg.Button2Click(Sender: TObject);

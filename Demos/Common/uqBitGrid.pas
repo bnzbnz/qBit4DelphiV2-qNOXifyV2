@@ -29,10 +29,13 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
   Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, System.UITypes,
   System.Generics.Collections,
-  uqBit.API.Types, uqBit.API, uqBit, Vcl.Menus,
-    uKobicAppTrackMenus
-  , RTTI, Vcl.ComCtrls;
-
+  uqBit.API.Types, uqBit.API, uqBit, Vcl.Menus, Vcl.ComCtrls,
+  uKobicAppTrackMenus
+  , RTTI
+  , uJX4Object
+  , uJX4List
+  , uJX4dict
+  ;
 const
 
   MAXCOL = 100;
@@ -41,12 +44,27 @@ const
   NoSelection: TGridRect = (Left: 0; Top: -1; Right: 0; Bottom: -1);
 
 type
+
+  TGridColPref = class(TJX4Object)
+    Idx: TValue;
+    Size: TValue;
+    Position: TValue;
+    Sortfield: TValue;
+    SortReverse: TValue;
+  end;
+
+  TJsonGrid = class(TJX4Object)
+    Grid: TJX4Dict<TGridColPref>;
+  end;
+
   TValueDataFormater = function(v: TValue): string;
 
   TqBitGridData = class
     Hash: string;
     Selected: boolean;
     Name: string;
+    RIdx: Integer;
+    CIdx: Integer;
     Field: string;
     Format: TValueDataFormater;
     HintX: integer;
@@ -101,6 +119,8 @@ type
     SortField: string;
     SortReverse: boolean;
 
+    function  GetJsonGrisPrefs: TJsonGrid;
+    procedure SetJsonGrisPrefs(Prefs: TJsonGrid);
     function  AddCol(Name, Field: string; Fmt: TValueDataFormater; Width: Integer; Visible: Boolean): TqBitGridData;
     procedure AddRow(K: string; V: TObject);
     procedure DoCreate;
@@ -131,6 +151,8 @@ type
   function TValueFormatDeltaSec(v: TValue): string;
   function TValueFormatDuration(v: TValue): string;
 
+  var
+    aaa: TqBitGridData;
 implementation
 uses
     Math
@@ -341,6 +363,51 @@ begin
   Result := TqBitGridData(SG.Objects[Index, 0]);
 end;
 
+function TqBitFrame.GetJsonGrisPrefs: TJsonGrid;
+begin
+  Result := TJsonGrid.Create;
+  for var i := 1 to SG.ColCount - 2  do
+  begin
+    var Obj := TqBitGridData(SG.Objects[i, 0]);
+    if not Obj.Name.Trim.IsEmpty then
+    begin
+      var Layout := TGridColPref.Create;
+      Layout.Size := SG.ColWidths[i];
+      Layout.Position := i;
+      Result.Grid.Add(Obj.Name, Layout);
+      if SortField = Obj.Field then
+      begin
+        Layout.SortField := SortField;
+        Layout.SortReverse := SortReverse;
+      end;
+    end;
+  end;
+end;
+
+procedure TqBitFrame.SetJsonGrisPrefs(Prefs: TJsonGrid);
+begin
+  for var C in Prefs.Grid do
+  begin
+    for var i := 1 to SG.ColCount - 2 do
+    begin
+      var Obj := TqBitGridData(SG.Objects[i, 0]);
+      if (Obj.Name = C.Key) then
+      begin
+        if C.Value.SortField.ToString <> '' then
+        begin
+          SortField :=   C.Value.Sortfield.AsString;
+          SortReverse := C.Value.SortReverse.ASBoolean;
+        end;
+        SG.ColWidths[i] := C.Value.Size.AsInteger;
+        var A := SG.Objects[i, 0];
+        var B := SG.Objects[C.Value.Position.AsInteger, 0];
+        SG.Objects[i, 0] := B;
+        SG.Objects[C.Value.Position.AsInteger, 0] := A;
+      end;
+    end;
+  end;
+end;
+
 function TqBitFrame.GetGridSel: tqBitGridSelection;
 begin
   Result := TObjectList<TObject>.Create(False);
@@ -385,6 +452,7 @@ begin
         if not TxRTTI.FieldAsTValue(V, Field, LTValue, [mvPublic]) then Continue;
         SG.Cells[Col, FRowIndex] := TValueFormatString(LTValue);
         SG.RowHeights[FRowIndex] := ROWHEIGHT;
+        ColData.RIdx := FRowIndex;
         if ColData.Field = SortField then
         begin
           if not SortReverse then
@@ -426,6 +494,7 @@ begin
   Result.Field := Field;
   Result.Format := Fmt;
   Result.Selected := False;
+  Result.CIdx := FAddColIndex;
   Inc(FAddColIndex);
 end;
 
