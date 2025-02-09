@@ -1,7 +1,7 @@
 object FrmSTG: TFrmSTG
   Left = 0
   Top = 0
-  Caption = 'qNOX Thin Client : '
+  Caption = 'qNOXify V2'
   ClientHeight = 701
   ClientWidth = 1443
   Color = clBtnFace
@@ -52,6 +52,8 @@ object FrmSTG: TFrmSTG
     ActivePage = TabSheet2
     Align = alClient
     TabOrder = 1
+    OnChange = PCMainChange
+    ExplicitTop = -6
     object TabSheet2: TTabSheet
       Caption = '  qBit / NOX  '
       object Splitter1: TSplitter
@@ -1116,7 +1118,7 @@ object FrmSTG: TFrmSTG
           TabOrder = 0
         end
         object BitBtn1: TBitBtn
-          Left = 329
+          Left = 328
           Top = 4
           Width = 22
           Height = 23
@@ -1125,9 +1127,9 @@ object FrmSTG: TFrmSTG
           OnClick = BitBtn1Click
         end
         object BitBtn2: TBitBtn
-          Left = 521
+          Left = 520
           Top = 5
-          Width = 22
+          Width = 23
           Height = 21
           Caption = 'X'
           TabOrder = 2
@@ -1245,6 +1247,110 @@ object FrmSTG: TFrmSTG
         end
       end
     end
+    object Torrent: TTabSheet
+      Caption = 'Torrents'
+      ImageIndex = 1
+      object Panel1: TPanel
+        Left = 0
+        Top = 0
+        Width = 1435
+        Height = 33
+        Align = alTop
+        TabOrder = 0
+        ExplicitLeft = 3
+        ExplicitTop = 11
+        object Label1: TLabel
+          Left = 1256
+          Top = 1
+          Width = 178
+          Height = 31
+          Align = alRight
+          Caption = 'Ctrl+Clcik to open on new window'
+          Layout = tlCenter
+        end
+        object ComboBox1: TComboBox
+          Left = 93
+          Top = 5
+          Width = 256
+          Height = 21
+          TabOrder = 0
+          OnKeyPress = ComboBox1KeyPress
+          Items.Strings = (
+            'https://google.com'
+            'https://fitgirl-repacks.site'
+            'https://ygg.re'
+            'https://DelphiFan.com')
+        end
+        object BackBtn: TButton
+          Left = 0
+          Top = 2
+          Width = 25
+          Height = 25
+          Caption = '3'
+          Font.Charset = SYMBOL_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -19
+          Font.Name = 'Webdings'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 1
+          OnClick = BackBtnClick
+        end
+        object ForwardBtn: TButton
+          Left = 31
+          Top = 2
+          Width = 25
+          Height = 25
+          Caption = '4'
+          Font.Charset = SYMBOL_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -19
+          Font.Name = 'Webdings'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 2
+          OnClick = ForwardBtnClick
+        end
+        object ReloadBtn: TButton
+          Left = 62
+          Top = 2
+          Width = 25
+          Height = 25
+          Caption = 'q'
+          Font.Charset = SYMBOL_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -19
+          Font.Name = 'Webdings'
+          Font.Style = []
+          ParentFont = False
+          TabOrder = 3
+          OnClick = ReloadBtnClick
+        end
+        object GoBtn: TButton
+          Left = 354
+          Top = 3
+          Width = 25
+          Height = 25
+          Caption = #9658
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -17
+          Font.Name = 'Arial'
+          Font.Style = [fsBold]
+          ParentFont = False
+          TabOrder = 4
+          OnClick = GoBtnClick
+        end
+      end
+      object WVWindowParent1: TWVWindowParent
+        Left = 0
+        Top = 33
+        Width = 1435
+        Height = 616
+        TabOrder = 1
+        Browser = WVBrowser1
+      end
+    end
   end
   object MainPopup: TPopupMenu
     AutoHotkeys = maManual
@@ -1332,8 +1438,8 @@ object FrmSTG: TFrmSTG
     end
   end
   object PeersPopup: TPopupMenu
-    Left = 460
-    Top = 65528
+    Left = 420
+    Top = 112
     object BanPeers1: TMenuItem
       Caption = 'Ban Peers'
       OnClick = BanPeers1Click
@@ -1359,12 +1465,12 @@ object FrmSTG: TFrmSTG
         FileMask = '*.torrent'
       end>
     Options = [fdoAllowMultiSelect, fdoPathMustExist, fdoFileMustExist]
-    Left = 392
-    Top = 65520
+    Left = 328
+    Top = 184
   end
   object MainMenu1: TMainMenu
-    Left = 160
-    Top = 65528
+    Left = 152
+    Top = 96
     object File1: TMenuItem
       Caption = 'File'
       object AddFiles1: TMenuItem
@@ -1391,5 +1497,29 @@ object FrmSTG: TFrmSTG
   object DlgSaveTorrent: TOpenDialog
     Left = 180
     Top = 184
+  end
+  object WVBrowser1: TWVBrowser
+    TargetCompatibleBrowserVersion = '132.0.2957.106'
+    AllowSingleSignOnUsingOSPrimaryAccount = False
+    OnAfterCreated = WVBrowser1AfterCreated
+    OnNavigationStarting = WVBrowser1NavigationStarting
+    OnNavigationCompleted = WVBrowser1NavigationCompleted
+    OnNewWindowRequested = WVBrowser1NewWindowRequested
+    OnWebResourceRequested = WVBrowser1WebResourceRequested
+    OnDownloadStarting = WVBrowser1DownloadStarting
+    OnDownloadStateChanged = WVBrowser1DownloadStateChanged
+    OnLaunchingExternalUriScheme = WVBrowser1LaunchingExternalUriScheme
+    Left = 332
+    Top = 360
+  end
+  object TrayIcon1: TTrayIcon
+    OnDblClick = TrayIcon1DblClick
+    Left = 540
+    Top = 248
+  end
+  object ApplicationEvents1: TApplicationEvents
+    OnMinimize = ApplicationEvents1Minimize
+    Left = 604
+    Top = 240
   end
 end

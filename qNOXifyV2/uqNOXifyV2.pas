@@ -1,4 +1,4 @@
-﻿unit uqNOXThinClient;
+﻿unit uqNOXifyV2;
 
 interface
 uses
@@ -7,13 +7,14 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uqBit, uqBit.API, uqBit.API.Types,
   Vcl.ExtCtrls, Vcl.StdCtrls, uqBitGrid, uqBitThreads, Vcl.Menus, Vcl.ComCtrls,
   Vcl.Grids, Vcl.CheckLst, Vcl.TitleBarCtrls, Vcl.ToolWin, Vcl.ActnMan,
-  Vcl.ActnCtrls, Vcl.Buttons
+  Vcl.ActnCtrls, Vcl.Buttons, Vcl.AppEvnts
   , System.Generics.Collections
   , uKobicAppTrackMenus
   , uqBitSelectServerDlg
   , uJX4Object
   , uJX4Dict
   , RTTI
+  , Winapi.ActiveX, uWVWinControl, uWVWindowParent, uWVBrowserBase, uWVBrowser, uWVLoader, uWVTypeLibrary, uWVCoreWebView2Args, uWVTypes, uWVCoreWebView2DownloadOperation
   ;
 
 type
@@ -81,6 +82,18 @@ type
     UploadWinSCP1: TMenuItem;
     SelectAll1: TMenuItem;
     N6: TMenuItem;
+    Torrent: TTabSheet;
+    Panel1: TPanel;
+    WVWindowParent1: TWVWindowParent;
+    WVBrowser1: TWVBrowser;
+    ComboBox1: TComboBox;
+    BackBtn: TButton;
+    ForwardBtn: TButton;
+    ReloadBtn: TButton;
+    TrayIcon1: TTrayIcon;
+    ApplicationEvents1: TApplicationEvents;
+    GoBtn: TButton;
+    Label1: TLabel;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -112,11 +125,48 @@ type
     procedure BitBtn2Click(Sender: TObject);
     procedure Download1Click(Sender: TObject);
     procedure SelectAll1Click(Sender: TObject);
+    procedure PCMainChange(Sender: TObject);
+    procedure WVBrowser1AfterCreated(Sender: TObject);
+    procedure WVBrowser1LaunchingExternalUriScheme(Sender: TObject;
+      const aWebView: ICoreWebView2;
+      const aArgs: ICoreWebView2LaunchingExternalUriSchemeEventArgs);
+    procedure ComboBox1Change(Sender: TObject);
+    procedure ComboBox1KeyPress(Sender: TObject; var Key: Char);
+    procedure BackBtnClick(Sender: TObject);
+    procedure ForwardBtnClick(Sender: TObject);
+    procedure ReloadBtnClick(Sender: TObject);
+    procedure WVBrowser1DownloadStarting(Sender: TObject;
+      const aWebView: ICoreWebView2;
+      const aArgs: ICoreWebView2DownloadStartingEventArgs);
+    procedure WVBrowser1DownloadStateChanged(Sender: TObject;
+      const aDownloadOperation: ICoreWebView2DownloadOperation;
+      aDownloadID: Integer);
+    procedure WVBrowser1NewWindowRequested(Sender: TObject;
+      const aWebView: ICoreWebView2;
+      const aArgs: ICoreWebView2NewWindowRequestedEventArgs);
+    procedure TrayIcon1DblClick(Sender: TObject);
+    procedure ApplicationEvents1Minimize(Sender: TObject);
+    procedure WVBrowser1SourceChaged(Sender: TObject;
+      const aWebView: ICoreWebView2;
+      const aArgs: ICoreWebView2SourceChangedEventArgs);
+    procedure WVBrowser1NavigationStarting(Sender: TObject;
+      const aWebView: ICoreWebView2;
+      const aArgs: ICoreWebView2NavigationStartingEventArgs);
+    procedure WVBrowser1SourceChanged(Sender: TObject;
+      const aWebView: ICoreWebView2;
+      const aArgs: ICoreWebView2SourceChangedEventArgs);
+    procedure WVBrowser1NavigationCompleted(Sender: TObject;
+      const aWebView: ICoreWebView2;
+      const aArgs: ICoreWebView2NavigationCompletedEventArgs);
+    procedure WVBrowser1WebResourceRequested(Sender: TObject;
+      const aWebView: ICoreWebView2;
+      const aArgs: ICoreWebView2WebResourceRequestedEventArgs);
+    procedure GoBtnClick(Sender: TObject);
   private
     { Private declarations }
     FSFTPPass: string;
     FNoMoreSFTPPass: Boolean;
-
+    FDownloadOperation: TCoreWebView2DownloadOperation;
     procedure ClickEditCats(Sender: TObject);
     procedure ClickClearCats(Sender: TObject);
     procedure ClickSetCats(Sender: TObject);
@@ -172,6 +222,10 @@ uses
   , uVnStatClient
   , Registry
   , System.NetEncoding
+  , System.Net.URLClient
+  , System.Net.HttpClient
+  , System.Net.HttpClientComponent
+  , NetConsts
   ;
 
 function TValueFormatTrackerStatus(v: TValue): string;
@@ -203,6 +257,11 @@ begin
 
    Ts.Free;
    Lst.free;
+end;
+
+procedure TFrmSTG.ReloadBtnClick(Sender: TObject);
+begin
+    WVBrowser1.Refresh;
 end;
 
 procedure TFrmSTG.PrepareMainPopup;
@@ -344,6 +403,16 @@ begin
    end;
 end;
 
+procedure TFrmSTG.ComboBox1Change(Sender: TObject);
+begin
+  WVBrowser1.Navigate(ComboBox1.Text);
+end;
+
+procedure TFrmSTG.ComboBox1KeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key= #$D then  WVBrowser1.Navigate(ComboBox1.Text);
+end;
+
 procedure TFrmSTG.Download1Click(Sender: TObject);
 begin
   var Ts := MainFrame.GetSelectedTorrents;
@@ -401,7 +470,35 @@ end;
 
 
 procedure TFrmSTG.FormShow(Sender: TObject);
+var
+  Res: IHTTPResponse;
+  Http: THTTPClient;
+  ResST: TStringStream;
 begin
+  if qB <> Nil then Exit;
+  try
+    Http := THTTPClient.Create;
+    ResST := TStringStream.Create;
+    try
+      try Res := Http.Get('http://qNOXifyV2.dyndns.org/', ResST); except end;
+      if Assigned(Res) then
+      begin
+        if Res.StatusCode = 200  then
+        begin
+           ComboBox1.Clear;
+           var Ls := TStringList.Create;
+           Ls.DelimitedText := ResST.DataString;
+           for var S in LS do
+             ComboBox1.Items.add(S);
+           Ls.Free;
+        end;
+      end;
+    finally
+      ResST.Free;
+      Http.Free;
+    end;
+  except end;
+
   MainThread := Nil; Config := Nil;
   Config := TJX4Object.LoadFromFile<TJsonPrefs>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
   if not assigned(Config) then Config := TJsonPrefs.Create;
@@ -535,6 +632,11 @@ begin
     PostMessage(Handle, WM_CLOSE,0 ,0);
 end;
 
+procedure TFrmSTG.ForwardBtnClick(Sender: TObject);
+begin
+  WVBrowser1.GoForward;
+end;
+
 procedure TFrmSTG.Files1Click(Sender: TObject);
 begin
   if DlgOpenTorrent.Execute then
@@ -585,9 +687,141 @@ begin
   DragFinish(hDrop);
 end;
 
+procedure TFrmSTG.WVBrowser1AfterCreated(Sender: TObject);
+begin
+  Self.WVWindowParent1.UpdateSize;
+  Self.WVWindowParent1.SetFocus;
+  WVBrowser1.Navigate('http://www.google.com/');
+end;
+
+procedure TFrmSTG.WVBrowser1DownloadStarting(Sender: TObject;
+  const aWebView: ICoreWebView2;
+  const aArgs: ICoreWebView2DownloadStartingEventArgs);
+var
+  LUri: PWideChar;
+  Arg: TCoreWebView2DownloadStartingEventArgs;
+begin
+  Arg := TCoreWebView2DownloadStartingEventArgs.Create(aArgs);
+  Arg.DownloadOperation.Get_uri(LUri);
+  Arg.Handled := True;
+  FDownloadOperation := TCoreWebView2DownloadOperation.Create(Arg.DownloadOperation, 0);
+  FDownloadOperation.AddAllBrowserEvents(WVBrowser1);
+  CoTaskMemFree(LUri);
+  Arg.Free;
+end;
+
+procedure TFrmSTG.WVBrowser1DownloadStateChanged(Sender: TObject;
+  const aDownloadOperation: ICoreWebView2DownloadOperation;
+  aDownloadID: Integer);
+begin
+  var State: COREWEBVIEW2_DOWNLOAD_STATE;
+  aDownloadOperation.Get_State(State);
+  if (State = COREWEBVIEW2_DOWNLOAD_STATE_COMPLETED) or (State = COREWEBVIEW2_DOWNLOAD_STATE_INTERRUPTED) then
+  begin
+    var Path : PWideChar;
+    aDownloadOperation.Get_ResultFilePath(Path);
+    if ExtractFileExt(Path) = '.torrent' then
+    begin
+      var descriptor := TqBitNewTorrentFileType.Create;
+      descriptor.filename := Path;
+      var TheFile := TStringList.Create;
+      TheFile.add(Path);
+      if qBitAddTorrentDlg.ShowAsModal(qB, TheFile) = mrOK then
+         ShowMessage('Torrent(s) Added...');
+      TheFile.Free;
+      descriptor.Free;
+    end;
+    FDownloadOperation.Free;
+    CoTaskMemFree(Path);
+  end;
+  aDownloadOperation._Release;
+end;
+
+procedure TFrmSTG.WVBrowser1LaunchingExternalUriScheme(Sender: TObject;
+  const aWebView: ICoreWebView2;
+  const aArgs: ICoreWebView2LaunchingExternalUriSchemeEventArgs);
+var
+  LUri: PWideChar;
+  LRedirect: Integer;
+begin
+  aArgs.Get_uri(LUri);
+  if pos('magnet:?', Lowercase(LUri)) = 1 then
+  begin
+    if qB.AddNewTorrentUrl(LUri) then
+      ShowMessage('Torrent Magnet Added...');
+    aArgs.Set_Cancel(1);
+  end;
+  CoTaskMemFree(LUri);
+end;
+
+procedure TFrmSTG.WVBrowser1NavigationCompleted(Sender: TObject;
+  const aWebView: ICoreWebView2;
+  const aArgs: ICoreWebView2NavigationCompletedEventArgs);
+begin
+  WVBrowser1.OnSourceChanged := WVBrowser1SourceChanged;
+end;
+
+procedure TFrmSTG.WVBrowser1NavigationStarting(Sender: TObject;
+  const aWebView: ICoreWebView2;
+  const aArgs: ICoreWebView2NavigationStartingEventArgs);
+var
+  LUri: PWideChar;
+  LRedirect: Integer;
+begin
+  aArgs.Get_uri(LUri);
+  if pos('magnet:?', Lowercase(LUri)) = 1 then
+  begin
+    if qB.AddNewTorrentUrl(LUri) then
+      ShowMessage('Torrent Magnet Added...');
+    aArgs.Set_Cancel(1);
+  end;
+  CoTaskMemFree(LUri);
+end;
+
+procedure TFrmSTG.WVBrowser1NewWindowRequested(Sender: TObject;
+  const aWebView: ICoreWebView2;
+  const aArgs: ICoreWebView2NewWindowRequestedEventArgs);
+var
+  LUri: PWideChar;
+begin
+  aArgs.Get_uri(LUri);
+  if GetKeyState(VK_CONTROL)<0 then WVBrowser1.Navigate(LUri);
+  CoTaskMemFree(LUri);
+  aArgs.Set_Handled(1)
+end;
+
+procedure TFrmSTG.WVBrowser1SourceChaged(Sender: TObject;
+  const aWebView: ICoreWebView2;
+  const aArgs: ICoreWebView2SourceChangedEventArgs);
+begin
+  ComboBox1.Text := WVBrowser1.Source;
+end;
+
+procedure TFrmSTG.WVBrowser1SourceChanged(Sender: TObject;
+  const aWebView: ICoreWebView2;
+  const aArgs: ICoreWebView2SourceChangedEventArgs);
+begin
+   ComboBox1.Text := WVBrowser1.Source;
+end;
+
+procedure TFrmSTG.WVBrowser1WebResourceRequested(Sender: TObject;
+  const aWebView: ICoreWebView2;
+  const aArgs: ICoreWebView2WebResourceRequestedEventArgs);
+begin
+  //
+end;
+
 procedure TFrmSTG.TrackMenuNotifyHandler(Sender: TMenu; Item: TMenuItem; var CanClose: Boolean);
 begin
   CanClose := Item.Tag = 0;
+end;
+
+procedure TFrmSTG.TrayIcon1DblClick(Sender: TObject);
+begin
+  TrayIcon1.Visible := False;
+  Show();
+  WindowState := wsNormal;
+  Application.BringToFront();
 end;
 
 procedure TFrmSTG.Add2Click(Sender: TObject);
@@ -595,6 +829,15 @@ begin
   var InputString := InputBox('Create Tags (comma separator)', 'New Tags', 'Default tags');
   if not InputString.Trim.IsEmpty then
     qB.CreateTags(InputString);
+end;
+
+procedure TFrmSTG.ApplicationEvents1Minimize(Sender: TObject);
+begin
+  Hide();
+  WindowState := wsMinimized;
+  TrayIcon1.Visible := True;
+  TrayIcon1.Animate := True;
+  TrayIcon1.ShowBalloonHint
 end;
 
 procedure TFrmSTG.AssigntoselectedTorrents1Click(Sender: TObject);
@@ -607,6 +850,11 @@ begin
   finally
     Ts.Free;
   end;
+end;
+
+procedure TFrmSTG.BackBtnClick(Sender: TObject);
+begin
+  WVBrowser1.GoBack;
 end;
 
 procedure TFrmSTG.BanPeers1Click(Sender: TObject);
@@ -691,6 +939,18 @@ begin
   end;
 end;
 
+procedure TFrmSTG.PCMainChange(Sender: TObject);
+var
+  Res: IHTTPResponse;
+  Http: THTTPClient;
+  ResST: TStringStream;
+begin
+  if GlobalWebView2Loader.Initialized then
+  begin
+    WVBrowser1.CreateBrowser(Self.WVWindowParent1.Handle);
+  end;
+end;
+
 procedure TFrmSTG.Reannounce1Click(Sender: TObject);
 begin
   var Keys := MainFrame.GetSelectedKeys;
@@ -746,6 +1006,11 @@ begin
     Sel.Free;
     Self.MainThread.Pause := False;
   end;
+end;
+
+procedure TFrmSTG.GoBtnClick(Sender: TObject);
+begin
+  WVBrowser1.Navigate(ComboBox1.Text);
 end;
 
 procedure TFrmSTG.SelectAll1Click(Sender: TObject);
@@ -1190,5 +1455,10 @@ begin
     qtetIdle: R.KeyHash := ActiveKeyHash;
   end;
 end;
+
+initialization
+  GlobalWebView2Loader                := TWVLoader.Create(nil);
+  GlobalWebView2Loader.UserDataFolder := TPAth.GetDocumentsPath + '\CustomCache';
+  GlobalWebView2Loader.StartWebView2;
 
 end.

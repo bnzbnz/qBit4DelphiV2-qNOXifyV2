@@ -8,8 +8,8 @@
         <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1</TargetedPlatforms>
         <AppType>Application</AppType>
-        <MainSource>qNOXThinClient.dpr</MainSource>
-        <ProjectName Condition="'$(ProjectName)'==''">qNOXThinClient</ProjectName>
+        <MainSource>qNOXifyV2.dpr</MainSource>
+        <ProjectName Condition="'$(ProjectName)'==''">qNOXifyV2</ProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
         <Base>true</Base>
@@ -35,6 +35,12 @@
         <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
+        <Cfg_1_Win64>true</Cfg_1_Win64>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
         <Cfg_2>true</Cfg_2>
         <CfgParent>Base</CfgParent>
@@ -42,6 +48,12 @@
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
         <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
+        <Cfg_2_Win64>true</Cfg_2_Win64>
         <CfgParent>Cfg_2</CfgParent>
         <Cfg_2>true</Cfg_2>
         <Base>true</Base>
@@ -58,7 +70,7 @@
         <Icon_MainIcon>$(BDS)\bin\delphi_PROJECTICON.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_44.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>$(BDS)\bin\Artwork\Windows\UWP\delphi_UwpDefault_150.png</UWP_DelphiLogo150>
-        <SanitizedProjectName>qNOXThinClient</SanitizedProjectName>
+        <SanitizedProjectName>qNOXifyV2</SanitizedProjectName>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <Custom_Styles>&quot;Aqua Light Slate|VCLSTYLE|$(BDSCOMMONDIR)\Styles\AquaLightSlate.vsf&quot;;Glow|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Glow.vsf;&quot;Iceberg Classico|VCLSTYLE|$(BDSCOMMONDIR)\Styles\IcebergClassico.vsf&quot;;Sky|VCLSTYLE|$(BDSCOMMONDIR)\Styles\Sky.vsf</Custom_Styles>
@@ -74,6 +86,10 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
         <DCC_UsePackage>DBXSqliteDriver;IndyIPCommon;RESTComponents;bindcompdbx;DBXInterBaseDriver;vcl;IndyIPServer;vclactnband;vclFireDAC;IndySystem;bindcompvclsmp;tethering;bindcompvclwinx;dsnapcon;FireDACADSDriver;FireDACMSAccDriver;fmxFireDAC;vclimg;TeeDB;FireDAC;vcltouch;vcldb;bindcompfmx;FireDACSqliteDriver;FireDACPgDriver;inetdb;FMXTee;soaprtl;DbxCommonDriver;FmxTeeUI;fmx;FireDACIBDriver;fmxdae;xmlrtl;soapmidas;vcledge;fmxobj;vclwinx;Tee;rtl;DbxClientDriver;CustomIPTransport;vcldsnap;dbexpress;IndyCore;vclx;bindcomp;appanalytics;dsnap;FireDACCommon;IndyIPClient;bindcompvcl;RESTBackendComponents;TeeUI;VCLRESTComponents;soapserver;dbxcds;VclSmp;adortl;vclie;bindengine;DBXMySQLDriver;CloudService;dsnapxml;FireDACMySQLDriver;dbrtl;IndyProtocols;inetdbxpress;FireDACCommonODBC;FireDACCommonDriver;inet;fmxase;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <BT_BuildType>Debug</BT_BuildType>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -87,13 +103,15 @@
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <DCC_MapFile>3</DCC_MapFile>
-        <DCC_DcuOutput>..\..\Dcu\$(Platform)\$(Config)</DCC_DcuOutput>
+        <DCC_DcuOutput>..\Dcu\$(Platform)\$(Config)</DCC_DcuOutput>
         <Icon_MainIcon>Jonas-Rask-Pry-System-Torrents.256.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>Jonas-Rask-Pry-System-Torrents.256.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>Jonas-Rask-Pry-System-Torrents.256.png</UWP_DelphiLogo150>
         <VerInfo_Release>1</VerInfo_Release>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.1.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
@@ -108,44 +126,47 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
     </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+        <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
+    </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
-        <DCCReference Include="..\Common\Dialogs\uqBitAddServerDlg.pas">
+        <DCCReference Include="..\Demos\Common\Dialogs\uqBitAddServerDlg.pas">
             <Form>qBitAddServerDlg</Form>
         </DCCReference>
-        <DCCReference Include="..\Common\Dialogs\uqBitCategoriesDlg.pas">
+        <DCCReference Include="..\Demos\Common\Dialogs\uqBitCategoriesDlg.pas">
             <Form>qBitTagsDlg</Form>
         </DCCReference>
-        <DCCReference Include="..\Common\Dialogs\uqBitSelectServerDlg.pas">
+        <DCCReference Include="..\Demos\Common\Dialogs\uqBitSelectServerDlg.pas">
             <Form>qBitSelectServerDlg</Form>
         </DCCReference>
-        <DCCReference Include="uqNOXThinClient.pas">
+        <DCCReference Include="uqNOXifyV2.pas">
             <Form>FrmSTG</Form>
         </DCCReference>
-        <DCCReference Include="..\..\API\uJsonX4\uJX4Dict.pas"/>
-        <DCCReference Include="..\..\API\uJsonX4\uJX4List.pas"/>
-        <DCCReference Include="..\..\API\uJsonX4\uJX4Object.pas"/>
-        <DCCReference Include="..\..\API\uJsonX4\uJX4Rtti.pas"/>
-        <DCCReference Include="..\..\API\uIpAPI.pas"/>
-        <DCCReference Include="..\..\API\uqBit.API.pas"/>
-        <DCCReference Include="..\..\API\uqBit.API.Types.pas"/>
-        <DCCReference Include="..\..\API\uqBit.pas"/>
-        <DCCReference Include="..\..\API\uTorrentFileReader.pas"/>
-        <DCCReference Include="..\Common\uKobicAppTrackMenus.pas"/>
-        <DCCReference Include="..\Common\uqBitGrid.pas">
+        <DCCReference Include="..\API\uJsonX4\uJX4Dict.pas"/>
+        <DCCReference Include="..\API\uJsonX4\uJX4List.pas"/>
+        <DCCReference Include="..\API\uJsonX4\uJX4Object.pas"/>
+        <DCCReference Include="..\API\uJsonX4\uJX4Rtti.pas"/>
+        <DCCReference Include="..\API\uIpAPI.pas"/>
+        <DCCReference Include="..\API\uqBit.API.pas"/>
+        <DCCReference Include="..\API\uqBit.API.Types.pas"/>
+        <DCCReference Include="..\API\uqBit.pas"/>
+        <DCCReference Include="..\API\uTorrentFileReader.pas"/>
+        <DCCReference Include="..\Demos\Common\uKobicAppTrackMenus.pas"/>
+        <DCCReference Include="..\Demos\Common\uqBitGrid.pas">
             <Form>qBitFrame</Form>
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
-        <DCCReference Include="..\Common\uqBitThreads.pas"/>
-        <DCCReference Include="..\Common\Dialogs\uqBitAddTorrentDlg.pas">
+        <DCCReference Include="..\Demos\Common\uqBitThreads.pas"/>
+        <DCCReference Include="..\Demos\Common\Dialogs\uqBitAddTorrentDlg.pas">
             <Form>qBitAddTorrentDlg</Form>
         </DCCReference>
-        <DCCReference Include="..\..\API\uJsonX4\uJX4Value.pas"/>
-        <DCCReference Include="..\..\API\TGPuttyLib\tgputtysftp.pas"/>
-        <DCCReference Include="..\..\API\TGPuttyLib\tgputtylib.pas"/>
-        <DCCReference Include="..\..\API\uVnstatClient.pas"/>
+        <DCCReference Include="..\API\uJsonX4\uJX4Value.pas"/>
+        <DCCReference Include="..\API\TGPuttyLib\tgputtysftp.pas"/>
+        <DCCReference Include="..\API\TGPuttyLib\tgputtylib.pas"/>
+        <DCCReference Include="..\API\uVnstatClient.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -164,7 +185,7 @@
         <BorlandProject>
             <Delphi.Personality>
                 <Source>
-                    <Source Name="MainSource">qNOXThinClient.dpr</Source>
+                    <Source Name="MainSource">qNOXifyV2.dpr</Source>
                 </Source>
                 <Excluded_Packages>
                     <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
@@ -172,9 +193,9 @@
                 </Excluded_Packages>
             </Delphi.Personality>
             <Deployment Version="5">
-                <DeployFile LocalName="..\qNOXThinClient.exe" Configuration="Debug" Class="ProjectOutput">
+                <DeployFile LocalName="..\qNOXifyV2.exe" Configuration="Debug" Class="ProjectOutput">
                     <Platform Name="Win32">
-                        <RemoteName>qNOXThinClient.exe</RemoteName>
+                        <RemoteName>qNOXifyV2.exe</RemoteName>
                         <Overwrite>true</Overwrite>
                     </Platform>
                 </DeployFile>
