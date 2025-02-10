@@ -49,7 +49,7 @@ object FrmSTG: TFrmSTG
     Top = 0
     Width = 1443
     Height = 677
-    ActivePage = TabSheet2
+    ActivePage = Torrent
     Align = alClient
     TabOrder = 1
     OnChange = PCMainChange
@@ -1114,6 +1114,13 @@ object FrmSTG: TFrmSTG
           Top = 5
           Width = 256
           Height = 21
+          Hint = 'Search by Description + Ctegory + Tag'
+          Font.Charset = DEFAULT_CHARSET
+          Font.Color = clBlack
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          Font.Style = []
+          ParentFont = False
           TabOrder = 0
         end
         object BitBtn1: TBitBtn
@@ -1165,6 +1172,7 @@ object FrmSTG: TFrmSTG
             Top = 0
             Width = 1427
             Height = 164
+            Hint = 'Search by Description + Ctegory + Tag'
             Align = alClient
             BevelEdges = []
             BevelInner = bvNone
@@ -1256,8 +1264,6 @@ object FrmSTG: TFrmSTG
         Height = 33
         Align = alTop
         TabOrder = 0
-        ExplicitLeft = 3
-        ExplicitTop = 11
         object Label1: TLabel
           Left = 1271
           Top = 1
@@ -1266,7 +1272,6 @@ object FrmSTG: TFrmSTG
           Align = alRight
           Caption = 'Ctrl+Clcik to open on new window'
           Layout = tlCenter
-          ExplicitLeft = 1256
           ExplicitHeight = 13
         end
         object ComboBox1: TComboBox
@@ -1348,6 +1353,7 @@ object FrmSTG: TFrmSTG
         Top = 33
         Width = 1435
         Height = 616
+        Align = alClient
         TabOrder = 1
         Browser = WVBrowser1
       end

@@ -726,8 +726,7 @@ begin
       descriptor.filename := Path;
       var TheFile := TStringList.Create;
       TheFile.add(Path);
-      if qBitAddTorrentDlg.ShowAsModal(qB, TheFile) = mrOK then
-         ShowMessage('Torrent(s) Added...');
+      qBitAddTorrentDlg.ShowAsModal(qB, TheFile);
       TheFile.Free;
       descriptor.Free;
     end;
@@ -748,7 +747,7 @@ begin
   if pos('magnet:?', Lowercase(LUri)) = 1 then
   begin
     if qB.AddNewTorrentUrl(LUri) then
-      ShowMessage('Torrent Magnet Added...');
+      ShowMessage('Torrent Magnet downloading...');
     aArgs.Set_Cancel(1);
   end;
   CoTaskMemFree(LUri);
@@ -1120,7 +1119,7 @@ begin
 
       if PMMainPause.Checked then Exit;
 
-      Caption := 'qNOX Thin Client : ' + qb.Username + '@' + qb.HostPath;
+      Caption := 'qNOXify V2 Thin Client : ' + qb.Username + '@' + qb.HostPath;
 
       if M.Main.tags.Count > 0 then
       for var Tag in M.Main.tags do
