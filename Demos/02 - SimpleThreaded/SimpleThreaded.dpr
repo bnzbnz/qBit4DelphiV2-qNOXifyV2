@@ -1,20 +1,22 @@
 program SimpleThreaded;
 uses
   Vcl.Forms,
-  uqBit.API.Types in '..\..\API\uqBit.API.Types.pas',
-  uqBit.API in '..\..\API\uqBit.API.pas',
-  uqBit in '..\..\API\uqBit.pas',
   uSimpleThreaded in 'uSimpleThreaded.pas' {FrmSimpleThreaded},
-  uJX4Dict in '..\..\API\uJsonX4\uJX4Dict.pas',
-  uJX4List in '..\..\API\uJsonX4\uJX4List.pas',
-  uJX4Object in '..\..\API\uJsonX4\uJX4Object.pas',
-  uJX4Rtti in '..\..\API\uJsonX4\uJX4Rtti.pas',
   uqBitAddServerDlg in '..\Common\Dialogs\uqBitAddServerDlg.pas' {qBitAddServerDlg},
   uqBitAddTorrentDlg in '..\Common\Dialogs\uqBitAddTorrentDlg.pas' {qBitAddTorrentDlg},
   uqBitCategoriesDlg in '..\Common\Dialogs\uqBitCategoriesDlg.pas' {qBitCategoriesDlg},
   uqBitSelectServerDlg in '..\Common\Dialogs\uqBitSelectServerDlg.pas' {qBitSelectServerDlg},
-  uTorrentFileReader in '..\..\API\uTorrentFileReader.pas',
-  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas';
+  uJX4Dict in '..\..\API\uJsonX4\uJX4Dict.pas',
+  uJX4List in '..\..\API\uJsonX4\uJX4List.pas',
+  uJX4Object in '..\..\API\uJsonX4\uJX4Object.pas',
+  uJX4Rtti in '..\..\API\uJsonX4\uJX4Rtti.pas',
+  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas',
+  uJX4YAML in '..\..\API\uJsonX4\uJX4YAML.pas',
+  uIpAPI in '..\..\API\qBit4DelphiV2\uIpAPI.pas',
+  uqBit.API in '..\..\API\qBit4DelphiV2\uqBit.API.pas',
+  uqBit.API.Types in '..\..\API\qBit4DelphiV2\uqBit.API.Types.pas',
+  uqBit in '..\..\API\qBit4DelphiV2\uqBit.pas',
+  uTorrentFileReader in '..\..\API\qBit4DelphiV2\uTorrentFileReader.pas';
 
 {$R *.res}
 

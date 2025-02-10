@@ -115,12 +115,13 @@
             <Form>vnStatDemoFrm</Form>
             <FormType>dfm</FormType>
         </DCCReference>
-        <DCCReference Include="..\..\API\uVnStatClient.pas"/>
         <DCCReference Include="..\..\API\uJsonX4\uJX4Dict.pas"/>
         <DCCReference Include="..\..\API\uJsonX4\uJX4List.pas"/>
         <DCCReference Include="..\..\API\uJsonX4\uJX4Object.pas"/>
         <DCCReference Include="..\..\API\uJsonX4\uJX4Rtti.pas"/>
         <DCCReference Include="..\..\API\uJsonX4\uJX4Value.pas"/>
+        <DCCReference Include="..\..\API\uJsonX4\uJX4YAML.pas"/>
+        <DCCReference Include="..\..\API\qBit4DelphiV2\uVnstatClient.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

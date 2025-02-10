@@ -134,7 +134,7 @@
         <DCCReference Include="uTorrentReader.pas">
             <Form>Form2</Form>
         </DCCReference>
-        <DCCReference Include="..\..\API\uTorrentFileReader.pas"/>
+        <DCCReference Include="..\..\API\qBit4DelphiV2\uTorrentFileReader.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

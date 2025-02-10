@@ -118,11 +118,12 @@
         <DCCReference Include="..\..\API\uJsonX4\uJX4List.pas"/>
         <DCCReference Include="..\..\API\uJsonX4\uJX4Object.pas"/>
         <DCCReference Include="..\..\API\uJsonX4\uJX4Rtti.pas"/>
-        <DCCReference Include="..\..\API\uqBit.API.pas"/>
-        <DCCReference Include="..\..\API\uqBit.API.Types.pas"/>
-        <DCCReference Include="..\..\API\uqBit.pas"/>
-        <DCCReference Include="..\..\API\uTorrentFileReader.pas"/>
         <DCCReference Include="..\..\API\uJsonX4\uJX4Value.pas"/>
+        <DCCReference Include="..\..\API\qBit4DelphiV2\uqBit.API.Types.pas"/>
+        <DCCReference Include="..\..\API\qBit4DelphiV2\uqBit.API.pas"/>
+        <DCCReference Include="..\..\API\qBit4DelphiV2\uqBit.pas"/>
+        <DCCReference Include="..\..\API\qBit4DelphiV2\uTorrentFileReader.pas"/>
+        <DCCReference Include="..\..\API\uJsonX4\uJX4YAML.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

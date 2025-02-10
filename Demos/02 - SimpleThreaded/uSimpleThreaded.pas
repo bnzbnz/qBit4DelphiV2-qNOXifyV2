@@ -75,14 +75,14 @@ procedure TFrmSimpleThreaded.FormShow(Sender: TObject);
 begin
   Th := Nil;
 
-  var Config := TJX4Object.LoadFromFile<TqBitServers>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+  var Config := TJX4Object.LoadFromJSONFile<TqBitServers>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
   if not assigned(Config) then Config := TqBitServers.Create;
   qBitSelectServerDlg.LoadConfig(Config);
 
   if qBitSelectServerDlg.ShowModal = mrOk then
   begin
     qBitSelectServerDlg.SaveConfig(Config);
-    Config.SaveToFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+    Config.SaveToJSONFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
 
     var Server := qBitSelectServerDlg.GetServer;
     Th := TqBitThread.Create(True);

@@ -23,9 +23,6 @@ SOFTWARE.
 ******************************************************************************)
 program SimpleThreadedGrid;
 uses
-  uqBit.API.Types in '..\..\API\uqBit.API.Types.pas',
-  uqBit.API in '..\..\API\uqBit.API.pas',
-  uqBit in '..\..\API\uqBit.pas',
   Vcl.Forms,
   uqBitAddServerDlg in '..\Common\Dialogs\uqBitAddServerDlg.pas' {qBitAddServerDlg},
   uqBitSelectServerDlg in '..\Common\Dialogs\uqBitSelectServerDlg.pas' {qBitSelectServerDlg},
@@ -36,8 +33,15 @@ uses
   uJX4List in '..\..\API\uJsonX4\uJX4List.pas',
   uJX4Object in '..\..\API\uJsonX4\uJX4Object.pas',
   uJX4Rtti in '..\..\API\uJsonX4\uJX4Rtti.pas',
-  uqBitThreads in '..\Common\uqBitThreads.pas' {$R *.res},
-  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas';
+  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas',
+  uJX4YAML in '..\..\API\uJsonX4\uJX4YAML.pas',
+  uTorrentFileReader in '..\..\API\qBit4DelphiV2\uTorrentFileReader.pas',
+  uqBitThreads in '..\Common\uqBitThreads.pas',
+  uIpAPI in '..\..\API\qBit4DelphiV2\uIpAPI.pas',
+  uqBit.API in '..\..\API\qBit4DelphiV2\uqBit.API.pas',
+  uqBit.API.Types in '..\..\API\qBit4DelphiV2\uqBit.API.Types.pas',
+  uqBit in '..\..\API\qBit4DelphiV2\uqBit.pas',
+  uVnstatClient in '..\..\API\qBit4DelphiV2\uVnstatClient.pas';
 
 {$R *.res}
 

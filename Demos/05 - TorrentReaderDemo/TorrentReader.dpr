@@ -2,7 +2,7 @@ program TorrentReader;
 uses
   Vcl.Forms,
   uTorrentReader in 'uTorrentReader.pas' {Form2},
-  uTorrentFileReader in '..\..\API\uTorrentFileReader.pas';
+  uTorrentFileReader in '..\..\API\qBit4DelphiV2\uTorrentFileReader.pas';
 
 {$R *.res}
 

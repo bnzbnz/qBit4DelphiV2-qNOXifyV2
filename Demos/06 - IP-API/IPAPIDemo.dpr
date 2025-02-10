@@ -26,13 +26,17 @@ program IPAPIDemo;
 uses
   Vcl.Forms,
   uIPAPIDemo in 'uIPAPIDemo.pas' {Form2},
-  uIpAPI in '..\..\API\uIpAPI.pas',
+  uCountryFlags in '..\..\API\uCountryFlags\uCountryFlags.pas',
+  uIpAPI in '..\..\API\qBit4DelphiV2\uIpAPI.pas',
+  uqBit.API in '..\..\API\qBit4DelphiV2\uqBit.API.pas',
+  uqBit.API.Types in '..\..\API\qBit4DelphiV2\uqBit.API.Types.pas',
+  uqBit in '..\..\API\qBit4DelphiV2\uqBit.pas',
   uJX4Dict in '..\..\API\uJsonX4\uJX4Dict.pas',
   uJX4List in '..\..\API\uJsonX4\uJX4List.pas',
   uJX4Object in '..\..\API\uJsonX4\uJX4Object.pas',
   uJX4Rtti in '..\..\API\uJsonX4\uJX4Rtti.pas',
-  uCountryFlags in '..\..\API\uCountryFlags\uCountryFlags.pas',
-  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas';
+  uJX4Value in '..\..\API\uJsonX4\uJX4Value.pas',
+  uJX4YAML in '..\..\API\uJsonX4\uJX4YAML.pas';
 
 {$R 'CountryFlags.res'  '..\..\API\uCountryFlags\CountryFlags.rc'}
 {$R *.res}
