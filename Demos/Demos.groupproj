@@ -30,9 +30,6 @@
         <Projects Include="11 - VNStatDemo\vnStatDemo.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="10 - qNOXThinClient\qNOXThinClient.dproj">
-            <Dependencies/>
-        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -122,23 +119,14 @@
     <Target Name="vnStatDemo:Make">
         <MSBuild Projects="11 - VNStatDemo\vnStatDemo.dproj" Targets="Make"/>
     </Target>
-    <Target Name="qNOXThinClient">
-        <MSBuild Projects="10 - qNOXThinClient\qNOXThinClient.dproj"/>
-    </Target>
-    <Target Name="qNOXThinClient:Clean">
-        <MSBuild Projects="10 - qNOXThinClient\qNOXThinClient.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="qNOXThinClient:Make">
-        <MSBuild Projects="10 - qNOXThinClient\qNOXThinClient.dproj" Targets="Make"/>
-    </Target>
     <Target Name="Build">
-        <CallTarget Targets="Simple;FMXReport;NOXMon;TorrentReader;IPAPIDemo;AddTorrent;SimpleThreaded;SimpleThreadedGrid;vnStatDemo;qNOXThinClient"/>
+        <CallTarget Targets="Simple;FMXReport;NOXMon;TorrentReader;IPAPIDemo;AddTorrent;SimpleThreaded;SimpleThreadedGrid;vnStatDemo"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="Simple:Clean;FMXReport:Clean;NOXMon:Clean;TorrentReader:Clean;IPAPIDemo:Clean;AddTorrent:Clean;SimpleThreaded:Clean;SimpleThreadedGrid:Clean;vnStatDemo:Clean;qNOXThinClient:Clean"/>
+        <CallTarget Targets="Simple:Clean;FMXReport:Clean;NOXMon:Clean;TorrentReader:Clean;IPAPIDemo:Clean;AddTorrent:Clean;SimpleThreaded:Clean;SimpleThreadedGrid:Clean;vnStatDemo:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="Simple:Make;FMXReport:Make;NOXMon:Make;TorrentReader:Make;IPAPIDemo:Make;AddTorrent:Make;SimpleThreaded:Make;SimpleThreadedGrid:Make;vnStatDemo:Make;qNOXThinClient:Make"/>
+        <CallTarget Targets="Simple:Make;FMXReport:Make;NOXMon:Make;TorrentReader:Make;IPAPIDemo:Make;AddTorrent:Make;SimpleThreaded:Make;SimpleThreadedGrid:Make;vnStatDemo:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

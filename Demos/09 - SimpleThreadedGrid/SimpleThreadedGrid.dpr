@@ -26,7 +26,7 @@ uses
   Vcl.Forms,
   uqBitAddServerDlg in '..\Common\Dialogs\uqBitAddServerDlg.pas' {qBitAddServerDlg},
   uqBitSelectServerDlg in '..\Common\Dialogs\uqBitSelectServerDlg.pas' {qBitSelectServerDlg},
-  uKobicAppTrackMenus in '..\Common\uKobicAppTrackMenus.pas',
+  uKobicAppTrackMenus in '..\..\API\KobicAppTrackMenus\uKobicAppTrackMenus.pas',
   uqBitGrid in '..\Common\uqBitGrid.pas' {qBitFrame: TFrame},
   uSimpleThreadedGrid in 'uSimpleThreadedGrid.pas' {FrmSTG},
   uJX4Dict in '..\..\API\uJsonX4\uJX4Dict.pas',
@@ -40,7 +40,7 @@ uses
   uIpAPI in '..\..\API\qBit4DelphiV2\uIpAPI.pas',
   uqBit.API in '..\..\API\qBit4DelphiV2\uqBit.API.pas',
   uqBit.API.Types in '..\..\API\qBit4DelphiV2\uqBit.API.Types.pas',
-  uqBit in '..\..\API\qBit4DelphiV2\uqBit.pas',
+  uqBit in '..\..\API\qBit4DelphiV2\uqBit.pas' {$R *.res},
   uVnstatClient in '..\..\API\qBit4DelphiV2\uVnstatClient.pas';
 
 {$R *.res}

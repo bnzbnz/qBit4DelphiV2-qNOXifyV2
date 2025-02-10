@@ -112,7 +112,7 @@
         <DCCReference Include="..\Common\Dialogs\uqBitSelectServerDlg.pas">
             <Form>qBitSelectServerDlg</Form>
         </DCCReference>
-        <DCCReference Include="..\Common\uKobicAppTrackMenus.pas"/>
+        <DCCReference Include="..\..\API\KobicAppTrackMenus\uKobicAppTrackMenus.pas"/>
         <DCCReference Include="..\Common\uqBitGrid.pas">
             <Form>qBitFrame</Form>
             <FormType>dfm</FormType>
@@ -133,7 +133,9 @@
         <DCCReference Include="..\..\API\qBit4DelphiV2\uIpAPI.pas"/>
         <DCCReference Include="..\..\API\qBit4DelphiV2\uqBit.API.pas"/>
         <DCCReference Include="..\..\API\qBit4DelphiV2\uqBit.API.Types.pas"/>
-        <DCCReference Include="..\..\API\qBit4DelphiV2\uqBit.pas"/>
+        <DCCReference Include="..\..\API\qBit4DelphiV2\uqBit.pas">
+            <Form>$R *.res</Form>
+        </DCCReference>
         <DCCReference Include="..\..\API\qBit4DelphiV2\uVnstatClient.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
