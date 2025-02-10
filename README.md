@@ -1,7 +1,7 @@
-# qBit4DelphiV2 API + qNOXThinClient
+# qBit4DelphiV2 API + qNOXify V2
 Ani API to drive any qBittorent/NOX server form Delphi (100% Pure Pascal). It is based on the JsonX4 project.(https://github.com/bnzbnz/JsonX4)
 
-> It includes qNOXThinClient a qNOX client for qBittorrent and mainly NOX servers (SeedBox)
+> It includes qNOXify V2 a qNOX client for qBittorrent and mainly NOX servers (SeedBox)
 
 - This project is sponsored by EA4D "Ebay Api 4 Delphi" (https://www.ea4d.com) for JsonX4.
 - Contact : Laurent MEYER  qBit@lmeyer.fr
