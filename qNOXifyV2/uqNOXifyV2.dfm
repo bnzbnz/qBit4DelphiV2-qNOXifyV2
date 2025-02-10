@@ -27,18 +27,23 @@ object FrmSTG: TFrmSTG
         Alignment = taCenter
         Bevel = pbNone
         Text = 'Status'
-        Width = 200
+        Width = 256
       end
       item
         Alignment = taCenter
         Bevel = pbNone
         Text = 'dht'
-        Width = 100
+        Width = 160
+      end
+      item
+        Alignment = taCenter
+        Text = 'Available Disk Space'
+        Width = 240
       end
       item
         Alignment = taRightJustify
         Text = 'dl'
-        Width = 50
+        Width = 200
       end>
     ParentShowHint = False
     ShowHint = True
@@ -1500,6 +1505,10 @@ object FrmSTG: TFrmSTG
         OnClick = MMExitqBittorentClick
       end
     end
+    object About1: TMenuItem
+      Caption = 'About'
+      OnClick = About1Click
+    end
   end
   object DlgSaveTorrent: TOpenDialog
     Left = 180
@@ -1520,13 +1529,21 @@ object FrmSTG: TFrmSTG
     Top = 360
   end
   object TrayIcon1: TTrayIcon
+    PopupMenu = PMTray
     OnDblClick = TrayIcon1DblClick
     Left = 540
     Top = 248
   end
   object ApplicationEvents1: TApplicationEvents
     OnMinimize = ApplicationEvents1Minimize
-    Left = 604
-    Top = 240
+    Left = 652
+    Top = 272
+  end
+  object PMTray: TPopupMenu
+    Left = 484
+    Top = 360
+    object Logout1: TMenuItem
+      Caption = 'Logout'
+    end
   end
 end

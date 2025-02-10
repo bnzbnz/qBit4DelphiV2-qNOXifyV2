@@ -94,6 +94,9 @@ type
     ApplicationEvents1: TApplicationEvents;
     GoBtn: TButton;
     Label1: TLabel;
+    PMTray: TPopupMenu;
+    Logout1: TMenuItem;
+    About1: TMenuItem;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -162,6 +165,7 @@ type
       const aWebView: ICoreWebView2;
       const aArgs: ICoreWebView2WebResourceRequestedEventArgs);
     procedure GoBtnClick(Sender: TObject);
+    procedure About1Click(Sender: TObject);
   private
     { Private declarations }
     FSFTPPass: string;
@@ -220,12 +224,14 @@ uses
   , Vcl.Clipbrd
   , StrUtils
   , uVnStatClient
+  , uFacterClient
   , Registry
   , System.NetEncoding
   , System.Net.URLClient
   , System.Net.HttpClient
   , System.Net.HttpClientComponent
   , NetConsts
+  , uAbout
   ;
 
 function TValueFormatTrackerStatus(v: TValue): string;
@@ -823,6 +829,11 @@ begin
   Application.BringToFront();
 end;
 
+procedure TFrmSTG.About1Click(Sender: TObject);
+begin
+  AboutBox.ShowModal;
+end;
+
 procedure TFrmSTG.Add2Click(Sender: TObject);
 begin
   var InputString := InputBox('Create Tags (comma separator)', 'New Tags', 'Default tags');
@@ -1152,9 +1163,9 @@ begin
 
       if  (Server.FVS.AsString.IsEmpty) then
         StatusBar1.Panels[0].Text :=M.Main.server_state.connection_status.AsString;
+
       if not (Server.FVS.AsString.IsEmpty) and ((M.Main.rid.AsInt64 mod 40) = 1) and (Server.FVS.AsString.Trim <> '')then
       begin
-
         var vn := TvnStatClient.FromURL(Server.FVS.AsString);
         if Assigned(vn) then
         begin
@@ -1174,10 +1185,22 @@ begin
         end;
       end;
 
+      if (not Server.FFacterUrl.toString.IsEmpty) and ((M.Main.rid.AsInt64 mod 2) = 1) and (not Server.FFacterMP.toString.IsEmpty) then
+      begin
+        var fc := TFacterClient.FromURL(Server.FFacterUrl.toString);
+        if Assigned(fc) then
+        begin
+          var mp := fc.GetMountPoint(Server.FFacterMP.toString);
+          if assigned(mp) then
+            StatusBar1.Panels[2].Text :='Available Disk Space : ' + Format('%.2f GB', [mp.available_bytes.ToGB]);
+        end;
+        fc.Free;
+      end;
+
       StatusBar1.Panels[1].Text := 'DHT nodes : ' + M.Main.server_state.dht_nodes.AsInt64.ToString;
-      StatusBar1.Panels[2].Text := '';
-      if M.Main.server_state.use_alt_speed_limits.AsBoolean then StatusBar1.Panels[2].Text := 'Alt. Speed   ';
-      StatusBar1.Panels[2].Text := StatusBar1.Panels[2].Text +
+      StatusBar1.Panels[3].Text := '';
+      if M.Main.server_state.use_alt_speed_limits.AsBoolean then StatusBar1.Panels[3].Text := 'Alt. Speed   ';
+      StatusBar1.Panels[3].Text := StatusBar1.Panels[3].Text +
         '🡹 ' + M.Main.server_state.up_info_speed.ToBKiBMiB + '/s'
         + ' (' + M.Main.server_state.alltime_ul.ToBKiBMiB + ') '
           + '🡻 ' + M.Main.server_state.dl_info_speed.ToBKiBMiB + '/s'

@@ -166,6 +166,11 @@
         <DCCReference Include="..\API\qBit4DelphiV2\uTorrentFileReader.pas"/>
         <DCCReference Include="..\API\qBit4DelphiV2\uVnstatClient.pas"/>
         <DCCReference Include="..\API\KobicAppTrackMenus\uKobicAppTrackMenus.pas"/>
+        <DCCReference Include="..\API\qBit4DelphiV2\uFacterClient.pas"/>
+        <DCCReference Include="..\Demos\Common\Dialogs\uAbout.pas">
+            <Form>AboutBox</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

@@ -37,6 +37,14 @@ type
     Edit6: TEdit;
     Label5: TLabel;
     SE1: TSpinEdit;
+    TabSheet4: TTabSheet;
+    Label8: TLabel;
+    Edit7: TEdit;
+    Label9: TLabel;
+    SpinEdit1: TSpinEdit;
+    Memo1: TMemo;
+    Edit8: TEdit;
+    Label10: TLabel;
     procedure BtnOKClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure FormShow(Sender: TObject);

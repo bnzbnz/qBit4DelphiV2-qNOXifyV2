@@ -22,7 +22,9 @@ uses
   uqBit in '..\API\qBit4DelphiV2\uqBit.pas',
   uTorrentFileReader in '..\API\qBit4DelphiV2\uTorrentFileReader.pas',
   uVnstatClient in '..\API\qBit4DelphiV2\uVnstatClient.pas',
-  uKobicAppTrackMenus in '..\API\KobicAppTrackMenus\uKobicAppTrackMenus.pas';
+  uKobicAppTrackMenus in '..\API\KobicAppTrackMenus\uKobicAppTrackMenus.pas',
+  uFacterClient in '..\API\qBit4DelphiV2\uFacterClient.pas',
+  uAbout in '..\Demos\Common\Dialogs\uAbout.pas' {AboutBox};
 
 {$R *.res}
 
@@ -37,6 +39,7 @@ begin
   Application.CreateForm(TqBitSelectServerDlg, qBitSelectServerDlg);
   Application.CreateForm(TqBitAddTorrentDlg, qBitAddTorrentDlg);
   Application.CreateForm(TqBitCategoriesDlg, qBitCategoriesDlg);
+  Application.CreateForm(TAboutBox, AboutBox);
   Application.Run;
 end.
 

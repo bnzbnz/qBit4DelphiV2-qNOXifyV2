@@ -45,7 +45,7 @@ object qBitAddServerDlg: TqBitAddServerDlg
     Top = 24
     Width = 289
     Height = 246
-    ActivePage = TabSheet1
+    ActivePage = TabSheet4
     TabOrder = 2
     object TabSheet3: TTabSheet
       Caption = '  qBit / NOX  '
@@ -221,6 +221,74 @@ object qBitAddServerDlg: TqBitAddServerDlg
         MinValue = 1
         TabOrder = 3
         Value = 95
+      end
+    end
+    object TabSheet4: TTabSheet
+      Caption = 'Facter'
+      ImageIndex = 3
+      object Label8: TLabel
+        Left = 3
+        Top = 15
+        Width = 51
+        Height = 13
+        Caption = 'Json URL :'
+      end
+      object Label9: TLabel
+        Left = 204
+        Top = 61
+        Width = 74
+        Height = 13
+        Caption = 'Stop at GB left:'
+      end
+      object Label10: TLabel
+        Left = 3
+        Top = 61
+        Width = 57
+        Height = 13
+        Caption = 'Mount Point'
+      end
+      object Edit7: TEdit
+        Left = 3
+        Top = 34
+        Width = 275
+        Height = 21
+        TabOrder = 0
+      end
+      object SpinEdit1: TSpinEdit
+        Left = 204
+        Top = 80
+        Width = 74
+        Height = 22
+        MaxValue = 10000
+        MinValue = 1
+        TabOrder = 3
+        Value = 300
+      end
+      object Memo1: TMemo
+        Left = 3
+        Top = 108
+        Width = 275
+        Height = 107
+        Lines.Strings = (
+          'Use a server running facter, a webserver and php'
+          'create a php script:  <?php passthru('#39'facter --json '
+          'mountpoints'#39'); ?>'
+          'TEST IT with your web browser (the passthru '
+          'function may have been disbled in php.ini)'
+          'then provide the full URL to the class function '
+          'FromURL'
+          'You'#39'll get a TMountPoint which contains all the '
+          'mount points size (nil if it fails)')
+        ScrollBars = ssVertical
+        TabOrder = 2
+      end
+      object Edit8: TEdit
+        Left = 3
+        Top = 80
+        Width = 174
+        Height = 21
+        TabOrder = 1
+        Text = '/'
       end
     end
   end

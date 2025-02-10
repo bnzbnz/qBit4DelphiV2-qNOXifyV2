@@ -23,7 +23,10 @@ type
     FVS:  TValue;
     FVSI: TValue;
     FVSE: TValue; // Int
-    constructor Create(H, U, P, SH, SPO, SU, SK, VS, VSI: TValue; VSE: TValue);
+    FFacterUrl: TValue;
+    FFacterMP: TValue;
+    FFacterMin: TValue ;// int
+    constructor Create(H, U, P, SH, SPO, SU, SK, VS, VSI, VSE, FacterUrl, FacterMP, FacterMin: TValue);
   end;
 
   TqBitServers = class(TJX4Object)
@@ -107,6 +110,9 @@ begin
   qBitAddServerDlg.Edit5.text := Srv.FVS.AsString;
   qBitAddServerDlg.Edit6.text := Srv.FVSI.AsString;
   qBitAddServerDlg.SE1.Value := Srv.FVSE.AsInt64;
+  qBitAddServerDlg.Edit7.text := Srv.FFacterUrl.toString;
+  qBitAddServerDlg.Edit8.text := Srv.FFacterMP.toString;
+  qBitAddServerDlg.SpinEdit1.Value := Srv.FFacterMin.AsInt64;
   if qBitAddServerDlg.ShowModal = mrOk then
   begin
     Srv.FHP := Trim(qBitAddServerDlg.HP.Text);
@@ -119,6 +125,9 @@ begin
     Srv.FVS := Trim(qBitAddServerDlg.Edit5.text);
     Srv.FVSI := Trim(qBitAddServerDlg.Edit6.text);
     Srv.FVSE := qBitAddServerDlg.SE1.Value;
+    Srv.FFacterUrl := Trim(qBitAddServerDlg.Edit7.Text);
+    Srv.FFacterMP := Trim(qBitAddServerDlg.Edit8.Text);
+    SRV.FFacterMin := qBitAddServerDlg.SpinEdit1.Value;
     LBSrvClick(Self);
   end;
 end;
@@ -138,7 +147,10 @@ begin
       qBitAddServerDlg.Edit4.Text,
       qBitAddServerDlg.Edit5.text,
       qBitAddServerDlg.Edit6.text,
-      qBitAddServerDlg.SE1.Value
+      qBitAddServerDlg.SE1.Value,
+      qBitAddServerDlg.Edit7.Text,
+      qBitAddServerDlg.Edit8.Text,
+      qBitAddServerDlg.SpinEdit1.Value
     );
     LBSrv.ItemIndex := LBSrv.Items.AddObject(Srv.FUN.AsString + '@' + Srv.FHP.AsString, Srv);
     LBSrvClick(Self);
@@ -155,7 +167,7 @@ end;
 
 { TqBitServer }
 
-constructor TqBitServer.Create(H, U, P, SH, SPO, SU, SK, VS, VSI: TValue; VSE: TValue);
+constructor TqBitServer.Create(H, U, P, SH, SPO, SU, SK, VS, VSI, VSE, FacterUrl, FacterMP, FacterMin: TValue);
 begin
   inherited Create;
   FHP := H;
@@ -168,6 +180,9 @@ begin
   FVS := VS;
   FVSI := VSI;
   FVSE := VSE;
+  FFacterUrl := FacterUrl;
+  FFacterMP := FacterMP;
+  FFacterMin := FacterMin;
 end;
 
 procedure TqBitSelectServerDlg.FormCreate(Sender: TObject);
@@ -197,7 +212,9 @@ begin
   begin
      for var S in AConfig.Servers do
     begin
-      var Srv := TqBitServer.Create(S.FHP.AsString, S.FUN.AsString, S.FPW.AsString, S.FSH.AsString, S.FSPO.AsString, S.FSU.AsString, S.FSK.AsString, S.FVS.AsString, S.FVSI.AsString, S.FVSE.AsInt64);
+      var Srv := TqBitServer.Create(S.FHP.AsString, S.FUN.AsString, S.FPW.AsString, S.FSH.AsString, S.FSPO.AsString
+                    , S.FSU.AsString, S.FSK.AsString, S.FVS.AsString, S.FVSI.AsString, S.FVSE.AsInt64,
+                    S.FFacterUrl.AsString, S.FFacterMP.AsString, S.FFacterMin.AsInt64);
       LBSrv.Items.AddObject(Srv.FUN.AsString + '@' + Srv.FHP.AsString, Srv);
     end;
   end;
