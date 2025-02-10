@@ -53,7 +53,6 @@ object FrmSTG: TFrmSTG
     Align = alClient
     TabOrder = 1
     OnChange = PCMainChange
-    ExplicitTop = -6
     object TabSheet2: TTabSheet
       Caption = '  qBit / NOX  '
       object Splitter1: TSplitter
@@ -1260,13 +1259,15 @@ object FrmSTG: TFrmSTG
         ExplicitLeft = 3
         ExplicitTop = 11
         object Label1: TLabel
-          Left = 1256
+          Left = 1271
           Top = 1
-          Width = 178
+          Width = 163
           Height = 31
           Align = alRight
           Caption = 'Ctrl+Clcik to open on new window'
           Layout = tlCenter
+          ExplicitLeft = 1256
+          ExplicitHeight = 13
         end
         object ComboBox1: TComboBox
           Left = 93

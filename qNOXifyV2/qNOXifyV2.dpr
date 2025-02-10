@@ -23,7 +23,8 @@ uses
   uJX4Value in '..\API\uJsonX4\uJX4Value.pas',
   tgputtysftp in '..\API\TGPuttyLib\tgputtysftp.pas',
   tgputtylib in '..\API\TGPuttyLib\tgputtylib.pas',
-  uVnstatClient in '..\API\uVnstatClient.pas';
+  uVnstatClient in '..\API\uVnstatClient.pas',
+  uJX4YAML in '..\API\uJsonX4\uJX4YAML.pas';
 
 {$R *.res}
 

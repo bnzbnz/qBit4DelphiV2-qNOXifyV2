@@ -104,7 +104,7 @@
         <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <DCC_DcuOutput>..\Dcu\$(Platform)\$(Config)</DCC_DcuOutput>
-        <Icon_MainIcon>Jonas-Rask-Pry-System-Torrents.256.ico</Icon_MainIcon>
+        <Icon_MainIcon>qNOXifyV2_Icon.ico</Icon_MainIcon>
         <UWP_DelphiLogo44>Jonas-Rask-Pry-System-Torrents.256.png</UWP_DelphiLogo44>
         <UWP_DelphiLogo150>Jonas-Rask-Pry-System-Torrents.256.png</UWP_DelphiLogo150>
         <VerInfo_Release>1</VerInfo_Release>
@@ -167,6 +167,7 @@
         <DCCReference Include="..\API\TGPuttyLib\tgputtysftp.pas"/>
         <DCCReference Include="..\API\TGPuttyLib\tgputtylib.pas"/>
         <DCCReference Include="..\API\uVnstatClient.pas"/>
+        <DCCReference Include="..\API\uJsonX4\uJX4YAML.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

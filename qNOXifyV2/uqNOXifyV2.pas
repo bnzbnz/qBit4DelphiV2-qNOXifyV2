@@ -500,7 +500,7 @@ begin
   except end;
 
   MainThread := Nil; Config := Nil;
-  Config := TJX4Object.LoadFromFile<TJsonPrefs>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+  Config := TJX4Object.LoadFromJSONFile<TJsonPrefs>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
   if not assigned(Config) then Config := TJsonPrefs.Create;
   qBitSelectServerDlg.LoadConfig(Config.Servers);
   if qBitSelectServerDlg.ShowModal = mrOk then
@@ -651,7 +651,7 @@ begin
     MainFrame.LoadConfig(Config.PeersGrid);
     MainFrame.LoadConfig(Config.TrackersGrid);
     qBitSelectServerDlg.SaveConfig(Config.Servers);
-    Config.SaveToFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+    Config.SaveToJSONFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
     CatsList.Free;
     TagsList.Free;
     TrackersThread.Free;
