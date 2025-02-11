@@ -772,7 +772,7 @@ begin
   if pos('magnet:?', Lowercase(LUri)) = 1 then
   begin
     if qB.AddNewTorrentUrl(LUri) then
-      Notification(Application.Title, 'New Torrent Magnet Added', LUri);
+      Notification(Application.Title, 'New Torrent Added', LUri);
     aArgs.Set_Cancel(1);
   end;
   CoTaskMemFree(LUri);
@@ -795,7 +795,7 @@ begin
   if pos('magnet:?', Lowercase(LUri)) = 1 then
   begin
     if qB.AddNewTorrentUrl(LUri) then
-      ShowMessage('Torrent Magnet Added...');
+      Notification(Application.Title, 'New Torrent Added', LUri);
     aArgs.Set_Cancel(1);
   end;
   CoTaskMemFree(LUri);
@@ -1197,9 +1197,7 @@ begin
                 Server.FVSE.AsInt64
               ]);
           if (Intf.traffic.total.rx.ToTB + Intf.traffic.total.tx.ToTB > Server.FVSE.AsInt64)  then
-            for var T in M.Main.torrents do
-                if (T.Value.state.AsString <> 'stoppedUP') and (T.Value.state.AsString <> 'stoppedDL') then
-                   qB.StopTorrents(T.Key);
+            qB.StopTorrents('all');
           vn.Free;
         end;
       end;
@@ -1212,6 +1210,8 @@ begin
           var mp := fc.GetMountPoint(Server.FFacterMP.toString);
           if assigned(mp) then
             StatusBar1.Panels[2].Text :='Available Disk Space : ' + Format('%.2f GB', [mp.available_bytes.ToGB]);
+          if mp.available_bytes.ToGB <= Server.FFacterMin.AsInt64 then
+            qB.StopTorrents('all');
         end;
         fc.Free;
       end;

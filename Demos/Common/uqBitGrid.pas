@@ -571,7 +571,7 @@ begin
 
     if @GetColData(ACol).Format = @TValueFormatPercent then
     begin
-     if Value.ToString.IsEmpty then Value := 0;
+     if Value.ToString.IsEmpty then Value := '0.00';
 
      SG.Canvas.Brush.Color := BackBrushColor;
      SG.Canvas.FillRect( TRect.Create(Rect.Left+1 , Rect.Top+1, Rect.Right-1 , Rect.Bottom -1) );
