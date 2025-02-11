@@ -1544,6 +1544,7 @@ object FrmSTG: TFrmSTG
     Top = 360
     object Logout1: TMenuItem
       Caption = 'Logout'
+      OnClick = Logout1Click
     end
   end
 end

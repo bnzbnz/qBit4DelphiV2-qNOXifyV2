@@ -16,9 +16,9 @@ How to install
 1. Clone qBid4DelphiX2 own repository (JsonX4 units are included), you will be able too run any of the Demos.
 3. Please note, that you need to enable the WebUI in qBittorrent/NOX preferences.
 
-![image info](Images/01.png)
-![image info](Images/02.png)
-![image info](Images/03.png)
+![image info](Images/04.png)
+![image info](Images/05.png)
+![image info](Images/06.png)
 
 List of Calls:
 --------------

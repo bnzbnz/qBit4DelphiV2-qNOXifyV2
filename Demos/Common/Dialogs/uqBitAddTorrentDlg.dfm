@@ -332,7 +332,7 @@ object qBitAddTorrentDlg: TqBitAddTorrentDlg
         object TIEditName: TEdit
           Left = 84
           Top = 28
-          Width = 410
+          Width = 400
           Height = 17
           BevelInner = bvNone
           BevelOuter = bvNone
@@ -345,7 +345,7 @@ object qBitAddTorrentDlg: TqBitAddTorrentDlg
         object TIEditSize: TEdit
           Left = 84
           Top = 47
-          Width = 121
+          Width = 400
           Height = 17
           BevelInner = bvNone
           BevelOuter = bvNone
@@ -358,7 +358,7 @@ object qBitAddTorrentDlg: TqBitAddTorrentDlg
         object TIEditHashV1: TEdit
           Left = 84
           Top = 66
-          Width = 401
+          Width = 400
           Height = 17
           BevelInner = bvNone
           BevelOuter = bvNone
@@ -371,7 +371,7 @@ object qBitAddTorrentDlg: TqBitAddTorrentDlg
         object TIEditHashV2: TEdit
           Left = 84
           Top = 85
-          Width = 398
+          Width = 400
           Height = 17
           BevelInner = bvNone
           BevelOuter = bvNone
@@ -385,7 +385,7 @@ object qBitAddTorrentDlg: TqBitAddTorrentDlg
       object TIEditComment: TMemo
         Left = 92
         Top = 406
-        Width = 398
+        Width = 400
         Height = 79
         Lines.Strings = (
           'TIEditComment')

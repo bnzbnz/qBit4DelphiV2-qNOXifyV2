@@ -166,6 +166,7 @@ type
       const aArgs: ICoreWebView2WebResourceRequestedEventArgs);
     procedure GoBtnClick(Sender: TObject);
     procedure About1Click(Sender: TObject);
+    procedure Logout1Click(Sender: TObject);
   private
     { Private declarations }
     FSFTPPass: string;
@@ -1021,6 +1022,11 @@ end;
 procedure TFrmSTG.GoBtnClick(Sender: TObject);
 begin
   WVBrowser1.Navigate(ComboBox1.Text);
+end;
+
+procedure TFrmSTG.Logout1Click(Sender: TObject);
+begin
+  Self.Logout1Click(Nil);
 end;
 
 procedure TFrmSTG.SelectAll1Click(Sender: TObject);
