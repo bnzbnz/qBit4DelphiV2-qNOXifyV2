@@ -442,7 +442,7 @@ procedure TFrmSTG.Download1Click(Sender: TObject);
 begin
   var Ts := MainFrame.GetSelectedTorrents;
   if (FSFTPPass.Trim = '') and (not FNoMoreSFTPPass) then
-    FSFTPPass := InputBox('OPTIONAL : SSH PAssword','SSHPassword/Paraphrase', '');
+    FSFTPPass := InputBox('OPTIONAL !!! : SSH Password','SSH Password/Paraphrase', '');
   FNoMoreSFTPPass := FSFTPPass.IsEmpty;
   if Ts.Count > 0 then
   begin
@@ -1202,7 +1202,7 @@ begin
         end;
       end;
 
-      if (not Server.FFacterUrl.toString.IsEmpty) and ((M.Main.rid.AsInt64 mod 2) = 1) and (not Server.FFacterMP.toString.IsEmpty) then
+      if (not Server.FFacterUrl.toString.IsEmpty) and ((M.Main.rid.AsInt64 mod 80) = 1) and (not Server.FFacterMP.toString.IsEmpty) then
       begin
         var fc := TFacterClient.FromURL(Server.FFacterUrl.toString);
         if Assigned(fc) then
