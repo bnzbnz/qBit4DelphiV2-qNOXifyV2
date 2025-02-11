@@ -432,7 +432,6 @@ end;
 procedure TqBitFrame.RowUpdateStart;
 begin
   SG.BeginUpdate;
-  LockWindowUpdate(Handle);
   FRowIndex := 1;
   for var Row := 1 to SG.RowCount -1 do
     SG.RowHeights[Row] := -1;
@@ -488,7 +487,6 @@ begin
        FOnRowsSelectedEvent(Self);
   end;
   FSelList.Clear;
-  LockWindowUpdate(0);
   SG.EndUpdate;
 end;
 
