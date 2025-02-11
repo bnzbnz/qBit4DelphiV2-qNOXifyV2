@@ -170,11 +170,13 @@ end;
 
 function TValueFormatDate(v: TValue): string;
 begin
+  if v.ToString.IsEmpty then Exit('');
   Result := DateTimeToStr(v.Timestamp);
 end;
 
 function TValueFormatBKM(v: TValue): string;
 begin
+  if v.ToString.IsEmpty then Exit('0 B');
   Result := V.ToBKiBMiB;
 end;
 
@@ -185,16 +187,19 @@ end;
 
 function TValueFormatPercent(v: TValue): string;
 begin
+  if v.ToString.IsEmpty then Exit('0');
   Result := V.ToPercent(2);
 end;
 
 function TValueFormatFloat(v: TValue): string;
 begin
+  if v.ToString.IsEmpty then Exit('0');
   Result := V.ToString(2);
 end;
 
 function TValueFormatMulti(v: TValue): string;
 begin
+  if v.ToString.IsEmpty then Exit('0 x');
   Result := V.ToString(2) + ' x';
 end;
 
@@ -202,18 +207,20 @@ function TValueFormatLimit(v: TValue): string;
 var
   x: Int64;
 begin
+  if v.ToString.IsEmpty then Exit('0');
   Result := '∞';
-  if v.TypeKind = tkvString then x := v.AsString.ToInt64 else x := v.AsInt64;
-  if x > 0 then Result := TValueFormatBKM(v);
+  if v.AsInt64 > 0 then Result := TValueFormatBKM(v);
 end;
 
 function TValueFormatDeltaSec(v: TValue): string;
 begin
+  if v.ToString.IsEmpty then Exit('0');
   Result := v.FromSecFromNow;
 end;
 
 function TValueFormatDuration(v: TValue): string;
 begin
+  if v.ToString.IsEmpty then Exit('0');
   Result := v.FromSecToDuration;
 end;
 
@@ -238,6 +245,7 @@ function VarFormatTrackerStatus(v: TValue): string;
 var
   x: Int64;
 begin
+  if v.ToString.IsEmpty then Exit('Unknown');
   if v.TypeKind = tkvString then x := v.AsString.ToInt64 else x := v.AsInt64;
   case x of
     0: Result := 'Disabled';
@@ -563,6 +571,7 @@ begin
 
     if @GetColData(ACol).Format = @TValueFormatPercent then
     begin
+     if Value.ToString.IsEmpty then Value := 0;
 
      SG.Canvas.Brush.Color := BackBrushColor;
      SG.Canvas.FillRect( TRect.Create(Rect.Left+1 , Rect.Top+1, Rect.Right-1 , Rect.Bottom -1) );
