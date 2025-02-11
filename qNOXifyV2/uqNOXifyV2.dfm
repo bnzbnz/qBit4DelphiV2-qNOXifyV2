@@ -1547,4 +1547,8 @@ object FrmSTG: TFrmSTG
       OnClick = Logout1Click
     end
   end
+  object NotificationCenter1: TNotificationCenter
+    Left = 580
+    Top = 360
+  end
 end

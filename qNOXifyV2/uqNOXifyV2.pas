@@ -7,7 +7,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, uqBit, uqBit.API, uqBit.API.Types,
   Vcl.ExtCtrls, Vcl.StdCtrls, uqBitGrid, uqBitThreads, Vcl.Menus, Vcl.ComCtrls,
   Vcl.Grids, Vcl.CheckLst, Vcl.TitleBarCtrls, Vcl.ToolWin, Vcl.ActnMan,
-  Vcl.ActnCtrls, Vcl.Buttons, Vcl.AppEvnts
+  Vcl.ActnCtrls, Vcl.Buttons, Vcl.AppEvnts, System.Notification
   , System.Generics.Collections
   , uKobicAppTrackMenus
   , uqBitSelectServerDlg
@@ -97,6 +97,7 @@ type
     PMTray: TPopupMenu;
     Logout1: TMenuItem;
     About1: TMenuItem;
+    NotificationCenter1: TNotificationCenter;
     procedure FormShow(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure PauseClick(Sender: TObject);
@@ -182,6 +183,7 @@ type
     procedure TrackMenuNotifyHandler(Sender: TMenu; Item: TMenuItem; var CanClose: Boolean);
     procedure PrepareMainPopup;
     procedure ReleaseMainPopup;
+    procedure Notification(Name, Title, AlertBody: string);
   public
     { Public declarations }
     qB: TqBit;
@@ -266,9 +268,25 @@ begin
    Lst.free;
 end;
 
+procedure TFrmSTG.Notification(Name, Title, AlertBody: string);
+var
+  MyNotification: TNotification;
+begin
+  MyNotification := NotificationCenter1.CreateNotification;
+  try
+    MyNotification.Name := Name;
+    MyNotification.Title := Title;
+    MyNotification.AlertBody := AlertBody;
+    MyNotification.EnableSound := False;
+    NotificationCenter1.PresentNotification(MyNotification);
+  finally
+    MyNotification.Free;
+  end;
+end;
+
 procedure TFrmSTG.ReloadBtnClick(Sender: TObject);
 begin
-    WVBrowser1.Refresh;
+  WVBrowser1.Refresh;
 end;
 
 procedure TFrmSTG.PrepareMainPopup;
@@ -733,7 +751,8 @@ begin
       descriptor.filename := Path;
       var TheFile := TStringList.Create;
       TheFile.add(Path);
-      qBitAddTorrentDlg.ShowAsModal(qB, TheFile);
+      if qBitAddTorrentDlg.ShowAsModal(qB, TheFile) = mrOk then
+        Notification(Application.Title, 'New Torrent Added', TheFile.Text);
       TheFile.Free;
       descriptor.Free;
     end;
@@ -748,13 +767,12 @@ procedure TFrmSTG.WVBrowser1LaunchingExternalUriScheme(Sender: TObject;
   const aArgs: ICoreWebView2LaunchingExternalUriSchemeEventArgs);
 var
   LUri: PWideChar;
-  LRedirect: Integer;
 begin
   aArgs.Get_uri(LUri);
   if pos('magnet:?', Lowercase(LUri)) = 1 then
   begin
     if qB.AddNewTorrentUrl(LUri) then
-      ShowMessage('Torrent Magnet downloading...');
+      Notification(Application.Title, 'New Torrent Magnet Added', LUri);
     aArgs.Set_Cancel(1);
   end;
   CoTaskMemFree(LUri);
@@ -772,7 +790,6 @@ procedure TFrmSTG.WVBrowser1NavigationStarting(Sender: TObject;
   const aArgs: ICoreWebView2NavigationStartingEventArgs);
 var
   LUri: PWideChar;
-  LRedirect: Integer;
 begin
   aArgs.Get_uri(LUri);
   if pos('magnet:?', Lowercase(LUri)) = 1 then
@@ -951,10 +968,6 @@ begin
 end;
 
 procedure TFrmSTG.PCMainChange(Sender: TObject);
-var
-  Res: IHTTPResponse;
-  Http: THTTPClient;
-  ResST: TStringStream;
 begin
   if GlobalWebView2Loader.Initialized then
   begin

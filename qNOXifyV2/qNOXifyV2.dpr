@@ -32,7 +32,6 @@ begin
   ReportMemoryLeaksOnShutdown := True;
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
-  TStyleManager.TrySetStyle('Aqua Light Slate');
   Application.Title := 'qNOXify V2';
   Application.CreateForm(TFrmSTG, FrmSTG);
   Application.CreateForm(TqBitAddServerDlg, qBitAddServerDlg);

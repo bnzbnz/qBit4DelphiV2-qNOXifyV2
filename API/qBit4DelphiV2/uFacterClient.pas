@@ -69,7 +69,6 @@ class function TFacterClient.FromURL(URL: string): TFacterClient;
 var
   Http: THTTPClient;
   ReqSS: TStringStream;
-  Facter: TFacterClient;
 begin
   Result := nil; Http := nil; ReqSS := nil;
   try
