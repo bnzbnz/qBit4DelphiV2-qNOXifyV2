@@ -1039,7 +1039,7 @@ end;
 
 procedure TFrmSTG.Logout1Click(Sender: TObject);
 begin
-  Self.Logout1Click(Nil);
+  if qb.Logout then Close;
 end;
 
 procedure TFrmSTG.SelectAll1Click(Sender: TObject);
