@@ -533,6 +533,7 @@ procedure TqBitFrame.SGDrawCell(Sender: TObject; ACol, ARow: Integer;
   Rect: TRect; State: TGridDrawState);
 var
   Value: TValue;
+  Text: string;
 begin
 
   var FontColor := SG.Canvas.Font.Color;
@@ -565,8 +566,12 @@ begin
   end else begin
 
     Value :=  SG.Cells[ACol,ARow];
-    var Text :=  GetColData(ACol).Format( Value );
-
+    try
+      if Assigned(GetColData(ACol).Format)  then
+        Text :=  GetColData(ACol).Format( Value );
+    except
+      Text := Value.ToString;
+    end;
     if @GetColData(ACol).Format = @TValueFormatPercent then
     begin
      if Value.ToString.IsEmpty then Value := '0.00';

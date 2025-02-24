@@ -1217,6 +1217,7 @@ begin
       end;
 
       StatusBar1.Panels[1].Text := 'DHT nodes : ' + M.Main.server_state.dht_nodes.AsInt64.ToString;
+      StatusBar1.Panels[1].Text := M.Main.torrents.Count.ToString + ' Torrents';
       StatusBar1.Panels[3].Text := '';
       if M.Main.server_state.use_alt_speed_limits.AsBoolean then StatusBar1.Panels[3].Text := 'Alt. Speed   ';
       StatusBar1.Panels[3].Text := StatusBar1.Panels[3].Text +

@@ -64,8 +64,11 @@ type
 
   TJX4Default = class(TCustomAttribute)
   public
-    Value:      string;
-    constructor Create(const AValue: string);
+    Value:      TValue;
+    constructor Create(const AValue: string); overload;
+    constructor Create(const AValue: Int64); overload;
+    constructor Create(const AValue: Boolean); overload;
+    constructor Create(const AValue: Extended); overload;
   end;
 
   TJX4Required = class(TCustomAttribute);
@@ -104,17 +107,21 @@ type
 
     function        Clone<T:class, constructor>(AOptions: TJX4Options= []): T; overload;
     procedure       Merge(AMergedWith: TObject; AOptions: TJX4Options = []);
+    function        Format(AMinify: Boolean = False; AIndentation: Integer = 2): string;
 
     // Utils
     class function  Version: string;
     class function  VersionValue: integer;
 
     class function  NameDecode(const ToDecode: string): string; static;
+    class function  NameEncode(const ToEncode: string): string; static;
     class procedure VarEscapeJSONStr(var AStr: string); overload; static;
     class function  EscapeJSONStr(const AStr: string): string; overload; static;
     class function  JsonListToJsonString(const AList: TList<string>): string; static;
     class function  FormatJSON(const AJson: string; AMinify: Boolean = False; AIndentation: Integer = 2): string; static;
-    class function  IsJSON(AStr: string): Boolean;
+
+    class function  ValidateJSON(const AJson: string): string; static;
+    class function  IsJSON(AStr: string): Boolean; static;
 
     // Common
     class function  LoadFromFile(const AFilename: string; var AStr: string; AEncoding: TEncoding = Nil): Int64; overload;
@@ -155,6 +162,21 @@ begin
 end;
 
 constructor TJX4Default.Create(const AValue: string);
+begin
+  Value := AValue;
+end;
+
+constructor TJX4Default.Create(const AValue: Int64);
+begin
+  Value := AValue;
+end;
+
+constructor TJX4Default.Create(const AValue: Boolean); 
+begin
+  Value := AValue;
+end;
+
+constructor TJX4Default.Create(const AValue: Extended); 
 begin
   Value := AValue;
 end;
@@ -528,7 +550,7 @@ end;
 
 class function TJX4Object.Version: string;
 begin
-  Result := Format('%0.2d.%0.2d', [
+  Result := SysUtils.Format('%0.2d.%0.2d', [
               (CJX4Version and $FF00) shr 8,
               (CJX4Version and $00FF)
             ]);
@@ -559,6 +581,22 @@ begin;
         Inc(Index, 1);
       end;
     end;
+end;
+
+class function TJX4Object.NameEncode(const ToEncode: string): string;
+var
+  Encoded: Boolean;
+begin
+  Result := '';
+  Encoded := False;
+  for var i := 1 to Length(ToEncode) do
+    if CharInSet(ToEncode[i], ['0'..'9', 'a'..'z', 'A'..'Z']) then
+      Result := Result + ToEncode[i]
+    else begin
+      Encoded := True;
+      Result := Result + '_' + SysUtils.Format('%2x', [Ord(ToEncode[i])]);
+    end;
+  if Encoded then Result := '_'  + Result;
 end;
 
 class function TJX4Object.New<T>: T;
@@ -649,6 +687,27 @@ begin
     Result := TJSONAncestor(TmpJson).Format(AIndentation);
     FreeAndNil(TmpJson);
   end;
+end;
+
+function TJX4Object.Format(AMinify: Boolean; AIndentation: Integer): string;
+begin
+  Result := TJX4Object.FormatJSON(Self.ToJSON, AMinify, AIndentation);
+end;
+
+class function TJX4Object.ValidateJSON(const AJson: string): string;
+var
+  LJObj: TJSONObject;
+begin
+  LJObj := Nil;
+  try
+    LJObj := TJSONObject.ParseJSONValue(AJson, True, True) as TJSONObject;
+  except
+    on Ex:Exception do
+    begin
+      Result := Ex.Message;
+    end;
+  end;
+  LJObj.Free;
 end;
 
 procedure TJX4Object.Merge(AMergedWith: TObject; AOptions: TJX4Options);
