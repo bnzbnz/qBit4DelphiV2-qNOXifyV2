@@ -676,7 +676,7 @@ begin
     MainFrame.LoadConfig(Config.PeersGrid);
     MainFrame.LoadConfig(Config.TrackersGrid);
     qBitSelectServerDlg.SaveConfig(Config.Servers);
-    Config.SaveToJSONFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+    Config.SaveToJSONFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json');
     CatsList.Free;
     TagsList.Free;
     TrackersThread.Free;
