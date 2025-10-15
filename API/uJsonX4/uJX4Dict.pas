@@ -49,6 +49,7 @@ type
     procedure JSONDeserialize(AIOBlock: TJX4IOBlock);
     procedure JSONClone(ADestDict: TJX4DictOfValues; AOptions: TJX4Options = []);
     procedure JSONMerge(AMergedWith: TJX4DictOfValues; AOptions: TJX4Options = []);
+    procedure JSONClear;
 
     function  SaveToJSONFile(const AFilename: string; AOptions: TJX4Options = [joNullToEmpty]; AEncoding: TEncoding = Nil; AZipIt: TCompressionLevel = clNone;  AUseBOM: Boolean = False): Int64;
 
@@ -75,12 +76,14 @@ type
   public
 
     constructor Create;
+    constructor CreateNotOwn;
     destructor  Destroy; override;
 
-    function    JSONSerialize(AIOBlock: TJX4IOBlock): TValue;
-    procedure   JSONDeserialize(AIOBlock: TJX4IOBlock);
-    procedure   JSONClone(ADestDict:  TJX4Dict<V>; AOptions: TJX4Options = []);
-    procedure   JSONMerge(AMergedWith: TJX4Dict<V>; AOptions: TJX4Options = []);
+    function  JSONSerialize(AIOBlock: TJX4IOBlock): TValue;
+    procedure JSONDeserialize(AIOBlock: TJX4IOBlock);
+    procedure JSONClone(ADestDict:  TJX4Dict<V>; AOptions: TJX4Options = []);
+    procedure JSONMerge(AMergedWith: TJX4Dict<V>; AOptions: TJX4Options = []);
+    procedure JSONClear;
 
     class function New: TJX4Dict<V>;
     class function NewAdd(AKey: string; AValue: V): TJX4Dict<V>;
@@ -100,6 +103,13 @@ type
   TJX4Dictionary<V:class, constructor> = class(TJX4Dict<V>);
   TJX4Dic<V:class, constructor> = class(TJX4Dict<V>);
 
+  TJX4DictNotOwn<V:class, constructor> = class(TJX4Dict<V>)
+  public
+    constructor Create; overload;
+    destructor  Destroy; override;
+  end;
+
+  MyTThread = class(TThread); // TThread Protected Access
 
 implementation
 uses
@@ -152,8 +162,10 @@ var
   LNameAttr:  TCustomAttribute;
 begin
   Result := TValue.Empty;
+
   if Assigned(AIOBlock.Field) then
   begin
+    if Assigned(TxRTTI.GetFieldAttribute(AIOBlock.Field, TJX4Transient)) then Exit;
     LName := AIOBlock.Field.Name;
     LNameAttr := TJX4Name(TxRTTI.GetFieldAttribute(AIOBlock.Field, TJX4Name));
     if Assigned(LNameAttr) then LName := TJX4Name(LNameAttr).Name;
@@ -180,7 +192,7 @@ begin
   LIOBlock := TJX4IOBlock.Create;
   for Lkp in Self do
   begin
-      LIOBlock.Init(LKp.Key, Nil, Nil, AIOBlock.Options, AIOBlock.PAbort);
+      LIOBlock.Init(LKp.Key, Nil, Nil, AIOBlock.Options);
       LTValue := Lkp.Value.JSONSerialize(LIOBlock);
       if not LTValue.IsEmpty then LParts.Add(LTValue.AsString);
   end;
@@ -233,7 +245,7 @@ begin
     end else
       LJObj := TJSONObject.Create(LPair);
 
-    LIOBlock.Init(AIOBlock.JsonName, LJObj, AIOBlock.Field, AIOBlock.Options, AIOBlock.PAbort);
+    LIOBlock.Init(AIOBlock.JsonName, LJObj, AIOBlock.Field, AIOBlock.Options);
     LNewObj.JSONDeserialize(LIOBlock);
 
     if LJObjDestroy then FreeAndNil(LJObj);
@@ -246,7 +258,7 @@ end;
 procedure TJX4DictOfValues.JSONMerge(AMergedWith: TJX4DictOfValues; AOptions: TJX4Options);
 var
   LEle: TPair<string, TValue>;
-  LValue, LClone: TValue;
+  LValue: TValue;
   LExists: Boolean;
 begin
  if (jmoStats in AOptions) then
@@ -287,6 +299,11 @@ begin
       if (jmoStats in AOptions) then FModified.Add(LEle.Key);
     end;
   end;
+end;
+
+procedure TJX4DictOfValues.JSONClear;
+begin
+  Self.Clear;
 end;
 
 class function TJX4DictOfValues.New: TJX4DictOfValues;
@@ -336,6 +353,14 @@ end;
 constructor TJX4Dict<V>.Create;
 begin
   inherited Create([doOwnsValues]);
+  FAdded := Nil;
+  FModified :=  Nil;
+  FDeleted := Nil;
+end;
+
+constructor TJX4Dict<V>.CreateNotOwn;
+begin
+  inherited Create([]);
   FAdded :=  Nil;
   FModified :=  Nil;
   FDeleted := Nil;
@@ -366,8 +391,10 @@ var
   LTValue:    TValue;
 begin
   Result := TValue.Empty;
+
   if Assigned(AIOBlock.Field) then
   begin
+    if Assigned(TxRTTI.GetFieldAttribute(AIOBlock.Field, TJX4Transient)) then Exit;
     LName := AIOBlock.Field.Name;
     LNameAttr := TJX4Name(TxRTTI.GetFieldAttribute(AIOBlock.Field, TJX4Name));
     if Assigned(LNameAttr) then LName := TJX4Name(LNameAttr).Name;
@@ -395,11 +422,11 @@ begin
     LParts.Capacity := Self.Count;
     for Lkp in Self do
     begin
-      if Assigned(AIOBlock.PAbort) and AIOBlock.PAbort^ then Exit;
+      if MyTThread(TThread.Current).Terminated then Exit;
       LObj := TValue.From<V>(Lkp.Value).AsObject;
       if Assigned(LObj) then
       begin
-        LIOBlock.Init(LKp.Key, Nil, Nil, AIOBlock.Options, AIOBlock.PAbort);
+        LIOBlock.Init(LKp.Key, Nil, Nil, AIOBlock.Options);
         LTValue := TxRTTI.CallMethodFunc('JSONSerialize', LObj, [ LIOBlock ]);
         if not LTValue.IsEmpty then LParts.Add(LTValue.AsString);
       end;
@@ -447,7 +474,7 @@ begin
   try
     for LPair in AIOBlock.JObj do
     begin
-      if Assigned(AIOBlock.PAbort) and AIOBlock.PAbort^ then Exit;
+      if MyTThread(TThread.Current).Terminated then Exit;
       LNewObj := V.Create;
       Add(LPair.JsonString.value, LNewObj);
 
@@ -465,7 +492,7 @@ begin
       end else
         LJObj := TJSONObject.Create(LPair);
 
-      LIOBlock.Init(AIOBlock.JsonName, LJObj, AIOBlock.Field, AIOBlock.Options, AIOBlock.PAbort);
+      LIOBlock.Init(AIOBlock.JsonName, LJObj, AIOBlock.Field, AIOBlock.Options);
       TxRTTI.CallMethodProc( 'JSONDeserialize', LNewObj, [ LIOBlock ]);
 
       if LJObjDestroy then FreeAndNil(LJObj);
@@ -480,6 +507,15 @@ end;
 procedure TJX4Dict<V>.JSONMerge(AMergedWith: TJX4Dict<V>; AOptions: TJX4Options);
 begin
   //
+end;
+
+procedure TJX4Dict<V>.JSONClear;
+var
+  LObj: TPair<string, V>;
+begin
+  for LObj in Self do
+    TJX4Object(LObj.Value).JSONClear;
+  Self.CLear;
 end;
 
 class function TJX4Dict<V>.New: TJX4Dict<V>;
@@ -602,6 +638,19 @@ end;
 function TJX4Dict<V>.SaveToJSONFile(const AFilename: string; AOptions: TJX4Options = [joNullToEmpty]; AEncoding: TEncoding = NIl; AZipIt: TCompressionLEvel = clNone; AUseBOM: Boolean = False): Int64;
 begin
   Result := TJX4Object.SaveToFile(AFilename, TJX4Object.ToJSON(Self, AOptions), AEncoding, AZipIt, AUseBOM);
+end;
+
+constructor TJX4DictNotOwn<V>.Create;
+begin
+  inherited CreateNotOwn;
+  FAdded :=  Nil;
+  FModified :=  Nil;
+  FDeleted := Nil;
+end;
+
+destructor TJX4DictNotOwn<V>.Destroy;
+begin
+  inherited Destroy;
 end;
 
 end.

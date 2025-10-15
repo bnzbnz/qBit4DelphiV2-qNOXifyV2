@@ -27,6 +27,7 @@ interface
 uses
     uJX4Object
   , RTTI
+  , Classes
   ;
 
 type
@@ -54,11 +55,16 @@ type
     procedure JSONDeserialize(AIOBlock: TJX4IOBlock);
     function  JSONClone(AOptions: TJX4Options = []): TValue;
     function  JSONMerge(AMergedWith: TValue; AOptions: TJX4Options): TValue;
+    procedure JSONClear;
 
     function  TypeKind:                           TJX4TValueKind;
+    function  IsString:                           Boolean;
     function  ToString(Decimal: Integer = 2):     string;
+    function  IsInteger:                          Boolean;
     function  ToInteger:                          int64;
+    function  IsFloat:                            Boolean;
     function  ToFloat:                            Extended;
+    function  IsBoolean:                          Boolean;
     function  ToBoolean:                          Boolean;
 
     //Conversion Tools
@@ -89,6 +95,8 @@ type
 
   end;
 
+  MyTThread = class(TThread);  //  TThread Protected Access
+
 implementation
 uses
     System.Generics.Collections
@@ -105,11 +113,9 @@ var
   LAttr:  TCustomAttribute;
 begin
   Result := Nil;
-  if Assigned(AIOBlock.Field) then
-  begin
-    LAttr := TJX4Excluded(TxRTTI.GetFieldAttribute(AIOBlock.Field, TJX4Excluded));
-    if Assigned(LAttr) then Exit;
-  end;
+  if MyTThread(TThread.Current).Terminated then Exit;
+
+  if Assigned(AIOBlock.Field) and Assigned(TxRTTI.GetFieldAttribute(AIOBlock.Field, TJX4Transient)) then Exit;
   case Self.TypeKind of
     tkvString:  LValue := '"' + TJX4Object.EscapeJSONStr(Self.AsString, joSlashEncode in AIOBlock.Options) + '"';
     tkvBool:    LValue := cBoolToStr[Self.AsBoolean];
@@ -168,11 +174,9 @@ var
   LAttr:          TCustomAttribute;
 begin
   Self := Nil;
-  if Assigned(AIOBlock.Field) then
-  begin
-    LAttr := TJX4Excluded(TxRTTI.GetFieldAttribute(AIOBlock.Field, TJX4Excluded));
-    if Assigned(LAttr) then Exit;
-  end;
+  if MyTThread(TThread.Current).Terminated then Exit;
+
+  if Assigned(AIOBlock.Field) and Assigned(TxRTTI.GetFieldAttribute(AIOBlock.Field, TJX4Transient)) then Exit;
   LJPair := AIOBlock.JObj.Pairs[0];
   if not(Assigned(LJPair) and  (not LJPair.null) and not (LJPair.JsonValue is TJSONNull) and not (LJPair.JsonValue.Value.IsEmpty)) then
   begin
@@ -206,6 +210,11 @@ begin
        Self := AMergedWith;
 end;
 
+procedure TJX4TValueHelper.JSONClear;
+begin
+  Self := Nil;
+end;
+
 function TJX4TValueHelper.JSONClone(AOptions: TJX4Options): TValue;
 begin
   Result := Self;
@@ -229,6 +238,11 @@ begin
   end;
 end;
 
+function TJX4TValueHelper.IsString: Boolean;
+begin
+  Result := TypeKind = tkvString;
+end;
+
 function TJX4TValueHelper.ToString(Decimal: Integer): string;
 begin
   case self.TypeKind of
@@ -239,6 +253,11 @@ begin
   else
     Result := '';
   end;
+end;
+
+function TJX4TValueHelper.IsInteger: Boolean;
+begin
+  Result := TypeKind = tkvInteger;
 end;
 
 function TJX4TValueHelper.ToInteger: Int64;
@@ -253,6 +272,11 @@ begin
   end;
 end;
 
+function TJX4TValueHelper.IsFloat: Boolean;
+begin
+  Result := TypeKind = tkvFloat;
+end;
+
 function TJX4TValueHelper.ToFloat: Extended;
 begin
   case self.TypeKind of
@@ -263,6 +287,11 @@ begin
   else
     Result := 0;
   end;
+end;
+
+function TJX4TValueHelper.IsBoolean: Boolean;
+begin
+  Result := TypeKind = tkvBool;
 end;
 
 function TJX4TValueHelper.ToBoolean: Boolean;

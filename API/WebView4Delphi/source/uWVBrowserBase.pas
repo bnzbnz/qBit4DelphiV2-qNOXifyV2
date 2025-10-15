@@ -20,7 +20,7 @@ uses
   uWVCoreWebView2Environment, uWVCoreWebView2Controller,
   uWVCoreWebView2PrintSettings, uWVCoreWebView2CompositionController,
   uWVCoreWebView2CookieManager, uWVCoreWebView2Delegates,
-  uWVCoreWebView2Profile;
+  uWVCoreWebView2Profile, uWVCoreWebView2FindOptions, uWVCoreWebView2Find;
 
 type
   /// <summary>
@@ -36,6 +36,8 @@ type
       FCoreWebView2CompositionController               : TCoreWebView2CompositionController;
       FCoreWebView2                                    : TCoreWebView2;
       FCoreWebView2Profile                             : TCoreWebView2Profile;
+      FCoreWebView2FindOptions                         : TCoreWebView2FindOptions;
+      FCoreWebView2Find                                : TCoreWebView2Find;
       FWindowParentHandle                              : THandle;
       FUseDefaultEnvironment                           : boolean;
       FUseCompositionController                        : boolean;
@@ -55,6 +57,8 @@ type
       FProfileGetBrowserExtensionsCompletedHandler     : ICoreWebView2ProfileGetBrowserExtensionsCompletedHandler;
       FPreferredTrackingPreventionLevel                : TWVTrackingPreventionLevel;
       FScriptLocale                                    : wvstring;
+      FDefaultBackgroundColor                          : TColor;
+      FAllowHostInputProcessing                        : boolean;
 
       // Fields used to create the environment
       FAdditionalBrowserArguments                      : wvstring;
@@ -183,6 +187,10 @@ type
       FOnSaveFileSecurityCheckStarting                : TOnSaveFileSecurityCheckStartingEvent;
       FOnScreenCaptureStarting                        : TOnScreenCaptureStartingEvent;
       FOnFrameScreenCaptureStarting                   : TOnFrameScreenCaptureStartingEvent;
+      FOnFrameChildFrameCreated                       : TOnFrameChildFrameCreatedEvent;
+      FOnFindActiveMatchIndexChanged                  : TOnFindActiveMatchIndexChangedEvent;
+      FOnFindMatchCountChanged                        : TOnFindMatchCountChangedEvent;
+      FOnFindStartCompleted                           : TOnFindStartCompletedEvent;
 
       function  GetBrowserProcessID : cardinal;
       function  GetBrowserVersionInfo : wvstring;
@@ -300,6 +308,8 @@ type
       procedure DestroyCompositionController;
       procedure DestroyWebView;
       procedure DestroyProfile;
+      procedure DestroyFindOptions;
+      procedure DestroyFind;
       procedure DestroySettings;
       procedure DestroyPrintSettings;
 
@@ -407,6 +417,10 @@ type
       function SaveFileSecurityCheckStartingEventHandler_Invoke(const sender: ICoreWebView2; const args: ICoreWebView2SaveFileSecurityCheckStartingEventArgs): HRESULT;
       function ScreenCaptureStartingEventHandler_Invoke(const sender: ICoreWebView2; const args: ICoreWebView2ScreenCaptureStartingEventArgs): HRESULT;
       function FrameScreenCaptureStartingEventHandler_Invoke(const sender: ICoreWebView2Frame; const args: ICoreWebView2ScreenCaptureStartingEventArgs; aFrameID: cardinal): HRESULT;
+      function FrameChildFrameCreatedEventHandler_Invoke(const sender: ICoreWebView2Frame; const args: ICoreWebView2FrameCreatedEventArgs; aFrameID: cardinal): HRESULT;
+      function FindActiveMatchIndexChangedEventHandler_Invoke(const sender: ICoreWebView2Find; const args: IUnknown): HRESULT;
+      function FindMatchCountChangedEventHandler_Invoke(const sender: ICoreWebView2Find; const args: IUnknown): HRESULT;
+      function FindStartCompletedHandler_Invoke(errorCode: HResult): HRESULT;
 
       procedure doOnInitializationError(aErrorCode: HRESULT; const aErrorMessage: wvstring); virtual;
       procedure doOnEnvironmentCompleted; virtual;
@@ -505,6 +519,10 @@ type
       procedure doOnSaveFileSecurityCheckStartingEvent(const sender: ICoreWebView2; const args: ICoreWebView2SaveFileSecurityCheckStartingEventArgs); virtual;
       procedure doOnScreenCaptureStartingEvent(const sender: ICoreWebView2; const args: ICoreWebView2ScreenCaptureStartingEventArgs); virtual;
       procedure doOnFrameScreenCaptureStartingEvent(const sender: ICoreWebView2Frame; const args: ICoreWebView2ScreenCaptureStartingEventArgs; aFrameID: cardinal); virtual;
+      procedure doOnFrameChildFrameCreatedEvent(const sender: ICoreWebView2Frame; const args: ICoreWebView2FrameCreatedEventArgs; aFrameID: cardinal); virtual;
+      procedure doOnFindActiveMatchIndexChangedEvent(const sender: ICoreWebView2Find; const args: IUnknown); virtual;
+      procedure doOnFindMatchCountChangedEvent(const sender: ICoreWebView2Find; const args: IUnknown); virtual;
+      procedure doOnFindStartCompletedEvent(errorCode: HResult); virtual;
 
     public
       constructor Create(AOwner: TComponent); override;
@@ -729,7 +747,7 @@ type
       /// <remarks>
       /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2_21#executescriptwithresult">See the icorewebview2_21 article.</see></para>
       /// </remarks>
-      function ExecuteScriptWithResult(const aJavaScript: wvstring; aExecutionID : integer = 0): boolean;
+      function    ExecuteScriptWithResult(const aJavaScript: wvstring; aExecutionID : integer = 0): boolean;
       /// <summary>
       /// <para>Run JavaScript code from the aJavaScript parameter in the current
       /// top-level document rendered in the WebView.</para>
@@ -1154,7 +1172,7 @@ type
       /// <remarks>
       /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2_22#addwebresourcerequestedfilterwithrequestsourcekinds">See the ICoreWebView2_22 article.</see></para>
       /// </remarks>
-      function AddWebResourceRequestedFilterWithRequestSourceKinds(const uri: wvstring;
+      function    AddWebResourceRequestedFilterWithRequestSourceKinds(const uri: wvstring;
                                                                    ResourceContext: TWVWebResourceContext;
                                                                    requestSourceKinds: TWVWebResourceRequestSourceKind): boolean;
       /// <summary>
@@ -1169,9 +1187,9 @@ type
       /// <remarks>
       /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2_22#removewebresourcerequestedfilterwithrequestsourcekinds">See the ICoreWebView2_22 article.</see></para>
       /// </remarks>
-      function RemoveWebResourceRequestedFilterWithRequestSourceKinds(const uri: wvstring;
-                                                                      ResourceContext: TWVWebResourceContext;
-                                                                      requestSourceKinds: TWVWebResourceRequestSourceKind): boolean;
+      function    RemoveWebResourceRequestedFilterWithRequestSourceKinds(const uri: wvstring;
+                                                                         ResourceContext: TWVWebResourceContext;
+                                                                         requestSourceKinds: TWVWebResourceRequestSourceKind): boolean;
       /// <summary>
       /// <para>Same as `PostWebMessageAsJson`, but also has support for posting DOM objects
       /// to page content. The `additionalObjects` property in the DOM MessageEvent
@@ -1203,8 +1221,8 @@ type
       /// <remarks>
       /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2_23#postwebmessageasjsonwithadditionalobjects">See the ICoreWebView2_23 article.</see></para>
       /// </remarks>
-      function PostWebMessageAsJsonWithAdditionalObjects(const webMessageAsJson: wvstring;
-                                                         const additionalObjects: ICoreWebView2ObjectCollectionView): boolean;
+      function    PostWebMessageAsJsonWithAdditionalObjects(const webMessageAsJson: wvstring;
+                                                            const additionalObjects: ICoreWebView2ObjectCollectionView): boolean;
       /// <summary>
       /// <para>Add the provided host object to script running in the WebView with the
       /// specified name.  Host objects are exposed as host object proxies using
@@ -1706,7 +1724,8 @@ type
       /// Clears the storage for origin. This function is asynchronous and it triggers the TWVBrowserBase.OnClearDataForOriginCompleted event when it finishes executing.
       /// </summary>
       /// <remarks>
-      /// <para><see href="https://chromedevtools.github.io/devtools-protocol/tot/Storage/#method-clearDataForOrigin">See the Chrome DevTools Protocol page about the Storage.clearDataForOrigin method.</see></para>
+      /// <para><see href="https://chromedevtools.github.io/devtools-protocol/tot/Storage/#method-clearDataForOrigin">See the documentation for the Storage.clearDataForOrigin DevTools method.</see></para>
+      /// <para><see href="https://chromedevtools.github.io/devtools-protocol/tot/Storage/#type-StorageType">See the documentation for the Storage.StorageType type.</see></para>
       /// </remarks>
       function    ClearDataForOrigin(const aOrigin : wvstring; aStorageTypes : TWVClearDataStorageTypes = cdstAll) : boolean;
       /// <summary>
@@ -1812,6 +1831,57 @@ type
       /// <para>This function triggers the TWVBrowserBase.OnSaveAsUIShowing and TWVBrowserBase.OnShowSaveAsUICompleted events.</para>
       /// </remarks>
       function    ShowSaveAsUI : boolean;
+      /// <summary>
+      /// Initiates a find using the specified find options asynchronously.
+      /// Displays the Find bar and starts the find session. If a find session was already ongoing, it will be stopped and replaced with this new instance.
+      /// If called with an empty string, the Find bar is displayed but no finding occurs. Changing the FindOptions object after initiation won't affect the ongoing find session.
+      /// To change the ongoing find session, Start must be called again with a new or modified FindOptions object.
+      /// Start supports HTML and TXT document queries. In general, this API is designed for text-based find sessions.
+      /// If you start a find session programmatically on another file format that doesn't have text fields, the find session will try to execute but will fail to find any matches. (It will silently fail)
+      /// Note: The asynchronous action completes when the UI has been displayed with the find term in the UI bar, and the matches have populated on the counter on the find bar.
+      /// There may be a slight latency between the UI display and the matches populating in the counter.
+      /// The MatchCountChanged and ActiveMatchIndexChanged events are only raised after Start has completed; otherwise, they will have their default values (-1 for active match index and 0 for match count).
+      /// To start a new find session (beginning the search from the first match), call `Stop` before invoking `Start`.
+      /// If `Start` is called consecutively with the same options and without calling `Stop`, the find session
+      /// will continue from the current position in the existing session.
+      /// Calling `Start` without altering its parameters will behave either as `FindNext` or `FindPrevious`, depending on the most recent search action performed.
+      /// Start will default to forward if neither have been called.
+      /// However, calling Start again during an ongoing find session does not resume from the point
+      /// of the current active match. For example, given the text "1 1 A 1 1" and initiating a find session for "A",
+      /// then starting another find session for "1", it will start searching from the beginning of the document,
+      /// regardless of the previous active match. This behavior indicates that changing the find query initiates a
+      /// completely new find session, rather than continuing from the previous match index.
+      /// </summary>
+      /// <remarks>
+      /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2find#start">See the ICoreWebView2Find article.</see></para>
+      /// </remarks>
+      function    FindStart(const aFindTerm : wvstring) : boolean;
+      /// <summary>
+      /// Navigates to the next match in the document.
+      /// If there are no matches to find, FindNext will wrap around to the first match's index.
+      /// If called when there is no find session active, FindNext will silently fail.
+      /// </summary>
+      /// <remarks>
+      /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2find#findnext">See the ICoreWebView2Find article.</see></para>
+      /// </remarks>
+      function    FindNext : boolean;
+      /// <summary>
+      /// Navigates to the previous match in the document.
+      /// If there are no matches to find, FindPrevious will wrap around to the last match's index.
+      /// If called when there is no find session active, FindPrevious will silently fail.
+      /// </summary>
+      /// <remarks>
+      /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2find#findprevious">See the ICoreWebView2Find article.</see></para>
+      /// </remarks>
+      function    FindPrevious : boolean;
+      /// <summary>
+      /// Stops the current 'Find' session and hides the Find bar.
+      /// If called with no Find session active, it will silently do nothing.
+      /// </summary>
+      /// <remarks>
+      /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2find#stopt">See the ICoreWebView2Find article.</see></para>
+      /// </remarks>
+      function    FindStop : boolean;
 
       // Custom properties
       property Initialized                                     : boolean                                               read GetInitialized;
@@ -2346,6 +2416,7 @@ type
       /// must be done through API call.</para>
       /// </summary>
       /// <remarks>
+      /// <para>The only supported alpha values are 0 (transparent) and 255 (opaque). Remember to set the alpha channel manually when using predefined TColor values.</para>
       /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2controller2#get_defaultbackgroundcolor">See the ICoreWebView2Controller2 article.</see></para>
       /// </remarks>
       property DefaultBackgroundColor                          : TColor                                                read GetDefaultBackgroundColor                        write SetDefaultBackgroundColor;
@@ -2788,6 +2859,18 @@ type
       /// </remarks>
       property ScriptLocale                                    : wvstring                                              read FScriptLocale                                    write FScriptLocale;
       /// <summary>
+      /// <para>`AllowHostInputProcessing` property is to enable/disable input passing through
+      /// the app before being delivered to the WebView2. This property is only applicable
+      /// to controllers created with `CoreWebView2Environment.CreateCoreWebView2ControllerAsync` and not
+      /// composition controllers created with `CoreWebView2Environment.CreateCoreWebView2CompositionControllerAsync`.
+      /// By default the value is `FALSE`.</para>
+      /// <para>Setting this property has no effect when using visual hosting.</para>
+      /// </summary>
+      /// <remarks>
+      /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2controlleroptions4#put_allowhostinputprocessing">See the ICoreWebView2Controller4 article.</see></para>
+      /// </remarks>
+      property AllowHostInputProcessing                        : boolean                                               read FAllowHostInputProcessing                        write FAllowHostInputProcessing;
+      /// <summary>
       /// Full path of the profile directory.
       /// </summary>
       /// <remarks>
@@ -2901,6 +2984,20 @@ type
       /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2_20#get_frameid">See the ICoreWebView2_20 article.</see></para>
       /// </remarks>
       property FrameId                                        : cardinal                                               read GetFrameID;
+      /// <summary>
+      /// Options used to configure a find session.
+      /// </summary>
+      /// <remarks>
+      /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2findoptions">See the ICoreWebView2FindOptions article.</see></para>
+      /// </remarks>
+      property FindOptions                                    : TCoreWebView2FindOptions                               read FCoreWebView2FindOptions;
+      /// <summary>
+      /// FindSession allows for finding text, navigation between matches, and customization of the find UI.
+      /// </summary>
+      /// <remarks>
+      /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2find">See the ICoreWebView2Find article.</see></para>
+      /// </remarks>
+      property FindSession                                    : TCoreWebView2Find                                      read FCoreWebView2Find;
 
       /// <summary>
       /// The OnBrowserProcessExited event is triggered when the collection of WebView2
@@ -3470,8 +3567,13 @@ type
       /// of the `PermissionRequestedEventArgs` is set to TRUE within the
       /// `CoreWebView2Frame` event handler, then the event will not be
       /// raised on the `CoreWebView2`, and it's event handlers will not be invoked.</para>
-      /// <para>In the case of nested iframes, the 'OnFramePermissionRequested' event will
-      /// be raised from the top level iframe.</para>
+      /// <para>In the case of nested iframes, if the `PermissionRequested` event is handled
+      /// in the current nested iframe (i.e., the Handled property of the
+      /// `PermissionRequestedEventArgs` is set to TRUE), the event will not be raised
+      /// on the parent `CoreWebView2Frame`. However, if the `PermissionRequested` event is
+      /// not handled in that nested iframe, the event will be raised from its nearest
+      /// tracked parent `CoreWebView2Frame`. It will iterate through the parent frame
+      /// chain up to the main frame until a parent frame handles the request.</para>
       /// <para>If a deferral is not taken on the event args, the subsequent scripts are
       /// blocked until the event handler returns.  If a deferral is taken, the
       /// scripts are blocked until the deferral is completed.</para>
@@ -3839,6 +3941,7 @@ type
       /// </summary>
       /// <remarks>
       /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2_26#add_savefilesecuritycheckstarting">See the ICoreWebView2_26 article.</see></para>
+      /// <para><see href="https://github.com/MicrosoftEdge/WebView2Feedback/blob/main/specs/FileTypePolicy.md">See the FileTypePolicy API article.</see></para>
       /// </remarks>
       property OnSaveFileSecurityCheckStarting                : TOnSaveFileSecurityCheckStartingEvent                  read FOnSaveFileSecurityCheckStarting                 write FOnSaveFileSecurityCheckStarting;
       /// <summary>
@@ -3868,6 +3971,38 @@ type
       /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2frame6#add_screencapturestarting">See the ICoreWebView2Frame6 article.</see></para>
       /// </remarks>
       property OnFrameScreenCaptureStarting                   : TOnFrameScreenCaptureStartingEvent                     read FOnFrameScreenCaptureStarting                    write FOnFrameScreenCaptureStarting;
+      /// <summary>
+      /// Raised when a new direct descendant iframe is created.
+      /// Handle this event to get access to ICoreWebView2Frame objects.
+      /// Use `OnFrameDestroyed` to listen for when this iframe goes away.
+      /// </summary>
+      /// <remarks>
+      /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2frame7">See the ICoreWebView2Frame7 article.</see></para>
+      /// </remarks>
+      property OnFrameChildFrameCreated                       : TOnFrameChildFrameCreatedEvent                         read FOnFrameChildFrameCreated                        write FOnFrameChildFrameCreated;
+      /// <summary>
+      /// This event is raised when the index of the currently active match changes.
+      /// This can happen when the user navigates to a different match or when the active match is changed programmatically.
+      /// </summary>
+      /// <remarks>
+      /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2find#add_activematchindexchanged">See the ICoreWebView2Find article.</see></para>
+      /// </remarks>
+      property OnFindActiveMatchIndexChanged                  : TOnFindActiveMatchIndexChangedEvent                    read FOnFindActiveMatchIndexChanged                   write FOnFindActiveMatchIndexChanged;
+      /// <summary>
+      /// This event is raised when the total count of matches in the document changes due to a new find session or changes in the document.
+      /// </summary>
+      /// <remarks>
+      /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2find#add_matchcountchanged">See the ICoreWebView2Find article.</see></para>
+      /// </remarks>
+      property OnFindMatchCountChanged                        : TOnFindMatchCountChangedEvent                          read FOnFindMatchCountChanged                         write FOnFindMatchCountChanged;
+      /// <summary>
+      /// This event receives the result of the FindStart method.
+      /// </summary>
+      /// <remarks>
+      /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2find#start">See the ICoreWebView2Find article.</see></para>
+      /// <para><see href="https://learn.microsoft.com/en-us/microsoft-edge/webview2/reference/win32/icorewebview2findstartcompletedhandler">See the ICoreWebView2FindStartCompletedHandler article.</see></para>
+      /// </remarks>
+      property OnFindStartCompleted                           : TOnFindStartCompletedEvent                             read FOnFindStartCompleted                            write FOnFindStartCompleted;
   end;
 
 implementation
@@ -3887,6 +4022,8 @@ begin
   FCoreWebView2CompositionController               := nil;
   FCoreWebView2                                    := nil;
   FCoreWebView2Profile                             := nil;
+  FCoreWebView2FindOptions                         := nil;
+  FCoreWebView2Find                                := nil;
   FDefaultURL                                      := '';
   FUseDefaultEnvironment                           := False;
   FUseCompositionController                        := False;
@@ -3896,6 +4033,8 @@ begin
   FProfileName                                     := '';
   FIsInPrivateModeEnabled                          := False;
   FScriptLocale                                    := '';
+  FDefaultBackgroundColor                          := TColor($FFFFFFFF); // opaque white
+  FAllowHostInputProcessing                        := False;
   FClearBrowsingDataCompletedHandler               := nil;
   FSetPermissionStateCompletedHandler              := nil;
   FGetNonDefaultPermissionSettingsCompletedHandler := nil;
@@ -4032,6 +4171,10 @@ begin
   FOnSaveFileSecurityCheckStarting                 := nil;
   FOnScreenCaptureStarting                         := nil;
   FOnFrameScreenCaptureStarting                    := nil;
+  FOnFrameChildFrameCreated                        := nil;
+  FOnFindActiveMatchIndexChanged                   := nil;
+  FOnFindMatchCountChanged                         := nil;
+  FOnFindStartCompleted                            := nil;
 end;
 
 destructor TWVBrowserBase.Destroy;
@@ -4039,6 +4182,8 @@ begin
   try
     RestoreOldCompWndProc;
     DestroyProfile;
+    DestroyFindOptions;
+    DestroyFind;
     DestroyPrintSettings;
     DestroySettings;
     DestroyEnvironment;
@@ -4084,6 +4229,18 @@ procedure TWVBrowserBase.DestroyProfile;
 begin
   if assigned(FCoreWebView2Profile) then
     FreeAndNil(FCoreWebView2Profile);
+end;
+
+procedure TWVBrowserBase.DestroyFindOptions;
+begin
+  if assigned(FCoreWebView2FindOptions) then
+    FreeAndNil(FCoreWebView2FindOptions);
+end;
+
+procedure TWVBrowserBase.DestroyFind;
+begin
+  if assigned(FCoreWebView2Find) then
+    FreeAndNil(FCoreWebView2Find);
 end;
 
 procedure TWVBrowserBase.DestroySettings;
@@ -4415,6 +4572,7 @@ var
   TempSettings      : ICoreWebView2Settings;
   TempPrintSettings : ICoreWebView2PrintSettings;
   TempCoreWebView2  : ICoreWebView2;
+  TempFindOptions   : ICoreWebView2FindOptions;
   TempError         : wvstring;
 begin
   Result            := S_OK;
@@ -4461,6 +4619,12 @@ begin
 
                 if assigned(FCoreWebView2CompositionController) then
                   FCoreWebView2CompositionController.AddAllBrowserEvents(self);
+
+                if FCoreWebView2Environment.CreateFindOptions(TempFindOptions) then
+                  begin
+                    DestroyFindOptions;
+                    FCoreWebView2FindOptions := TCoreWebView2FindOptions.Create(TempFindOptions);
+                  end;
 
                 doOnAfterCreated;
 
@@ -5205,6 +5369,34 @@ begin
     FOnFrameScreenCaptureStarting(self, sender, args, aFrameID);
 end;
 
+procedure TWVBrowserBase.doOnFrameChildFrameCreatedEvent(const sender   : ICoreWebView2Frame;
+                                                         const args     : ICoreWebView2FrameCreatedEventArgs;
+                                                               aFrameID : cardinal);
+begin
+  if assigned(FOnFrameChildFrameCreated) then
+    FOnFrameChildFrameCreated(self, sender, args, aFrameID);
+end;
+
+procedure TWVBrowserBase.doOnFindActiveMatchIndexChangedEvent(const sender : ICoreWebView2Find;
+                                                              const args   : IUnknown);
+begin
+  if assigned(FOnFindActiveMatchIndexChanged) then
+    FOnFindActiveMatchIndexChanged(self, sender, args);
+end;
+
+procedure TWVBrowserBase.doOnFindMatchCountChangedEvent(const sender : ICoreWebView2Find;
+                                                        const args   : IUnknown);
+begin
+  if assigned(FOnFindMatchCountChanged) then
+    FOnFindMatchCountChanged(self, sender, args);
+end;
+
+procedure TWVBrowserBase.doOnFindStartCompletedEvent(errorCode: HResult);
+begin
+  if assigned(FOnFindStartCompleted) then
+    FOnFindStartCompleted(self, errorCode);
+end;
+
 procedure TWVBrowserBase.doOnRetrieveMHTMLCompleted(      aErrorCode          : HRESULT;
                                                     const aReturnObjectAsJson : wvstring);
 var
@@ -5594,6 +5786,30 @@ begin
   doOnFrameScreenCaptureStartingEvent(sender, args, aFrameID);
 end;
 
+function TWVBrowserBase.FrameChildFrameCreatedEventHandler_Invoke(const sender: ICoreWebView2Frame; const args: ICoreWebView2FrameCreatedEventArgs; aFrameID: cardinal): HRESULT;
+begin
+  Result := S_OK;
+  doOnFrameChildFrameCreatedEvent(sender, args, aFrameID);
+end;
+
+function TWVBrowserBase.FindActiveMatchIndexChangedEventHandler_Invoke(const sender: ICoreWebView2Find; const args: IUnknown): HRESULT;
+begin
+  Result := S_OK;
+  doOnFindActiveMatchIndexChangedEvent(sender, args);
+end;
+
+function TWVBrowserBase.FindMatchCountChangedEventHandler_Invoke(const sender: ICoreWebView2Find; const args: IUnknown): HRESULT;
+begin
+  Result := S_OK;
+  doOnFindMatchCountChangedEvent(sender, args);
+end;
+
+function TWVBrowserBase.FindStartCompletedHandler_Invoke(errorCode: HResult): HRESULT;
+begin
+  Result := S_OK;
+  doOnFindStartCompletedEvent(errorCode);
+end;
+
 function TWVBrowserBase.ExecuteScriptCompletedHandler_Invoke(errorCode: HRESULT; result_: PWideChar; aExecutionID : integer): HRESULT;
 begin
   Result := S_OK;
@@ -5691,10 +5907,12 @@ begin
    else
     if FCoreWebView2Environment.CreateCoreWebView2ControllerOptions(TempOptionsIntf, TempHResult) then
       try
-        TempOptions                        := TCoreWebView2ControllerOptions.Create(TempOptionsIntf);
-        TempOptions.ProfileName            := FProfileName;
-        TempOptions.IsInPrivateModeEnabled := FIsInPrivateModeEnabled;
-        TempOptions.ScriptLocale           := FScriptLocale;
+        TempOptions                          := TCoreWebView2ControllerOptions.Create(TempOptionsIntf);
+        TempOptions.ProfileName              := FProfileName;
+        TempOptions.IsInPrivateModeEnabled   := FIsInPrivateModeEnabled;
+        TempOptions.ScriptLocale             := FScriptLocale;
+        TempOptions.DefaultBackgroundColor   := FDefaultBackgroundColor;
+        TempOptions.AllowHostInputProcessing := FAllowHostInputProcessing;
 
         Result := FCoreWebView2Environment.CreateCoreWebView2CompositionControllerWithOptions(FWindowParentHandle,
                                                                                               TempOptions.BaseIntf,
@@ -5759,10 +5977,12 @@ begin
 
   if FCoreWebView2Environment.CreateCoreWebView2ControllerOptions(TempOptionsIntf, TempHResult) then
     try
-      TempOptions                        := TCoreWebView2ControllerOptions.Create(TempOptionsIntf);
-      TempOptions.ProfileName            := FProfileName;
-      TempOptions.IsInPrivateModeEnabled := FIsInPrivateModeEnabled;
-      TempOptions.ScriptLocale           := FScriptLocale;
+      TempOptions                          := TCoreWebView2ControllerOptions.Create(TempOptionsIntf);
+      TempOptions.ProfileName              := FProfileName;
+      TempOptions.IsInPrivateModeEnabled   := FIsInPrivateModeEnabled;
+      TempOptions.ScriptLocale             := FScriptLocale;
+      TempOptions.DefaultBackgroundColor   := FDefaultBackgroundColor;
+      TempOptions.AllowHostInputProcessing := FAllowHostInputProcessing;
 
       Result := FCoreWebView2Environment.CreateCoreWebView2ControllerWithOptions(FWindowParentHandle,
                                                                                  TempOptions.BaseIntf,
@@ -6090,11 +6310,7 @@ begin
   if Initialized then
     Result := FCoreWebView2Controller.DefaultBackgroundColor
    else
-    {$IFDEF DELPHI16_UP}
-    Result := TColors.SysNone;  // clNone
-    {$ELSE}
-    Result := clNone;
-    {$ENDIF}
+    Result := FDefaultBackgroundColor;
 end;
 
 function TWVBrowserBase.GetRasterizationScale : double;
@@ -6357,6 +6573,8 @@ end;
 
 procedure TWVBrowserBase.SetDefaultBackgroundColor(const aValue : TColor);
 begin
+  FDefaultBackgroundColor := aValue;
+
   if Initialized then
     FCoreWebView2Controller.DefaultBackgroundColor := aValue;
 end;
@@ -6584,6 +6802,66 @@ function TWVBrowserBase.ShowSaveAsUI : boolean;
 begin
   Result := Initialized and
             FCoreWebView2.ShowSaveAsUI(self);
+end;
+
+function TWVBrowserBase.FindStart(const aFindTerm : wvstring) : boolean;
+var
+  TempHandler : ICoreWebView2FindStartCompletedHandler;
+begin
+  Result := False;
+
+  if Initialized and assigned(FCoreWebView2FindOptions) then
+    try
+      FCoreWebView2FindOptions.FindTerm := aFindTerm;
+
+      TempHandler := TCoreWebView2FindStartCompletedHandler.Create(self);
+
+      DestroyFind;
+      FCoreWebView2Find := TCoreWebView2Find.Create(FCoreWebView2.Find);
+      FCoreWebView2Find.AddAllBrowserEvents(self);
+      Result := FCoreWebView2Find.Start(FCoreWebView2FindOptions.BaseIntf, TempHandler);
+    finally
+      TempHandler := nil;
+    end;
+end;
+
+function TWVBrowserBase.FindNext : boolean;
+begin
+  Result := False;
+
+  if Initialized then
+    begin
+      DestroyFind;
+      FCoreWebView2Find := TCoreWebView2Find.Create(FCoreWebView2.Find);
+      FCoreWebView2Find.AddAllBrowserEvents(self);
+      Result := FCoreWebView2Find.FindNext;
+    end;
+end;
+
+function TWVBrowserBase.FindPrevious : boolean;
+begin
+  Result := False;
+
+  if Initialized then
+    begin
+      DestroyFind;
+      FCoreWebView2Find := TCoreWebView2Find.Create(FCoreWebView2.Find);
+      FCoreWebView2Find.AddAllBrowserEvents(self);
+      Result := FCoreWebView2Find.FindPrevious;
+    end;
+end;
+
+function TWVBrowserBase.FindStop : boolean;
+begin
+  Result := False;
+
+  if Initialized then
+    begin
+      DestroyFind;
+      FCoreWebView2Find := TCoreWebView2Find.Create(FCoreWebView2.Find);
+      FCoreWebView2Find.AddAllBrowserEvents(self);
+      Result := FCoreWebView2Find.Stop;
+    end;
 end;
 
 function TWVBrowserBase.TrySuspend : boolean;
@@ -6898,7 +7176,6 @@ begin
   TempParams := '{"origin": "' + aOrigin + '", ';
 
   case aStorageTypes of
-    cdstAppCache        : TempParams := TempParams + '"storageTypes": "appcache"}';
     cdstCookies         : TempParams := TempParams + '"storageTypes": "cookies"}';
     cdstFileSystems     : TempParams := TempParams + '"storageTypes": "file_systems"}';
     cdstIndexeddb       : TempParams := TempParams + '"storageTypes": "indexeddb"}';
@@ -6907,6 +7184,10 @@ begin
     cdstWebsql          : TempParams := TempParams + '"storageTypes": "websql"}';
     cdstServiceWorkers  : TempParams := TempParams + '"storageTypes": "service_workers"}';
     cdstCacheStorage    : TempParams := TempParams + '"storageTypes": "cache_storage"}';
+    cdstInterestGroups  : TempParams := TempParams + '"storageTypes": "interest_groups"}';
+    cdstSharedStorage   : TempParams := TempParams + '"storageTypes": "shared_storage"}';
+    cdstStorageBuckets  : TempParams := TempParams + '"storageTypes": "storage_buckets"}';
+    cdstOther           : TempParams := TempParams + '"storageTypes": "other"}';
     else                  TempParams := TempParams + '"storageTypes": "all"}';
   end;
 
