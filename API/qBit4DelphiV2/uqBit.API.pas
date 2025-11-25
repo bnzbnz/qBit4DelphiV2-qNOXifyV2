@@ -426,7 +426,7 @@ begin
   Result := nil;
   var Body := '';
   if qBGet('/app/preferences', Body) = 200 then
-    Result := TJX4Object.FromJSON<TqBitPreferencesType>(Body, [joRaiseException, joRaiseOnMissingField]);
+    Result := TJX4Object.FromJSON<TqBitPreferencesType>(Body, [joRaiseOnException, joRaiseOnMissingField]);
 end;
 
 function TqBitAPI.SetPreferences(Prefs: TqBitPreferencesType): boolean;
@@ -465,7 +465,7 @@ begin
                 [ cBoolToStr[Normal],  cBoolToStr[Info],  cBoolToStr[Warning],  cBoolToStr[Critical], LastKnownId ]
               );
   if qBGet('/log/main', Body) = 200 then
-    Result := TJX4Object.FromJSON<TqBitLogsType>('{"logs":' + Body + '}', [joRaiseException, joRaiseOnMissingField]);
+    Result := TJX4Object.FromJSON<TqBitLogsType>('{"logs":' + Body + '}', [joRaiseOnException, joRaiseOnMissingField]);
 end;
 
 function TqBitAPI.GetPeerLog(LastKnownId: int64 = -1): TqBitPeerLogsType;

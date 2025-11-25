@@ -74,7 +74,6 @@ type
     FDeleted:  TStringList;
   public
     constructor Create;
-    constructor CreateNotOwn; overload;
     destructor  Destroy; override;
 
     function   JSONSerialize(AIOBlock: TJX4IOBlock): TValue;
@@ -100,10 +99,9 @@ type
 
    TJX4Lst<V:class, constructor> = class(TJX4List<V>);
 
-   TJX4ListNotOwn<V:class, constructor> = class(TJX4List<V>)
+   TJX4ListNotOwned<V:class, constructor> = class(TJX4List<V>)
    public
     constructor Create; overload;
-    destructor  Destroy; override;
    end;
 
    MyTThread = class(TThread); // TThread Protected Access
@@ -115,6 +113,7 @@ uses
   , uJX4Value
   , JSON
   , System.TypInfo
+  , Threading
   ;
 
 { TJX4ListOfValues }
@@ -138,11 +137,17 @@ begin
   try
     Result := TJX4ListOfValues.Create;
     TxRTTI.CallMethodProc('JSONClone', Self, [Result, TValue.From<TJX4Options>(AOptions)]);
-  except
+ except
+    on TJX4ExceptionAborted do
+    begin
+      FreeAndNIl(Result);
+      if joRaiseOnAbort in AOptions then raise;
+      Exit;
+    end;
     on Ex: Exception do
     begin
-      FreeAndNil(Result);
-      if joRaiseException in AOptions then Raise;
+      FreeAndNIl(Result);
+      if joRaiseOnException in AOptions then raise;
     end;
   end;
 end;
@@ -153,7 +158,10 @@ var
 begin
   ADestList.Clear;
   for LList in Self do
+  begin
+    TJX4Object.RaiseIfCanceled(AOptions);
     ADestList.Add(LList);
+  end;
 end;
 
 procedure TJX4ListOfValues.JSONDeserialize(AIOBlock: TJX4IOBlock);
@@ -169,26 +177,31 @@ begin
   if AIOBlock.JObj.Pairs[0].JsonValue.Null then begin Clear; Exit end;;
   if not (AIOBlock.JObj.Pairs[0].JsonValue is TJSONArray) then begin Clear; Exit end;
 
+  TJX4Object.RaiseIfCanceled(AIOBlock.Options);
+
   LIOBlock := TJX4IOBlock.Create;
-  for LEle in TJSONArray(AIOBlock.JObj.Pairs[0].JsonValue) do
-  begin
-    if LELe is TJSONObject then
+  try
+    for LEle in TJSONArray(AIOBlock.JObj.Pairs[0].JsonValue) do
     begin
-      LJObj :=  LEle as TJSONObject;
-      LIOBlock.Init(AIOBlock.JsonName, LJObj, AIOBlock.Field, AIOBlock.Options);
-      LTValue.JSONDeserialize(LIOBlock);
-      Add(LTValue);
-    end else begin
+      TJX4Object.RaiseIfCanceled(AIOBlock.Options);
+      if not (LELe is TJSONValue) then raise Exception.Create('TJX4ListOfValues element must be a TValue (JX4ListOfValues.JSONDeserialize)');
+
       LEle.Owned := False;
-      LJObj :=  TJSONObject.Create(TJSONPair.Create('', LEle));
-      LIOBlock.Init(AIOBlock.JsonName, LJObj, AIOBlock.Field, AIOBlock.Options);
-      LTValue.JSONDeserialize(LIOBlock);
-      Add(LTValue);
-      LJObj.Free;;
-      LEle.Owned := True;
-    end;
+      LJObj := TJSONObject.Create(TJSONPair.Create('', LEle));
+      try
+        LIOBlock.Init(AIOBlock.JsonName, LJObj, AIOBlock.Field, AIOBlock.Options);
+        LTValue.JSONDeserialize(LIOBlock);
+        Add(LTValue);
+      finally
+        LJObj.Free;
+        LEle.Owned := True;
+      end;
+
+     end;
+  finally
+    LIOBlock.Free;
   end;
-  LIOBlock.Free;
+
 end;
 
 function TJX4ListOfValues.JSONSerialize(AIOBlock: TJX4IOBlock): TValue;
@@ -202,6 +215,7 @@ var
   LTValue:    TValue;
 begin
   Result := TValue.Empty;
+  TJX4Object.RaiseIfCanceled(AIOBlock.Options);
 
   LName := AIOBlock.JsonName;
   if Assigned(AIOBlock) and Assigned(AIOBlock.Field) then
@@ -230,7 +244,7 @@ begin
   try
     for LEle in Self do
     begin
-      if MyTThread(TThread.Current).Terminated then Exit;
+      TJX4Object.RaiseIfCanceled(AIOBlock.Options);
       LIOBlock.Init('', Nil, Nil, AIOBlock.Options);
       LTValue := LEle.JSONSerialize(LIOBlock);
       if not LTValue.IsEmpty then LParts.Add(LTValue.AsString);
@@ -248,12 +262,14 @@ end;
 
 function TJX4ListOfValues.First: TValue;
 begin
-  Result := Self[0];
+  Result := Nil;
+  if Self.Count >0 then Result := Self[0];
 end;
 
 function TJX4ListOfValues.Last: TValue;
 begin
-  Result := Self[Count - 1];
+  Result := Nil;
+  if Self.Count >0 then Result := Self[Count - 1];
 end;
 
 class function TJX4ListOfValues.New: TJX4ListOfValues;
@@ -275,18 +291,39 @@ end;
 
 function TJX4ListOfValues.SaveToJSONFile(const AFilename: string; AOptions: TJX4Options = [joNullToEmpty]; AEncoding: TEncoding = Nil; AZipIT: TCompressionLevel = clNone; AUseBOM: Boolean = False): Int64;
 begin
-  if not Assigned(AEncoding) then AEncoding := TEncoding.UTF8;
-  Result := TJX4Object.SaveToFile(AFilename, TJX4Object.ToJSON(Self, AOptions), AEncoding, AZipIT, AUseBOM);
+  try
+    TJX4Object.RaiseIfCanceled(AOptions);
+    if not Assigned(AEncoding) then AEncoding := TEncoding.UTF8;
+    Result := TJX4Object.SaveToFile(AFilename, TJX4Object.ToJSON(Self, AOptions), AEncoding, AZipIT, AUseBOM);
+  except
+    on TJX4ExceptionAborted do
+    begin
+      Result := -1;
+      if joRaiseOnAbort in AOptions then raise;
+      Exit;
+    end;
+    on Ex: Exception do
+    begin
+      Result := -1;
+      if joRaiseOnException in AOptions then raise;
+    end;
+  end;
 end;
 
 procedure TJX4ListOfValues.Merge(AMergedWith: TJX4ListOfValues; AOptions: TJX4Options);
 begin
   try
+    TJX4Object.RaiseIfCanceled(AOptions);
     TxRTTI.CallMethodProc('JSONMerge', Self, [ AMergedWith, TValue.From<TJX4Options>(AOptions) ]);
   except
+    on TJX4ExceptionAborted do
+    begin
+      if joRaiseOnAbort in AOptions then raise;
+      Exit;
+    end;
     on Ex: Exception do
     begin
-      if joRaiseException in AOptions then Raise;
+      if joRaiseOnException in AOptions then raise;
     end;
   end;
 end;
@@ -360,10 +397,16 @@ begin
   if Count = 0 then Exit;
   for LList in Self do
   begin
+    TJX4Object.RaiseIfCanceled(AOptions);
     LNewObj := T.Create;
-    TxRTTI.CallMethodProc('JSONCreate', LNewObj, [True]);
-    TxRTTI.CallMethodProc('JSONClone', LList, [LNewObj, TValue.From<TJX4Options>(AOptions)]);
-    ADestList.Add(LNewObj);
+    try
+      TxRTTI.CallMethodProc('JSONCreate', LNewObj, [True]);
+      TxRTTI.CallMethodProc('JSONClone', LList, [LNewObj, TValue.From<TJX4Options>(AOptions)]);
+      ADestList.Add(LNewObj);
+    except
+      FreeAndNil(LNewObj);
+      raise;
+    end;
    end;
 end;
 
@@ -384,25 +427,38 @@ begin
   try
     for LEle in TJSONArray(AIOBlock.JObj.Pairs[0].JsonValue) do
     begin
-      if MyTThread(TThread.Current).Terminated then Exit;
+      TJX4Object.RaiseIfCanceled(AIOBlock.Options);
       if LELe is TJSONObject then
       begin
         LNewObj := T.Create;
-        TxRTTI.CallMethodProc('JSONCreate', LNewObj, [True]);
+        try
+          TxRTTI.CallMethodProc('JSONCreate', LNewObj, [True]);
+          LJObj :=  LEle as TJSONObject;
+          LIOBlock.Init(AIOBlock.JsonName, LJObj, AIOBlock.Field, AIOBlock.Options);
+          TxRTTI.CallMethodProc( 'JSONDeserialize', LNewObj, [ LIOBlock ] );
+        except
+          FreeAndNil(LNewObj);
+          raise;
+        end;
         Add(LNewObj);
-        LJObj :=  LEle as TJSONObject;
-        LIOBlock.Init(AIOBlock.JsonName, LJObj, AIOBlock.Field, AIOBlock.Options);
-        TxRTTI.CallMethodProc( 'JSONDeserialize', LNewObj, [ LIOBlock ] );
       end else begin
         LNewObj := T.Create;
         TxRTTI.CallMethodProc('JSONCreate', LNewObj, [True]);
-        Add(LNewObj);
         LEle.Owned := False;
         LJObj :=  TJSONObject.Create(TJSONPair.Create('', LEle));
         LIOBlock.Init(AIOBlock.JsonName, LJObj, AIOBlock.Field, AIOBlock.Options);
-        TxRTTI.CallMethodProc( 'JSONDeserialize', LNewObj, [ LIOBlock ] );
-        LJObj.Free;;
-        LEle.Owned := True;
+        try
+          try
+            TxRTTI.CallMethodProc( 'JSONDeserialize', LNewObj, [ LIOBlock ] );
+          except
+            FreeAndNil(LNewObj);
+            raise;
+          end;
+          Add(LNewObj);
+        finally
+          LEle.Owned := True;
+          FreeAndNil(LJObj);
+        end;
       end;
     end;
   finally
@@ -419,10 +475,16 @@ begin
   begin
     for AList in AMergedWith do
     begin
+      TJX4Object.RaiseIfCanceled(AOptions);
       LObj := T.Create;
-      TxRTTI.CallMethodProc('JSONCreate', LObj, [True]);
-      TxRTTI.CallMethodProc('JSONMerge', LObj, [ AList, TValue.From<TJX4Options>(AOptions)]);
-      Self.Add(LObj);
+      try
+        TxRTTI.CallMethodProc('JSONCreate', LObj, [True]);
+        TxRTTI.CallMethodProc('JSONMerge', LObj, [ AList, TValue.From<TJX4Options>(AOptions)]);
+        Self.Add(LObj);
+      except
+        FreeAndNil(LObj);
+        raise;
+      end;
     end
   end;
 end;
@@ -438,7 +500,7 @@ var
   LTValue:    TValue;
 begin
   Result := TValue.Empty;
-
+  TJX4Object.RaiseIfCanceled(AIOBlock.Options);
   LName := AIOBlock.JsonName;
   if Assigned(AIOBlock) and Assigned(AIOBlock.Field) then
   begin
@@ -463,20 +525,24 @@ begin
   LParts := TList<string>.Create;
   LParts.Capacity := Self.Count;
   LIOBlock := TJX4IOBlock.Create;
-  for LEle in Self do
-  begin
-    LIOBlock.Init('', Nil, Nil, AIOBlock.Options);
-    LTValue := TxRTTI.CallMethodFunc('JSONSerialize', LEle, [ LIOBlock ]);
-    if not LTValue.IsEmpty then LParts.Add(LTValue.AsString);
+  try
+    for LEle in Self do
+    begin
+      LIOBlock.Init('', Nil, Nil, AIOBlock.Options);
+      LTValue := TxRTTI.CallMethodFunc('JSONSerialize', LEle, [ LIOBlock ]);
+      if not LTValue.IsEmpty then LParts.Add(LTValue.AsString);
   end;
-  LIOBlock.Free;
-  LRes := TJX4Object.JsonListToJsonString(LParts);
+  finally
+    LRes := TJX4Object.JsonListToJsonString(LParts);
+    LParts.Free;
+    LIOBlock.Free;
+  end;
 
   if LName.IsEmpty then
     Result := '[' + LRes + ']'
   else
     Result := '"' + LName + '":[' + LRes + ']';
-  LParts.Free;
+
 end;
 
 function TJX4List<T>.Clone<V>(AOptions: TJX4Options): V;
@@ -485,23 +551,33 @@ begin
     Result := V.Create;
     TxRTTI.CallMethodProc('JSONCreate', Result, [True]);
     TxRTTI.CallMethodProc('JSONClone', Self, [Result, TValue.From<TJX4Options>(AOptions)]);
-  except
-    on Ex: Exception do
-    begin
-      FreeAndNil(Result);
-      if joRaiseException in AOptions then Raise;
+    except
+      on TJX4ExceptionAborted do
+      begin
+        FreeAndNil(Result);
+        if joRaiseOnAbort in AOptions then raise;
+        Exit;
+      end;
+      on Ex: Exception do
+      begin
+        FreeAndNil(Result);
+        if joRaiseOnException in AOptions then raise;
+      end;
     end;
-  end;
 end;
 
 function TJX4List<T>.First: T;
 begin
-  Result := Self[0];
+  Result := Nil;
+  if Count > 0 then
+    Result := Self[0];
 end;
 
 function TJX4List<T>.Last: T;
 begin
-  Result := Self[Count - 1];
+  Result := Nil;
+  if Count > 0 then
+    Result := Self[Count - 1];
 end;
 
 class function TJX4List<T>.New: TJX4List<T>;
@@ -526,7 +602,7 @@ begin
   Result := -1;
   for var i := 0 to Self.count - 1  do
   begin
-    case Self.Items[i].TypeKind of
+      case Self.Items[i].TypeKind of
       tkvString:
         if CompareText(From.AsString, Self.Items[i].AsString) = 0 then
         begin
@@ -545,6 +621,12 @@ begin
           Result := i;
           Break;
         end;
+      tkvBool:
+        if (From.AsBoolean = Self.Items[i].AsBoolean) then
+        begin
+          Result := i;
+          Break;
+        end
     end;
   end;
 end;
@@ -564,6 +646,7 @@ begin
   end;
   for var i := AMergedWith.Count  - 1 downto 0 do
   begin
+    TJX4Object.RaiseIfCanceled(AOptions);
     var LIdx := Self.IndexOfTValue(AMergedWith.Items[i]);
     if (jmoAdd in AOptions)  and (LIdx = -1)  then
     begin
@@ -580,8 +663,22 @@ end;
 
 function TJX4List<T>.SaveToJSONFile(const AFilename: string; AOptions: TJX4Options; AEncoding: TEncoding; AZipIT: TCompressionLevel; AUseBOM: Boolean): Int64;
 begin
-  if not Assigned(AEncoding) then AEncoding := TEncoding.UTF8;
-  Result := TJX4Object.SaveToFile(AFilename, TJX4Object.ToJSON(Self, AOptions), AEncoding, AZipIt, AUseBOM);
+  try
+    if not Assigned(AEncoding) then AEncoding := TEncoding.UTF8;
+    Result := TJX4Object.SaveToFile(AFilename, TJX4Object.ToJSON(Self, AOptions), AEncoding, AZipIt, AUseBOM);
+  except
+    on TJX4ExceptionAborted do
+    begin
+      Result := -1;
+      if joRaiseOnAbort in AOptions then raise;
+      Exit;
+    end;
+    on Ex: Exception do
+    begin
+       Result := -1;
+       if joRaiseOnException in AOptions then raise;
+    end;
+  end;
 end;
 
 procedure TJX4List<T>.JSONClear;
@@ -589,21 +686,12 @@ begin
   Self.Clear;
 end;
 
-constructor TJX4List<T>.CreateNotOwn;
-begin
-  inherited Create(False);
-end;
-
 { TJX4ListNull<V> }
 
-constructor TJX4ListNotOwn<V>.Create;
+constructor TJX4ListNotOwned<V>.Create;
 begin
-  inherited CreateNotOwn;
-end;
-
-destructor TJX4ListNotOwn<V>.Destroy;
-begin
-  inherited;
+  inherited Create;
+  Self.OwnsObjects := False;
 end;
 
 end.
