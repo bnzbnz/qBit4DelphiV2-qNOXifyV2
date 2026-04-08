@@ -43,7 +43,7 @@ var
   Srvs: TObjectList<TqBitServer>;
   Th : TqBitThread;
 begin
-  var Config := TJX4Object.LoadFromJSONFile<TqBitServers>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+  var Config := TJX4Object.LoadFromJSONFile<TqBitServers>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json');
   if not assigned(Config) then Config := TqBitServers.Create;
   qBitSelectServerDlg.LoadConfig(Config);
 
@@ -51,7 +51,7 @@ begin
   if qBitSelectServerDlg.ShowModal = mrOk then
   begin
     qBitSelectServerDlg.SaveConfig(Config);
-    Config.SaveToJSONFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+    Config.SaveToJSONFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json');
 
 
     UpdateHeaders;
@@ -124,16 +124,16 @@ begin
       (M.server_state.up_info_data.AsExtended / Max(Int64(M.server_state.dl_info_data.AsInt64), 1)),
       (M.server_state.alltime_ul.AsInt64 / M.server_state.alltime_dl.AsInt64)
     ]);
-  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.dl_info_data.ToBKiBMiB;
-  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.up_info_data.ToBKiBMiB;
-  Inc(C); SG.Cells[C, Thread.RowIndex] := TValue(Traffic).ToBKiBMiB;
-  Inc(C); SG.Cells[C, Thread.RowIndex] := TValue(Delta).ToBKiBMiB;
+  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.dl_info_data.ToKiBMiBGiBTiB;
+  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.up_info_data.ToKiBMiBGiBTiB;
+  Inc(C); SG.Cells[C, Thread.RowIndex] := TValue(Traffic).ToKiBMiBGiBTiB;
+  Inc(C); SG.Cells[C, Thread.RowIndex] := TValue(Delta).ToKiBMiBGiBTiB;
   Inc(C); SG.Cells[C, Thread.RowIndex] := TValue(Efficiency).ToPercent;
 
-  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.dl_info_speed.ToBKiBMiB + '/s';
-  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.up_info_speed.ToBKiBMiB + '/s';
+  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.dl_info_speed.ToKiBMiBGiBTiB + '/s';
+  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.up_info_speed.ToKiBMiBGiBTiB + '/s';
   Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.read_cache_hits.AsString;
-  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.free_space_on_disk.ToBKiBMiB;
+  Inc(C); SG.Cells[C, Thread.RowIndex] := M.server_state.free_space_on_disk.ToKiBMiBGiBTiB;
 
 end;
 

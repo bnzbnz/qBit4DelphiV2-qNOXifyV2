@@ -4,7 +4,7 @@ object qBitSelectServerDlg: TqBitSelectServerDlg
   BorderStyle = bsDialog
   Caption = 'Select a qBittorrent Server :'
   ClientHeight = 264
-  ClientWidth = 503
+  ClientWidth = 505
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,7 +16,7 @@ object qBitSelectServerDlg: TqBitSelectServerDlg
   OnDestroy = FormDestroy
   OnShow = FormShow
   DesignSize = (
-    503
+    505
     264)
   TextHeight = 13
   object Bevel1: TBevel

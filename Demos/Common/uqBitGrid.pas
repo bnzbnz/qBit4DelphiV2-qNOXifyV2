@@ -40,7 +40,7 @@ const
 
   MAXCOL = 100;
   MAXROW = 1000;
-  ROWHEIGHT = 18;
+  ROWHEIGHT = 24;
   NoSelection: TGridRect = (Left: 0; Top: -1; Right: 0; Bottom: -1);
 
 type
@@ -159,6 +159,7 @@ uses
   , uJX4Rtti
   , uJX4Value
   , System.TypInfo
+  , DateUtils
   ;
 
 {$R *.dfm}
@@ -171,13 +172,13 @@ end;
 function TValueFormatDate(v: TValue): string;
 begin
   if v.ToString.IsEmpty then Exit('');
-  Result := DateTimeToStr(v.Timestamp);
+  Result := DateTimeToStr(UnixToDateTime(v.ToInteger));
 end;
 
 function TValueFormatBKM(v: TValue): string;
 begin
   if v.ToString.IsEmpty then Exit('0 B');
-  Result := V.ToBKiBMiB;
+  Result := V.ToKiBMiBGiBTiB;
 end;
 
 function TValueFormatBKMPerSec(v: TValue): string;
@@ -213,15 +214,17 @@ begin
 end;
 
 function TValueFormatDeltaSec(v: TValue): string;
+var
+  x: Int64;
 begin
-  if v.ToString.IsEmpty then Exit('0');
-  Result := v.FromSecFromNow;
+  if v.TypeKind = tkvString then x := v.AsString.ToInt64 else x := v.AsInt64;
+  if x = 8640000 then Result := '∞' else  Result := DateTimeToStr(IncSecond(Now, x));
 end;
 
 function TValueFormatDuration(v: TValue): string;
 begin
   if v.ToString.IsEmpty then Exit('0');
-  Result := v.FromSecToDuration;
+  Result := v.Duration;
 end;
 
 function TitleCase(const S: string): string;

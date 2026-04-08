@@ -1,25 +1,34 @@
 object FrmSTG: TFrmSTG
   Left = 0
   Top = 0
+  Margins.Left = 5
+  Margins.Top = 5
+  Margins.Right = 5
+  Margins.Bottom = 5
   Caption = 'Simple Threaded Grid'
-  ClientHeight = 431
-  ClientWidth = 961
+  ClientHeight = 672
+  ClientWidth = 1451
   Color = clBtnFace
   DefaultMonitor = dmMainForm
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
+  Font.Height = -17
   Font.Name = 'Tahoma'
   Font.Style = []
   Position = poScreenCenter
   OnClose = FormClose
   OnShow = FormShow
-  TextHeight = 13
+  PixelsPerInch = 144
+  TextHeight = 21
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 961
-    Height = 26
+    Width = 1451
+    Height = 39
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Align = alTop
     Color = clGradientActiveCaption
     ParentBackground = False
@@ -27,19 +36,26 @@ object FrmSTG: TFrmSTG
   end
   inline MainFrame: TqBitFrame
     Left = 0
-    Top = 26
-    Width = 961
-    Height = 405
+    Top = 39
+    Width = 1451
+    Height = 633
+    Margins.Left = 8
+    Margins.Top = 8
+    Margins.Right = 8
+    Margins.Bottom = 8
     Align = alClient
     TabOrder = 1
-    ExplicitTop = 26
-    ExplicitWidth = 961
-    ExplicitHeight = 405
+    ExplicitTop = 39
+    ExplicitWidth = 1451
+    ExplicitHeight = 633
     inherited SG: TStringGrid
-      Width = 961
-      Height = 405
-      ExplicitWidth = 961
-      ExplicitHeight = 405
+      Width = 1451
+      Height = 633
+      Font.Height = -17
+      Font.Name = 'Tahoma'
+      ParentFont = False
+      ExplicitWidth = 1451
+      ExplicitHeight = 633
     end
   end
   object MainPopup: TPopupMenu

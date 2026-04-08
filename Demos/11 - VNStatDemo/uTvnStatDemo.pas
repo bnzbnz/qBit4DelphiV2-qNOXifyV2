@@ -46,8 +46,8 @@ begin
     Vns.Free;
     exit;
   end;
-  Memo1.Lines.Add(Format('tx: %s ', [M.tx.ToBKiBMiB]));
-  Memo1.Lines.Add(Format('rx: %s ', [M.rx.ToBKiBMiB]));
+  Memo1.Lines.Add(Format('tx: %s ', [M.tx.ToKiBMiBGiBTiB]));
+  Memo1.Lines.Add(Format('rx: %s ', [M.rx.ToKiBMiBGiBTiB]));
   Memo1.Lines.Add(Format('Total: %8.2f TiB, %8.2f TB', [
     (M.tx.ToTiB + M.rx.ToTiB),
     (M.tx.ToTB + M.rx.ToTB)

@@ -34,18 +34,28 @@ uses
 
 const
 
-    CqBitAPI_WebAPIVersion = $020B03;
+  CqBitAPI_WebAPIVersion = $020B03;  // 2.11.3
 
 type
 
   TqBitBuildInfoType = class(TJX4Object)
-    bitness : TValue; // Num
-    boost : TValue; // Str
-    libtorrent : TValue; // Str
-    openssl : TValue; // Str
+    bitness: TValue; // Num
+    boost: TValue; // Str
+    libtorrent: TValue; // Str
+    openssl: TValue; // Str
     qt : TValue; // Str
     zlib: TValue; // Str
   end;
+
+  TqBitCookie = class(TJX4Object)
+    name: TValue; // String	Cookie name
+    domain: TValue; // String Cookie domain
+    path: TValue; //	String	Cookie path
+    value: TValue;	// String	Cookie value
+    expirationDate: TValue; // Num Integer	integer
+  end;
+
+  TqBitCookies = TJX4List<TqBitCookie>;
 
   TqBitPreferencesType = class(TJX4Object)
   public
@@ -53,21 +63,26 @@ type
     add_to_top_of_queue: TValue; // Bool
     add_trackers: TValue; // TValue; // Str
     add_trackers_enabled: TValue; // Bool
+    add_trackers_from_url_enabled: TValue; // Bool
+    add_trackers_url: TValue; // Num
+    add_trackers_url_list: TValue; // String
+    alternative_webui_enabled: TValue; // Bool
+    alternative_webui_path: TValue; // String
     alt_dl_limit: TValue; // Num
     alt_up_limit: TValue; // Num
-    alternative_webui_enabled: TValue; // Bool
     announce_ip: TValue; // Str
+    announce_port: TValue; // Num
     announce_to_all_tiers: TValue; // Bool
     announce_to_all_trackers: TValue; // Bool
     anonymous_mode: TValue; // Bool
     app_instance_name: TValue; // Str
     async_io_threads: TValue; // Num
-    auto_delete_mode: TValue; // Bool
-    auto_tmm_enabled: TValue; // Bool
     autorun_enabled: TValue; // Bool
     autorun_on_torrent_added_enabled: TValue; // Bool
     autorun_on_torrent_added_program: TValue; // Str
     autorun_program: TValue; // Str
+    auto_delete_mode: TValue; // Bool
+    auto_tmm_enabled: TValue; // Bool
     banned_IPs: TValue; // Str
     bdecode_depth_limit: TValue; // Num
     bdecode_token_limit: TValue; // Num
@@ -78,6 +93,8 @@ type
     bypass_local_auth: TValue; // Bool
     category_changed_tmm_enabled: TValue; // Bool
     checking_memory_use: TValue; // Num
+    confirm_torrent_deletion: TValue; // Bool
+    confirm_torrent_recheck: TValue; // Bool
     connection_speed: TValue; // Num
     current_interface_address: TValue; // Str
     current_interface_name: TValue; // Str
@@ -205,13 +222,15 @@ type
     save_path: TValue; // Str
     save_path_changed_tmm_enabled: TValue; // Bool
     save_resume_data_interval: TValue; // Num
+    save_statistics_interval: TValue; // Num
     scan_dirs: TJX4ValDict; // Num
-    schedule_from_hour: TValue; // Num
-    schedule_from_min: TValue; // Num
     scheduler_days: TValue; // Num
     scheduler_enabled: TValue; // Bool
+    schedule_from_hour: TValue; // Num
+    schedule_from_min: TValue; // Num
     schedule_to_hour: TValue; // Num
     schedule_to_min: TValue; // Num
+    send_buffer_low_watermark: TValue; //
     send_buffer_watermark: TValue; // Num
     send_buffer_watermark_factor: TValue; // Num
     slow_torrent_dl_rate_threshold: TValue; // Num
@@ -223,7 +242,8 @@ type
     ssl_enabled: TValue; // Bool
     ssl_listen_port: TValue; // Bool
     ssrf_mitigation: TValue; // Bool
-    stop_tracker_timeou: TValue; // Num
+    status_bar_external_ip: TValue; // Bool
+    stop_tracker_timeout: TValue; // Num
     temp_path: TValue; // Str
     temp_path_enabled: TValue; // Bool
     torrent_changed_tmm_enabled: TValue; // Bool
@@ -231,11 +251,11 @@ type
     torrent_content_remove_option: TValue; // Str
     torrent_file_size_limit: TValue; // Str
     torrent_stop_condition: TValue; // Str
-    up_limit: TValue; // Num
     upload_choking_algorithm: TValue; // Num
     upload_slots_behavior: TValue; // Num
     upnp: TValue; // Bool
     upnp_lease_duration: TValue; // Num
+    up_limit: TValue; // Num
     use_category_paths_in_manual_mode: TValue; // Bool
     use_https: TValue; // Bool
     use_subcategories: TValue; // Bool
@@ -258,8 +278,8 @@ type
     web_ui_secure_cookie_enabled: TValue; // Bool
     web_ui_session_timeout: TValue; // Num
     web_ui_upnp: TValue; // Bool
-    web_ui_use_custom_http_headers_enabled: TValue; // Bool
     web_ui_username: TValue; // Str
+    web_ui_use_custom_http_headers_enabled: TValue; // Bool
   end;
 
   TqBitLogType = class(TJX4Object)

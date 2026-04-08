@@ -48,6 +48,8 @@ object FrmSTG: TFrmSTG
     ParentShowHint = False
     ShowHint = True
     OnClick = StatusBar1Click
+    ExplicitTop = 660
+    ExplicitWidth = 1437
   end
   object PCMain: TPageControl
     Left = 0
@@ -67,14 +69,18 @@ object FrmSTG: TFrmSTG
         Height = 3
         Cursor = crVSplit
         Align = alBottom
-        ExplicitTop = 33
-        ExplicitWidth = 395
+        ExplicitTop = 458
+        ExplicitWidth = 1438
       end
       inline MainFrame: TqBitFrame
         Left = 0
         Top = 33
         Width = 1435
         Height = 421
+        Margins.Left = 5
+        Margins.Top = 5
+        Margins.Right = 5
+        Margins.Bottom = 5
         Align = alClient
         TabOrder = 0
         ExplicitTop = 33
@@ -84,6 +90,9 @@ object FrmSTG: TFrmSTG
           Width = 1435
           Height = 421
           FixedCols = 2
+          Font.Height = -11
+          Font.Name = 'Tahoma'
+          ParentFont = False
           ExplicitWidth = 1435
           ExplicitHeight = 421
           ColWidths = (
@@ -1225,6 +1234,10 @@ object FrmSTG: TFrmSTG
             Top = 0
             Width = 1427
             Height = 164
+            Margins.Left = 5
+            Margins.Top = 5
+            Margins.Right = 5
+            Margins.Bottom = 5
             Align = alClient
             TabOrder = 0
             ExplicitWidth = 1427
@@ -1232,6 +1245,9 @@ object FrmSTG: TFrmSTG
             inherited SG: TStringGrid
               Width = 1427
               Height = 164
+              Font.Height = -11
+              Font.Name = 'Tahoma'
+              ParentFont = False
               ExplicitWidth = 1427
               ExplicitHeight = 164
             end
@@ -1245,6 +1261,10 @@ object FrmSTG: TFrmSTG
             Top = 0
             Width = 1427
             Height = 164
+            Margins.Left = 5
+            Margins.Top = 5
+            Margins.Right = 5
+            Margins.Bottom = 5
             Align = alClient
             TabOrder = 0
             ExplicitWidth = 1427
@@ -1252,6 +1272,9 @@ object FrmSTG: TFrmSTG
             inherited SG: TStringGrid
               Width = 1427
               Height = 164
+              Font.Height = -11
+              Font.Name = 'Tahoma'
+              ParentFont = False
               ExplicitWidth = 1427
               ExplicitHeight = 164
             end
@@ -1269,6 +1292,7 @@ object FrmSTG: TFrmSTG
         Height = 33
         Align = alTop
         TabOrder = 0
+        ExplicitWidth = 1429
         object Label1: TLabel
           Left = 1271
           Top = 1
@@ -1289,8 +1313,9 @@ object FrmSTG: TFrmSTG
           Items.Strings = (
             'https://google.com'
             'https://fitgirl-repacks.site'
-            'https://ygg.re'
-            'https://DelphiFan.com')
+            'https://c411.org/'
+            'https://ext.to/'
+            'https://delphifan.com')
         end
         object BackBtn: TButton
           Left = 0
@@ -1361,6 +1386,8 @@ object FrmSTG: TFrmSTG
         Align = alClient
         TabOrder = 1
         Browser = WVBrowser1
+        ExplicitWidth = 1429
+        ExplicitHeight = 599
       end
     end
   end

@@ -13,6 +13,7 @@ uses
   , uqBitSelectServerDlg
   , uJX4Object
   , uJX4Dict
+  , uJX4lIST
   , RTTI
   , Winapi.ActiveX, uWVWinControl, uWVWindowParent, uWVBrowserBase, uWVBrowser, uWVLoader, uWVTypeLibrary, uWVCoreWebView2Args, uWVTypes, uWVCoreWebView2DownloadOperation
   ;
@@ -235,6 +236,7 @@ uses
   , System.Net.HttpClientComponent
   , NetConsts
   , uAbout
+  , DateUtils
   ;
 
 function TValueFormatTrackerStatus(v: TValue): string;
@@ -500,12 +502,13 @@ var
   Http: THTTPClient;
   ResST: TStringStream;
 begin
+  Res := Nil;
   if qB <> Nil then Exit;
   try
     Http := THTTPClient.Create;
     ResST := TStringStream.Create;
     try
-      try Res := Http.Get('http://qNOXifyV2.dyndns.org/', ResST); except end;
+      //try Res := Http.Get('http://qnoxifyv2.dyndns.org/qNOXifyV2/servers.txt', ResST); except end;
       if Assigned(Res) then
       begin
         if Res.StatusCode = 200  then
@@ -525,7 +528,7 @@ begin
   except end;
 
   MainThread := Nil; Config := Nil;
-  Config := TJX4Object.LoadFromJSONFile<TJsonPrefs>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+  Config := TJX4Object.LoadFromJSONFile<TJsonPrefs>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json');
   if not assigned(Config) then Config := TJsonPrefs.Create;
   qBitSelectServerDlg.LoadConfig(Config.Servers);
   if qBitSelectServerDlg.ShowModal = mrOk then
@@ -1221,10 +1224,10 @@ begin
       StatusBar1.Panels[3].Text := '';
       if M.Main.server_state.use_alt_speed_limits.AsBoolean then StatusBar1.Panels[3].Text := 'Alt. Speed   ';
       StatusBar1.Panels[3].Text := StatusBar1.Panels[3].Text +
-        '🡹 ' + M.Main.server_state.up_info_speed.ToBKiBMiB + '/s'
-        + ' (' + M.Main.server_state.alltime_ul.ToBKiBMiB + ') '
-          + '🡻 ' + M.Main.server_state.dl_info_speed.ToBKiBMiB + '/s'
-        + ' (' + M.Main.server_state.alltime_dl.ToBKiBMiB + ') ';
+        '🡹 ' + M.Main.server_state.up_info_speed.ToKiBMiBGiBTiB + '/s'
+        + ' (' + M.Main.server_state.alltime_ul.ToKiBMiBGiBTiB + ') '
+          + '🡻 ' + M.Main.server_state.dl_info_speed.ToKiBMiBGiBTiB + '/s'
+        + ' (' + M.Main.server_state.alltime_dl.ToKiBMiBGiBTiB + ') ';
 
       if Self.TabSheet1.Visible then
       begin
@@ -1237,26 +1240,26 @@ begin
           SGG.ColWidths[3] := 64;
           var Col := 1;
           var Row := 1;
-          SGG.Cells[Col + 0, Row]     := 'Time Active: ';   SGG.Cells[Col + 1, Row] := Torrent.time_active.FromSecToDuration;
-          SGG.Cells[Col + 0, Row + 1] := 'Downloaded: ';     SGG.Cells[Col + 1, Row + 1] := Torrent.downloaded.ToBKiBMiB + ' (' + Torrent.downloaded_session.ToBKiBMiB +  ' this session)';
-          SGG.Cells[Col + 0, Row + 2] := 'Download Speed: '; SGG.Cells[Col + 1, Row + 2] := Torrent.dlspeed.ToBKiBMiB + '/s';
+          SGG.Cells[Col + 0, Row]     := 'Time Active: ';   SGG.Cells[Col + 1, Row] := Torrent.time_active.Duration;
+          SGG.Cells[Col + 0, Row + 1] := 'Downloaded: ';     SGG.Cells[Col + 1, Row + 1] := Torrent.downloaded.ToKiBMiBGiBTiB + ' (' + Torrent.downloaded_session.ToKiBMiBGiBTiB +  ' this session)';
+          SGG.Cells[Col + 0, Row + 2] := 'Download Speed: '; SGG.Cells[Col + 1, Row + 2] := Torrent.dlspeed.ToKiBMiBGiBTiB + '/s';
           SGG.Cells[Col + 0, Row + 3] := 'Download Limit: '; SGG.Cells[Col + 1, Row + 3] := Torrent.dl_limit.ToLimit;
           SGG.Cells[Col + 0, Row + 4] := 'Share Ratio: '; SGG.Cells[Col + 1, Row + 4] := Torrent.ratio.ToPercent(4, False);
           SGG.Cells[Col + 0, Row + 5] := 'Popularity: '; SGG.Cells[Col + 1, Row + 5] := Torrent.popularity.ToString(4);
-          SGG.Cells[Col + 0, Row + 6] := 'ETA: '; SGG.Cells[Col + 1, Row + 6] := Torrent.eta.FromSecToDuration;
-          SGG.Cells[Col + 0, Row + 7] := 'Reannounce in: '; SGG.Cells[Col + 1, Row + 7] := Torrent.reannounce.FromSecToDuration;
+          SGG.Cells[Col + 0, Row + 6] := 'ETA: '; SGG.Cells[Col + 1, Row + 6] := Torrent.eta.Duration;
+          SGG.Cells[Col + 0, Row + 7] := 'Reannounce in: '; SGG.Cells[Col + 1, Row + 7] := Torrent.reannounce.Duration;
 
-          SGG.Cells[Col + 3, Row]     := 'Uploaded: ';  SGG.Cells[Col + 4, Row] := Torrent.uploaded.ToBKiBMiB  + ' (' + Torrent.uploaded_session.ToBKiBMiB +  ' this session)';
-          SGG.Cells[Col + 3, Row + 1] := 'Upload Speed: '; SGG.Cells[Col + 4, Row + 1] := Torrent.upspeed.ToBKiBMiB + '/s';
+          SGG.Cells[Col + 3, Row]     := 'Uploaded: ';  SGG.Cells[Col + 4, Row] := Torrent.uploaded.ToKiBMiBGiBTiB  + ' (' + Torrent.uploaded_session.ToKiBMiBGiBTiB +  ' this session)';
+          SGG.Cells[Col + 3, Row + 1] := 'Upload Speed: '; SGG.Cells[Col + 4, Row + 1] := Torrent.upspeed.ToKiBMiBGiBTiB + '/s';
           SGG.Cells[Col + 3, Row + 2] := 'Upload Limit: '; SGG.Cells[Col + 4, Row + 2] := Torrent.up_limit.ToLimit;
           SGG.Cells[Col + 3, Row + 3] := 'Connections: '; SGG.Cells[Col + 4, Row + 3] := M.Main.server_state.total_peer_connections.tostring;
           SGG.Cells[Col + 3, Row + 4] := 'Seeds: '; SGG.Cells[Col + 4, Row + 4] := Torrent.num_seeds.ToString;
           SGG.Cells[Col + 3, Row + 5] := 'Peers: '; SGG.Cells[Col + 4, Row + 5] := Torrent.num_leechs.ToString;
-          SGG.Cells[Col + 3, Row + 5] := 'Last Seen Complete: '; SGG.Cells[Col + 4, Row + 5] := Torrent.last_activity.TimestampStr;
+          SGG.Cells[Col + 3, Row + 5] := 'Last Seen Complete: '; SGG.Cells[Col + 4, Row + 5] := DateTimeToStr(UnixToDateTime(Torrent.last_activity.AsInt64));
 
           Row := 10;
-          SGG.Cells[Col + 0, Row] := 'Total Size: ';    SGG.Cells[Col + 1, Row] := Torrent.total_size.ToBKiBMiB;
-          SGG.Cells[Col + 0, Row + 1] := 'Added on: ';  SGG.Cells[Col + 1, Row + 1] := Torrent.added_on.TimestampStr;
+          SGG.Cells[Col + 0, Row] := 'Total Size: ';    SGG.Cells[Col + 1, Row] := Torrent.total_size.ToKiBMiBGiBTiB;
+          SGG.Cells[Col + 0, Row + 1] := 'Added on: ';  SGG.Cells[Col + 1, Row + 1] := DateTimeToStr(UnixToDateTime(Torrent.added_on.AsInt64));
           SGG.Cells[Col + 0, Row + 2] := 'Private: ';   SGG.Cells[Col + 1 ,Row  + 2] := cBoolToStr[Torrent.private.AsBoolean];
           SGG.Cells[Col + 0, Row + 3] := 'Info Hash V1: '; SGG.Cells[Col + 1 ,Row  + 3] := Torrent.infohash_v1.AsString;
           SGG.Cells[Col + 0, Row + 4] := 'Info Hash V2: '; SGG.Cells[Col + 1 ,Row  + 4] := Torrent.infohash_v2.AsString;
@@ -1265,8 +1268,8 @@ begin
 
           SGG.Cells[Col + 3, Row]     := 'Created By: ';  SGG.Cells[Col + 4, Row] := '';
           SGG.Cells[Col + 3, Row + 1] := 'Pieces: '; SGG.Cells[Col + 4, Row + 1] := '';
-          SGG.Cells[Col + 3, Row + 2] := 'Created On: '; SGG.Cells[Col + 4, Row + 2] := Torrent.added_on.TimestampStr;
-          SGG.Cells[Col + 3, Row + 3] := 'Completed On: '; SGG.Cells[Col + 4, Row + 3] := Torrent.completion_on.TimestampStr;
+          SGG.Cells[Col + 3, Row + 2] := 'Created On: '; SGG.Cells[Col + 4, Row + 2] := DateTimeToStr(UnixToDateTime(Torrent.added_on.AsInt64));
+          SGG.Cells[Col + 3, Row + 3] := 'Completed On: '; SGG.Cells[Col + 4, Row + 3] := DateTimeToStr(UnixToDateTime(Torrent.completion_on.AsInt64));
         finally
           Content.Free;
         end;

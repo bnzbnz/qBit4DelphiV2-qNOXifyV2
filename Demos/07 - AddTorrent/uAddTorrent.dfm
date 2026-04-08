@@ -1,33 +1,46 @@
 object FrmAddTorrent: TFrmAddTorrent
   Left = 0
   Top = 0
+  Margins.Left = 5
+  Margins.Top = 5
+  Margins.Right = 5
+  Margins.Bottom = 5
   Caption = 'Add Torrent Demo'
-  ClientHeight = 342
-  ClientWidth = 635
+  ClientHeight = 513
+  ClientWidth = 962
   Color = clBtnFace
   DefaultMonitor = dmMainForm
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
+  Font.Height = -17
   Font.Name = 'Tahoma'
   Font.Style = []
   Position = poScreenCenter
   OnClose = FormClose
   OnShow = FormShow
-  TextHeight = 13
+  PixelsPerInch = 144
+  TextHeight = 21
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 635
-    Height = 41
+    Width = 962
+    Height = 62
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Align = alTop
     Caption = 'Drag&&Drop your torrents file on this form'
     TabOrder = 0
     object Button1: TButton
-      Left = 8
-      Top = 9
-      Width = 75
-      Height = 25
+      Left = 12
+      Top = 14
+      Width = 113
+      Height = 37
+      Margins.Left = 5
+      Margins.Top = 5
+      Margins.Right = 5
+      Margins.Bottom = 5
       Caption = 'Upload'
       TabOrder = 0
       OnClick = Button1Click
@@ -35,9 +48,13 @@ object FrmAddTorrent: TFrmAddTorrent
   end
   object Memo1: TMemo
     Left = 0
-    Top = 41
-    Width = 635
-    Height = 301
+    Top = 62
+    Width = 962
+    Height = 451
+    Margins.Left = 5
+    Margins.Top = 5
+    Margins.Right = 5
+    Margins.Bottom = 5
     Align = alClient
     ScrollBars = ssVertical
     TabOrder = 1

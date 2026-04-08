@@ -45,6 +45,7 @@ uses
     FUsername: string;
   public
 
+    destructor     destroy; override;
     class function Connect(HostPath, Username, Password : string): TqBit;
     class function TorrentsToHashesList(Torrents: TqBitMainDataType): TStringList; overload;
     class function TorrentsToHashesList(Torrents: TqBitTorrentsListType): TStringList; overload;
@@ -204,18 +205,26 @@ begin
   Result.FHTTPRetries := FHTTPRetries;
 end;
 
-class function TqBit.Connect(HostPath, Username, Password : string): TqBit;
+class function TqBit.Connect(HostPath, Username, Password: string): TqBit;
+var
+  AAA: TqBitCookies;
 begin
   Result := TqBit.Create(HostPath);
   var CurRetries := Result.HTTPRetries;
   Result.FHTTPRetries := 1;
   Result.FHostPath := HostPath;
   Result.FUserName := Username;
-  Result.FPAssword := Password;
+  Result.FPassword := Password;
   if not Result.Login(Username, Password) then
     FreeAndNil(Result)
   else
     Result.HTTPRetries := CurRetries;
+end;
+
+destructor TqBit.destroy;
+begin
+  Logout;
+  inherited;
 end;
 
 class function TqBit.TorrentsToHashesList(Torrents: TqBitMainDataType): TStringList;
@@ -296,6 +305,7 @@ begin
   Result := DeleteTorrents(TorrentList);
   TorrentList.Free;;
 end;
+
 function TqBit.DeleteTorrents(Torrents: TqBitMainDataType; DeleteFiles: boolean): boolean;
 begin
   var TorrentList := Self.TorrentsToHashesList(Torrents);

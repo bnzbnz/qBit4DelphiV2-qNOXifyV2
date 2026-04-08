@@ -28,6 +28,7 @@ uses
     uJX4Object
   , RTTI
   , Classes
+  , SysUtils
   ;
 
 type
@@ -36,18 +37,7 @@ type
 
   TJX4TValueHelper = record helper for TValue
   private
-    function  GetISO8601: TDateTime;
-    function  GetISO8601Utc: TDateTime;
-    procedure SetISO8601(const AValue: TDateTime);
-    procedure SetISO8601Utc(const AValue: TDateTime);
-    function  GetTimestamp: TDateTime;
-    procedure SetTimestamp(const AValue: TDateTime);
-    function  GetTimestampStr: string;
-    function  GetTimestampUtc: TDateTime;
-    function  GetTimestampUtcStr: string;
-    procedure SetTimestampUtc(const AValue: TDateTime);
     function  GetDateTime: TDateTime;
-    function  GetDateTimeStr: string;
     procedure SetDateTime(const AValue: TDateTime);
   public
 
@@ -71,7 +61,7 @@ type
 
     //Conversion Tools
 
-    function  ToBKiBMiB:                          string;
+    function  ToKiBMiBGiBTiB:                     string;
     function  ToMB:                               real;
     function  ToMiB:                              real;
     function  ToGB:                               real;
@@ -79,28 +69,24 @@ type
     function  ToTB:                               real;
     function  ToTiB:                              real;
 
-    function  ToPercent(Decimal: Integer = 2; Symbol: Boolean = True):string;
+    function  ToPercent(Decimal: Integer = 2; Symbol: Boolean = True): string;
     function  ToLimit:                            string;
-    function  FromSecFromNow:                     string;
-    function  FromSecToDuration:                  string;
+    function  ToNow:                              TDateTime;
+    function  Duration:                           string;
 
-    property  ISO8601:      TDateTime read GetISO8601 write SetISO8601;
-    property  ISO8601Utc:   TDateTime read GetISO8601Utc write SetISO8601Utc;
-    property  Timestamp:    TDateTime read GetTimestamp write SetTimestamp;
-    property  TimestampUtc: TDateTime read GetTimestampUtc write SetTimestampUtc;
-    property  TimestampStr:    string read GetTimestampStr;
-    property  TimestampUtcStr: string read GetTimestampUtcStr;
-    property  DateTime :    TDateTime read GetDateTime write SetDateTime;
-    property  DateTimeStr :    string read GetDateTimeStr;
+    function  TimeStamp:                          Int64;
 
+    property  DateTime:  TDateTime read GetDateTime write SetDateTime;
   end;
 
   MyTThread = class(TThread);  //  TThread Protected Access
 
+var
+  GFormatSettings: TFormatSettings;
+
 implementation
 uses
     System.Generics.Collections
-  , Sysutils
   , DateUtils
   , uJX4Rtti
   , JSON
@@ -108,9 +94,9 @@ uses
 
 function TJX4TValueHelper.JSONSerialize(AIOBlock: TJX4IOBlock): TValue;
 var
-  LName:  string;
-  LValue: string;
-  LAttr:  TCustomAttribute;
+  LName:      string;
+  LValue:     string;
+  LAttr:      TCustomAttribute;
 begin
   Result := Nil;
   TJX4Object.RaiseIfCanceled(AIOBlock.Options);
@@ -119,13 +105,9 @@ begin
     tkvString:  LValue := '"' + TJX4Object.EscapeJSONStr(Self.AsString, joSlashEncode in AIOBlock.Options) + '"';
     tkvBool:    LValue := cBoolToStr[Self.AsBoolean];
     tkvInteger: LValue := Self.AsInt64.ToString;
-    tkvFloat:
-      begin
-        if  Self.AsExtended.ToString.IndexOf('.') = -1 then
-          LValue := Self.AsExtended.ToString + '.0'
-        else
-          LValue := Self.AsExtended.ToString;
-      end;
+    tkvFloat:   begin
+      LValue := FormatFloat('0.0#########', Self.AsExtended, GFormatSettings);
+    end;
   else
     if joNullToEmpty in AIOBlock.Options then Exit;
     Self := Nil;
@@ -191,10 +173,14 @@ begin
   else if LJPair.JsonValue.ClassType = TJSONBool then Self := StrToBool(LJPair.JsonValue.Value)
   else if LJPair.JsonValue.ClassType = TJSONNumber then
   begin
-      if LJPair.JsonValue.ToString.IndexOf('.') = -1 then
+      if LJPair.JsonValue.ToString.IndexOf(TFormatSettings.Invariant.DecimalSeparator) = -1 then
         Self := TJSONNumber(LJPair.JsonValue).AsInt64
       else
+        begin
         Self := TJSONNumber(LJPair.JsonValue).AsDouble;
+        var a := Self;
+        a:=a;
+        end;
   end else begin
     LAttr := TJX4Default(TxRTTI.GetFieldAttribute(AIOBlock.Field, TJX4Default));
     if Assigned(LAttr) then Self := TJX4Default(LAttr).Value else Self := Nil;
@@ -304,14 +290,13 @@ begin
   end;
 end;
 
-
 function TJX4TValueHelper.ToLimit: string;
 begin
   Result := '∞';
   if Self.AsInt64 > 0  then Result := Self.ToString;
 end;
 
-function TJX4TValueHelper.ToBKiBMiB: string;
+function TJX4TValueHelper.ToKiBMiBGiBTiB: string;
 var
   x: Extended;
 begin
@@ -376,7 +361,7 @@ begin
   Result := Self.AsInt64 / 1099511627776;
 end;
 
-function TJX4TValueHelper.FromSecToDuration: string;
+function TJX4TValueHelper.Duration: string;
 var
   Days, Hours, Mins, Secs: word;
   totalsecs: Int64;
@@ -413,93 +398,44 @@ begin
   if Symbol then Result := Result + ' %';
 end;
 
-function TJX4TValueHelper.FromSecFromNow: string;
-var
-  x: Int64;
+function TJX4TValueHelper.ToNow: TDateTime;
 begin
-  if Self.TypeKind = tkvString then x := Self.AsString.ToInt64 else x := Self.AsInt64;
-  Result := DateTimeToStr(IncSecond(Now, x));
+  Result := IncSecond(Now, Self.AsInt64);
+end;
+
+function TJX4TValueHelper.GetDateTime: TDateTime;
+begin
+  if Self.IsEmpty then Exit(0);
+  if Self.TypeKind <> tkvString then Exit(0);
+  try
+    Result := ISO8601ToDate(Self.AsString, True);
+  except
+    Result := 0;
+  end;
 end;
 
 procedure TJX4TValueHelper.SetDateTime(const AValue: TDateTime);
 begin
-  Self := AValue;
+  try
+    Self := DateToISO8601(AValue, True);
+  except
+    Self.Empty;
+  end;
 end;
 
-procedure TJX4TValueHelper.SetISO8601(const AValue: TDateTime);
+function TJX4TValueHelper.Timestamp: Int64;
 begin
-  Self := DateToISO8601(AValue, False);
+  if Self.IsEmpty then Exit(0);
+  if Self.TypeKind <> tkvString then Exit(0);
+  try
+    Result := DateTimeToUnix( ISO8601ToDate(Self.AsString, True), True);
+  except
+    Result := 0;
+  end;
 end;
 
-procedure TJX4TValueHelper.SetISO8601Utc(const AValue: TDateTime);
-begin
-  Self := DateToISO8601(AValue, True);
-end;
-
-procedure TJX4TValueHelper.SetTimestamp(const AValue: TDateTime);
-begin
-  Self := DateTimeToUnix(AValue, False);
-end;
-
-procedure TJX4TValueHelper.SetTimestampUtc(const AValue: TDateTime);
-begin
-  Self := DateTimeToUnix(AValue, True);
-end;
-
-function TJX4TValueHelper.GetDateTime: TDateTime;
-var
-  x: Double;
-begin
-  if Self.TypeKind = tkvString then x := Self.AsString.ToDouble else x := Self.AsExtended;
-  Result := TDateTime(x);
-end;
-
-function TJX4TValueHelper.GetDateTimeStr: string;
-begin
-  Result := DateTimeToStr(Self.GetDateTime);
-end;
-
-
-function TJX4TValueHelper.GetISO8601: TDateTime;
-begin
-  Result := ISO8601ToDate(Self.AsString, False);
-end;
-
-function TJX4TValueHelper.GetISO8601Utc: TDateTime;
-begin
-  Result := ISO8601ToDate(Self.AsString, True);
-end;
-
-function TJX4TValueHelper.GetTimestamp: TDateTime;
-var
-  x: Int64;
-begin
-  if Self.TypeKind = tkvString then x := Self.AsString.ToInt64 else x := Self.AsInt64;
-  Result := UnixToDateTime(x, False);
-end;
-
-function TJX4TValueHelper.GetTimestampStr: string;
-var
-  x: Int64;
-begin
-  if Self.TypeKind = tkvString then x := Self.AsString.ToInt64 else x := Self.AsInt64;
-  Result := DateTimeToStr(UnixToDateTime(x, False));
-end;
-
-function TJX4TValueHelper.GetTimestampUtc: TDateTime;
-var
-  x: Int64;
-begin
-  if Self.TypeKind = tkvString then x := Self.AsString.ToInt64 else x := Self.AsInt64;
-  Result := UnixToDateTime(x, True);
-end;
-
-function TJX4TValueHelper.GetTimestampUtcStr: string;
-var
-  x: Int64;
-begin
-  if Self.TypeKind = tkvString then x := Self.AsString.ToInt64 else x := Self.AsInt64;
-  Result := DateTimeToStr(UnixToDateTime(x, True));
-end;
-
+initialization
+  GFormatSettings := TFormatSettings.Create;
+  GFormatSettings.DecimalSeparator := '.';
+  GFormatSettings.ThousandSeparator := #0;
 end.

@@ -51,7 +51,7 @@ end;
 
 procedure TFrmSimple.FormShow(Sender: TObject);
 begin
-  var Config := TJX4Object.LoadFromJSONFile<TqBitServers>(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+  var Config := TJX4Object.LoadFromJSONFile<TqBitServers>(ExtractFilePath(Application.ExeName) + 'qBit.json');
   if not assigned(Config) then Config := TqBitServers.Create;
   qBitSelectServerDlg.LoadConfig(Config);
 
@@ -63,7 +63,7 @@ begin
   end;
 
   qBitSelectServerDlg.SaveConfig(Config);
-  Config.SaveToJSONFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + '.json', TEncoding.UTF8);
+  Config.SaveToJSONFile(TPath.GetFileNameWithoutExtension(Application.ExeName) + 'qBit.json');
   Config.Free;
 
   var Server := qBitSelectServerDlg.GetServer;
@@ -79,9 +79,9 @@ begin
   ////////////////  Few Properties...
   Caption := Format('Torrents : %d', [qBMain.torrents.Count]);
   Caption := Caption + ' / ';
-  Caption := Caption + Format('Dl : %s/s', [qBMain.server_state.dl_info_speed.ToBKiBMiB]);
+  Caption := Caption + Format('Dl : %s/s', [qBMain.server_state.dl_info_speed.ToKiBMiBGiBTiB]);
   Caption := Caption + ' / ';
-  Caption := Caption + Format('Up : %s/s', [qBMain.server_state.up_info_speed.ToBKiBMiB]);
+  Caption := Caption + Format('Up : %s/s', [qBMain.server_state.up_info_speed.ToKiBMiBGiBTiB]);
   LBTorrents.Clear;
   for var T in qBMain.torrents do
     LBTorrents.Items.Add(Format(
